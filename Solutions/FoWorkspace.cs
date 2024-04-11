@@ -331,7 +331,7 @@ public class FoWorkspace : FoComponent, IWorkspace
         return Members<FoWorkbook>();
     }
 
-    public T EstablishWorkbook<T>(string key) where T : FoWorkbook
+    public virtual T EstablishWorkbook<T>(string key) where T : FoWorkbook
     {
         var found = AllWorkbooks().Where(item => item.GetType() == typeof(T)).FirstOrDefault() as T;
         if (found == null)
