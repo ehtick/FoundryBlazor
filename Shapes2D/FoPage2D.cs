@@ -241,6 +241,18 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         return base.Smash(force);
     }
 
+    public override T CaptureShape<T>(T source, bool inPosition = false)
+    {
+        if (inPosition)
+        {
+            var dx = -LeftEdge();
+            var dy = -TopEdge();
+            source.MoveBy(dx, dy);
+        }
+
+        return AddShape<T>(source);
+    }
+
     public T AddShape<T>(T value) where T : FoGlyph2D
     {
         var collection = DynamicSlot(value.GetType());

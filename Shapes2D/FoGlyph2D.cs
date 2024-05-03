@@ -849,7 +849,7 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
     //    return members;
     //}
 
-    public T CaptureShape<T>(T source, bool inPosition = false) where T : FoGlyph2D
+    public virtual T CaptureShape<T>(T source, bool inPosition = false) where T : FoGlyph2D
     {
         if (inPosition)
         {
