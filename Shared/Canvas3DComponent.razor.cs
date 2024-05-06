@@ -63,7 +63,8 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
 
     public Scene GetActiveScene()
     {
-        ActiveScene ??= new Scene() { 
+        ActiveScene ??= new Scene() 
+        { 
             Width = CanvasWidth, 
             Height = CanvasHeight 
         };
