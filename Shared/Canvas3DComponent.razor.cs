@@ -65,8 +65,9 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
     {
         ActiveScene ??= new Scene() 
         { 
-            Width = CanvasWidth, 
-            Height = CanvasHeight 
+            //SRS hack should undo
+            // Width = CanvasWidth, 
+            // Height = CanvasHeight 
         };
         return ActiveScene;
     }
