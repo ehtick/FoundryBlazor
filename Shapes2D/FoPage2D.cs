@@ -85,6 +85,16 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         CalculateTitle();
     }
 
+    public FoPage2D ResetScale(Length drawing, Length world)
+    {
+        Scale2D.Drawing = drawing;
+        Scale2D.World = world;
+        HRuler2D = new FoHorizontalRuler2D(Scale2D, this);
+        VRuler2D = new FoVerticalRuler2D(Scale2D, this);
+        CalculateTitle();
+        return this;
+    }
+
 
     public int MapToPageXScale(Length value)
     {
@@ -140,23 +150,25 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         var result = size * scale;
         return result;
     }
-    public void SetPageLandscape()
+    public FoPage2D SetPageLandscape()
     {
         if (PageWidth < PageHeight)
         {
             (PageWidth, PageHeight) = (PageHeight, PageWidth);
         }
+        return this;
     }
-    public void SetPagePortrait()
+    public FoPage2D SetPagePortrait()
     {
         if (PageWidth > PageHeight)
         {
             (PageWidth, PageHeight) = (PageHeight, PageWidth);
         }
+        return this;
     }
 
 
-    public void SetPageSize(double width, double height, string units)
+    public FoPage2D SetPageSize(double width, double height, string units)
     {
         PageWidth.Assign(width, units);
         PageHeight.Assign(height, units);
@@ -166,19 +178,22 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         SetPageAxisX(1, 0, units);
         SetPageAxisY(-1, height, units);
         CalculateTitle();
+        return this;
     }
-    public void SetPageAxisX(int scale, double loc, string units)
+    public FoPage2D SetPageAxisX(int scale, double loc, string units)
     {
         //set the zero point to the bottom left
         ScaleAxisX = scale;
         ZeroPointX.Assign(loc, units);
+        return this;
     }
 
-    public void SetPageAxisY(int scale, double loc, string units)
+    public FoPage2D SetPageAxisY(int scale, double loc, string units)
     {
         //set the zero point to the bottom left
         ScaleAxisY = scale;
         ZeroPointY.Assign(loc, units);
+        return this;
     }
 
     public List<FoShape1D> AllShapes1D()
