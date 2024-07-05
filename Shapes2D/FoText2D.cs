@@ -135,7 +135,9 @@ public class FoText2D : FoShape2D, IShape2D
         if (IsSelected)
             await DrawWhenSelected(ctx, tick, deep);
 
-
+        if (deep)
+            RenderDeepDetailed(ctx, tick);
+            
         await ctx.RestoreAsync();
         return true;
     }
