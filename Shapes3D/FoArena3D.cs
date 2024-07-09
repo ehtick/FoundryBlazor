@@ -3,13 +3,9 @@ using BlazorThreeJS.Enums;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Scenes;
 using BlazorThreeJS.Viewers;
- 
-using FoundryBlazor.Extensions;
-using FoundryBlazor.PubSub;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
 using FoundryRulesAndUnits.Extensions;
-using FoundryRulesAndUnits.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
