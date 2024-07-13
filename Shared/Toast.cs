@@ -1,32 +1,37 @@
+
 using FoundryBlazor.Message;
 using Radzen;
 namespace FoundryBlazor.Shared;
 
 public interface IToast
 {
-    void Info(string message);
-    void Success(string message);
-    void Warning(string message);
-    void Error(string message);
-    void SetNotificationService(NotificationService notificationService);
-    void ClearNotificationService();
+    void Info(string message, string? summary = null);
+    void Success(string message, string? summary = null);
+    void Warning(string message, string? summary = null);
+    void Error(string message, string? summary = null);
     void RenderToast(D2D_UserToast toast);
 }
 
 public class Toast : IToast
 {
     private NotificationService? _notificationService { get; set; }
-    private static NotificationMessage NotificationDefault(NotificationSeverity severity, string message)
+    private static NotificationMessage NotificationDefault(NotificationSeverity severity, string message, string? summary = null)
     {
         var n = new NotificationMessage
         {
             Severity = severity,
-            Summary = null,
+            Summary = summary,
             Detail = message,
             Duration = 4000
         };
         return n;
     }
+
+    public Toast(NotificationService notificationService)
+    {
+        _notificationService = notificationService;
+    }
+
 
     public void RenderToast(D2D_UserToast toast)
     {
@@ -46,35 +51,35 @@ public class Toast : IToast
                 break;
         }
     }
-    public void ClearNotificationService()
-    {
-        _notificationService = null;
-    }
-    public void SetNotificationService(NotificationService notificationService)
-    {
-        _notificationService = notificationService;
-    }
+    // public void ClearNotificationService()
+    // {
+    //     _notificationService = null;
+    // }
 
-    public void Info(string message)
+    public void Info(string message, string? summary = null)
     {
-        var n = NotificationDefault(NotificationSeverity.Info, message);
-        _notificationService?.Notify(n);
-    }
-    public void Success(string message)
-    {
-        var n = NotificationDefault(NotificationSeverity.Success, message);
+        var n = NotificationDefault(NotificationSeverity.Info, message, summary);
         _notificationService?.Notify(n);
     }
 
-    public void Warning(string message)
+
+    public void Success(string message, string? summary = null)
     {
-        var n = NotificationDefault(NotificationSeverity.Warning, message);
+        var n = NotificationDefault(NotificationSeverity.Success, message, summary);
         _notificationService?.Notify(n);
     }
 
-    public void Error(string message)
+
+    public void Warning(string message, string? summary = null)
     {
-        var n = NotificationDefault(NotificationSeverity.Error, message);
+        var n = NotificationDefault(NotificationSeverity.Warning, message, summary);
+        _notificationService?.Notify(n);
+    }
+
+
+    public void Error(string message, string? summary = null)
+    {
+        var n = NotificationDefault(NotificationSeverity.Error, message, summary);
         _notificationService?.Notify(n);
 
     }

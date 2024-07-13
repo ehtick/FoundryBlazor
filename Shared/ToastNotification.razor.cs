@@ -7,7 +7,7 @@ namespace FoundryBlazor.Shared;
 
 public class ToastNotificationComponent : ComponentBase, IDisposable
 {
-    [Inject] public NotificationService? Service { get; set; }
+    //[Inject] public NotificationService? Service { get; set; }
     [Inject] private IToast? Toast { get; set; }
 
     [Parameter]
@@ -31,20 +31,20 @@ public class ToastNotificationComponent : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        if (Service != null)
-        {
-            Toast?.ClearNotificationService();
-            Service.Messages.CollectionChanged -= Update!;
-        }
+        // if (Service != null)
+        // {
+        //     Toast?.ClearNotificationService();
+        //     Service.Messages.CollectionChanged -= Update!;
+        // }
         GC.SuppressFinalize(this);
     }
 
     protected override void OnInitialized()
     {
-        if (Service != null)
-        {
-            Toast?.SetNotificationService(Service);
-            Service.Messages.CollectionChanged += Update!;
-        }
+        // if (Service != null)
+        // {
+        //     Toast?.SetNotificationService(Service);
+        //     Service.Messages.CollectionChanged += Update!;
+        // }
     }
 }

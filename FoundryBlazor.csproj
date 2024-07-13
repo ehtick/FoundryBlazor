@@ -7,7 +7,7 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <IsPackable>true</IsPackable>
 
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>   
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <JsLibRoot>JsLib\</JsLibRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes>
@@ -20,8 +20,8 @@
     <PackageId>ApprenticeFoundryBlazor</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Copyright>Copyright © 2020</Copyright>
-    <AssemblyVersion>12.5.0</AssemblyVersion>
-    <Version>12.5.0</Version>
+    <AssemblyVersion>12.6.0</AssemblyVersion>
+    <Version>12.6.0</Version>
     <Authors>Stephen Strong</Authors>
     <Company>Stephen Strong</Company>
     <PackageProjectUrl>https://apprenticefoundry.github.io/</PackageProjectUrl>
@@ -50,7 +50,7 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
   </ItemGroup>
 
-  
+
 
   <ItemGroup>
     <Content Remove="$(JsLibRoot)**" />
@@ -58,7 +58,7 @@
     <None Include="$(JsLibRoot)**" Exclude="$(JsLibRoot)node_modules\**" />
   </ItemGroup>
 
-   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(JsLibRoot)node_modules') ">
+  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(JsLibRoot)node_modules') ">
     <!-- Ensure Node.js is installed -->
     <Exec Command="node --version" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
