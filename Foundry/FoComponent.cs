@@ -184,4 +184,37 @@ public class FoComponent : FoBase, IFoComponent
     }
 
 
+
+    protected ITreeNode FolderOf<T>() where T : FoBase
+    {
+        var count = Members<T>().Count;
+        var name = typeof(T).Name.Replace("Fo", "");
+        
+        if ( name.EndsWith("y"))
+            name = name[..^1] + "ies";
+        else if ( !name.EndsWith("es"))
+            name += "s";
+
+        var folder = new FoFolder(name);
+
+        Members<T>().ForEach(item =>
+        {
+            folder.AddChild(item);
+        });
+        return folder;
+    }
+
+    public void AddFolderIfNotEmpty<T>(List<ITreeNode> list, bool skip=true) where T : FoBase
+    {
+        var count = GetMembers<T>()?.Count ?? 0;
+        if ( count == 0)
+            return;
+
+        var folder = FolderOf<T>();
+        if ( skip )
+            list.AddRange(folder.GetChildren());
+        else
+            list.Add(folder);  
+    }
+
 }

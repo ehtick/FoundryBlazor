@@ -5,12 +5,26 @@
 
 
 using FoundryBlazor.Extensions;
+using FoundryRulesAndUnits.Models;
 
 
 namespace FoundryBlazor.Shape;
 
+// a World is just of bag o things to draw,  then need to be handed to a arena to do the rendering
+// on to a stage or scene
 
-public class FoWorld3D : FoGlyph3D
+public interface IWorld3D: ITreeNode
+{
+    public List<FoGroup3D>? ShapeGroups();
+    public List<FoDatum3D>? Datums();
+    public List<FoShape3D>? ShapeBodies();
+    public List<FoMenu3D>? Menus();
+    public List<FoPanel3D>? Panels();
+    public List<FoText3D>? Labels();
+    public List<FoRelationship3D>? Relationships();
+}
+
+public class FoWorld3D : FoGlyph3D, IWorld3D
 {
 
 
@@ -23,72 +37,24 @@ public class FoWorld3D : FoGlyph3D
         GetSlot<FoMenu3D>();
         GetSlot<FoPanel3D>();
         GetSlot<FoPathway3D>();
-        GetSlot<FoRelationship3D>();
     }
 
+    public override IEnumerable<ITreeNode> GetChildren()
+    {
+        var list = new List<ITreeNode>();
+        AddFolderIfNotEmpty<FoGroup3D>(list);
+        AddFolderIfNotEmpty<FoShape3D>(list);
+        AddFolderIfNotEmpty<FoText3D>(list);
+        AddFolderIfNotEmpty<FoDatum3D>(list);
 
+        AddFolderIfNotEmpty<FoMenu3D>(list);
 
-    //public FoWorld3D FillFromUDTOWorld(UDTO_World world)
-    //{
-    //    world.platforms.ForEach(item =>
-    //    {
-    //        var group = new FoGroup3D()
-    //        {
-    //            PlatformName = item.platformName,
-    //            GlyphId = item.uniqueGuid,
-    //            Name = item.name,
-    //        };
-    //        Slot<FoGroup3D>().Add(group);
-    //    });
+        AddFolderIfNotEmpty<FoPanel3D>(list);
+        AddFolderIfNotEmpty<FoPathway3D>(list);
+        return list;
+    }
 
-    //    world.bodies.ForEach(item =>
-    //    {
-    //        var pos = item.position;
-    //        var box = item.boundingBox;
-    //        var shape3D = new FoShape3D()
-    //        {
-    //            PlatformName = item.platformName,
-    //            GlyphId = item.uniqueGuid,
-    //            Name = item.name,
-    //            Address = item.address,
-    //            Symbol = item.symbol,
-    //            Type = item.type,
-    //            Color = string.IsNullOrEmpty(item.material) ? "Green" : item.material,
-    //            Position = pos?.LocAsVector3(),
-    //            Rotation = pos?.AngAsVector3(),
-    //            BoundingBox = box?.BoxAsVector3(),
-    //            Scale = box?.ScaleAsVector3(),
-    //            Pivot = box?.PinAsVector3(),
-    //        };
-    //        Slot<FoShape3D>().Add(shape3D);
-    //        //$"FoShape3D from world {shape3D.Symbol} X = {shape3D.Position?.X}".WriteSuccess();
-    //        if (item.subSystem != null)
-    //        {
-    //            shape3D.Targets = item.subSystem.Targets();
-    //        }
-
-    //    });
-
-    //    world.labels.ForEach(item =>
-    //    {
-    //        var pos = item.position;
-    //        var text3D = new FoText3D()
-    //        {
-    //            PlatformName = item.platformName,
-    //            GlyphId = item.uniqueGuid,
-    //            Name = item.name,
-    //            Address = item.address,
-    //            Position = pos?.LocAsVector3(),
-    //            Text = item.text,
-    //            Details = item.details
-    //        };
-    //        Slot<FoText3D>().Add(text3D);
-    //    });
-
-    //    return this;
-    //}
-
-
+ 
     public List<FoGroup3D>? ShapeGroups()
     {
         return GetMembers<FoGroup3D>();

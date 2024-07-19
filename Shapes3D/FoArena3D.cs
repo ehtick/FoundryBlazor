@@ -21,8 +21,8 @@ public interface IArena
     void SetDoCreate(Action<CanvasMouseArgs> action);
 
     bool RenderDrawingToScene(IDrawing drawing);
-    bool RenderWorld3DToScene(FoWorld3D world);
-    bool RenderWorld3D(FoWorld3D world);
+    bool RenderWorld3DToScene(IWorld3D world);
+    bool RenderWorld3D(IWorld3D world);
     Task<bool> PreRender(FoGlyph3D glyph);
 
     Task<bool> RemoveShapeFromScene(FoShape3D shape);
@@ -306,18 +306,18 @@ public class FoArena3D : FoGlyph3D, IArena
         return true;
     }
 
-    public bool RenderWorld3D(FoWorld3D world)
+    public bool RenderWorld3D(IWorld3D world)
     {
         if (world == null) return false;
 
-        $"RenderWorld {world.Key}".WriteNote();
+        $"RenderWorld {world.GetTreeNodeTitle()}".WriteNote();
 
         PreRenderWorld3D(world);
         return RenderWorld3DToScene(world);
     }
 
 
-    public void PreRenderWorld3D(FoWorld3D? world)
+    public void PreRenderWorld3D(IWorld3D world)
     {
         //$"PreRenderWorld world={world}".WriteInfo();
         if (world == null)
@@ -332,7 +332,7 @@ public class FoArena3D : FoGlyph3D, IArena
     }
 
 
-    public bool RenderWorld3DToScene(FoWorld3D? world)
+    public bool RenderWorld3DToScene(IWorld3D world)
     {
 
         if (world == null || Scene == null)
