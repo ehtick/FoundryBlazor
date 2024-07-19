@@ -22,6 +22,12 @@ public interface IWorld3D: ITreeNode
     public List<FoPanel3D>? Panels();
     public List<FoText3D>? Labels();
     public List<FoRelationship3D>? Relationships();
+
+    public T AddGlyph3D<T>(T glyph) where T : FoGlyph3D;
+    public T RemoveGlyph3D<T>(T glyph) where T : FoGlyph3D;
+
+    public string GetName();
+
 }
 
 public class FoWorld3D : FoGlyph3D, IWorld3D
@@ -37,6 +43,49 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         GetSlot<FoMenu3D>();
         GetSlot<FoPanel3D>();
         GetSlot<FoPathway3D>();
+    }
+
+    public string GetName()
+    {
+        return PlatformName ?? Key;
+    }
+
+    public T AddGlyph3D<T>(T glyph) where T : FoGlyph3D
+    {
+        if (glyph is FoGroup3D group)
+            GetSlot<FoGroup3D>()?.Add(group);
+        if (glyph is FoShape3D shape)
+            GetSlot<FoShape3D>()?.Add(shape);
+        if (glyph is FoText3D text)
+            GetSlot<FoText3D>()?.Add(text);
+        if (glyph is FoDatum3D datum)
+            GetSlot<FoDatum3D>()?.Add(datum);
+        if (glyph is FoMenu3D menu)
+            GetSlot<FoMenu3D>()?.Add(menu);
+        if (glyph is FoPanel3D panel)
+            GetSlot<FoPanel3D>()?.Add(panel);
+        if (glyph is FoPathway3D pathway)
+            GetSlot<FoPathway3D>()?.Add(pathway);
+        return glyph;
+    }
+
+    public T RemoveGlyph3D<T>(T glyph) where T : FoGlyph3D
+    {
+        if (glyph is FoGroup3D group)
+            GetSlot<FoGroup3D>()?.Remove(group);
+        if (glyph is FoShape3D shape)
+            GetSlot<FoShape3D>()?.Remove(shape);
+        if (glyph is FoText3D text)
+            GetSlot<FoText3D>()?.Remove(text);
+        if (glyph is FoDatum3D datum)
+            GetSlot<FoDatum3D>()?.Remove(datum);
+        if (glyph is FoMenu3D menu)
+            GetSlot<FoMenu3D>()?.Remove(menu);
+        if (glyph is FoPanel3D panel)
+            GetSlot<FoPanel3D>()?.Remove(panel);
+        if (glyph is FoPathway3D pathway)
+            GetSlot<FoPathway3D>()?.Remove(pathway);
+        return glyph;
     }
 
     public override IEnumerable<ITreeNode> GetChildren()
