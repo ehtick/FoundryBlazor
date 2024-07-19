@@ -9,13 +9,14 @@ public enum SelectionState
     FirstSelected,
     Reselected,
     StartDrag,
-    PreDelete
+    PreDelete,
+    None
 }
 
 public class SelectionChanged
 {
-    public SelectionState State { get; set; }
-    public List<FoGlyph2D> Selections { get; set; }
+    public SelectionState State { get; set; } = SelectionState.None;
+    public List<FoGlyph2D> Selections { get; set; } = new List<FoGlyph2D>();
     public static SelectionChanged Changed(List<FoGlyph2D> selections)
     {
         var list = new List<FoGlyph2D>();

@@ -3,7 +3,7 @@ using FoundryRulesAndUnits.Models;
 namespace FoundryBlazor;
 
 
-public class FoBase
+public class FoBase: ITreeNode
 {
     public string Key { get; set; }
     public StatusBitArray StatusBits = new();
@@ -38,5 +38,39 @@ public class FoBase
     {
         MetaData().Establish(key, value);
         return metaData!;
+    }
+
+    public bool GetIsSelected()
+    {
+        return this.StatusBits.IsSelected;
+    }
+    public bool SetSelected(bool value)
+    {
+        this.StatusBits.IsSelected = value;
+        return value;
+    }
+
+    public bool GetIsExpanded()
+    {
+        return this.StatusBits.IsExpanded;
+    }
+    public bool SetExpanded(bool value)
+    {
+        this.StatusBits.IsExpanded = value;
+        return value;
+    }
+
+    public virtual string GetTreeNodeTitle()
+    {
+        return $"{Key} {GetType().Name}";
+    }
+    public virtual IEnumerable<TreeNodeAction>? GetTreeNodeActions()
+    {
+        return null;
+    }
+
+    public virtual IEnumerable<ITreeNode> GetChildren()
+    {
+        return new List<ITreeNode>();
     }
 }
