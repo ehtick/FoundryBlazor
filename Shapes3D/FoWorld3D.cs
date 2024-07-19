@@ -28,6 +28,9 @@ public interface IWorld3D: ITreeNode
 
     public string GetName();
 
+    public IWorld3D RemoveDuplicates();
+    public IWorld3D ClearAll();
+
 }
 
 public class FoWorld3D : FoGlyph3D, IWorld3D
@@ -88,6 +91,18 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         return glyph;
     }
 
+    public IWorld3D ClearAll()
+    {
+        GetSlot<FoGroup3D>()?.Clear();
+        GetSlot<FoShape3D>()?.Clear();
+        GetSlot<FoText3D>()?.Clear();
+        GetSlot<FoDatum3D>()?.Clear();
+        GetSlot<FoMenu3D>()?.Clear();
+        GetSlot<FoPanel3D>()?.Clear();
+        GetSlot<FoPathway3D>()?.Clear();
+        return this;
+    }
+
     public override IEnumerable<ITreeNode> GetChildren()
     {
         var list = new List<ITreeNode>();
@@ -139,7 +154,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
 
 
 
-    public FoWorld3D RemoveDuplicates()
+    public IWorld3D RemoveDuplicates()
     {
 
         var platforms = ShapeGroups()?.GroupBy(i => i.GlyphId).Select(g => g.First()).ToList();
