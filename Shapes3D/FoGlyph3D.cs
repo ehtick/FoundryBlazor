@@ -11,7 +11,6 @@ namespace FoundryBlazor.Shape;
 public class FoGlyph3D : FoComponent
 {
     public string GlyphId { get; set; } = "";
-    public string PlatformName { get; set; } = "";
     public float Opacity { get; set; } = 1.0F;
     public string Color { get; set; } = "Green";
     public string Address { get; set; } = "";
@@ -85,10 +84,7 @@ public class FoGlyph3D : FoComponent
 
     public Action<FoGlyph3D, int>? ContextLink;
 
-    public bool IsSamePlatform(FoGlyph3D obj)
-    {
-        return PlatformName.Matches(obj.PlatformName);
-    }
+
 
     public virtual MeshStandardMaterial GetMaterial()
     {

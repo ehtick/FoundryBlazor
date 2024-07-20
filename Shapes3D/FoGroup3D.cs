@@ -137,9 +137,7 @@ public class FoGroup3D : FoGlyph3D
 
     private T CreateItem<T>(string name) where T : FoGlyph3D
     {
-        var found = Activator.CreateInstance<T>() as T;
-        found.Key = name;
-        found.PlatformName = PlatformName;
+        var found = (Activator.CreateInstance(typeof(T),name) as T)!;
         found.GlyphId = Guid.NewGuid().ToString();
         return found;
     }

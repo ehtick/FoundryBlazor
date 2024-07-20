@@ -37,7 +37,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
 {
 
 
-    public FoWorld3D() : base()
+    public FoWorld3D(string name) : base(name)
     {
         GetSlot<FoGroup3D>();
         GetSlot<FoShape3D>();
@@ -50,25 +50,25 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
 
     public string GetName()
     {
-        return PlatformName ?? Key;
+        return Key;
     }
 
     public T AddGlyph3D<T>(T glyph) where T : FoGlyph3D
     {
         if (glyph is FoGroup3D group)
-            GetSlot<FoGroup3D>()?.Add(group);
-        if (glyph is FoShape3D shape)
-            GetSlot<FoShape3D>()?.Add(shape);
-        if (glyph is FoText3D text)
-            GetSlot<FoText3D>()?.Add(text);
-        if (glyph is FoDatum3D datum)
-            GetSlot<FoDatum3D>()?.Add(datum);
-        if (glyph is FoMenu3D menu)
-            GetSlot<FoMenu3D>()?.Add(menu);
-        if (glyph is FoPanel3D panel)
-            GetSlot<FoPanel3D>()?.Add(panel);
-        if (glyph is FoPathway3D pathway)
-            GetSlot<FoPathway3D>()?.Add(pathway);
+            Slot<FoGroup3D>()?.Add(group);
+        else if (glyph is FoShape3D shape)
+            Slot<FoShape3D>()?.Add(shape);
+        else if (glyph is FoText3D text)
+            Slot<FoText3D>()?.Add(text);
+        else if (glyph is FoDatum3D datum)
+            Slot<FoDatum3D>()?.Add(datum);
+        else if (glyph is FoMenu3D menu)
+            Slot<FoMenu3D>()?.Add(menu);
+        else if (glyph is FoPanel3D panel)
+            Slot<FoPanel3D>()?.Add(panel);
+        else if (glyph is FoPathway3D pathway)
+            Slot<FoPathway3D>()?.Add(pathway);
         return glyph;
     }
 
