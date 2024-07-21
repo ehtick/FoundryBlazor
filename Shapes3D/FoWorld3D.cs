@@ -69,6 +69,9 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
             Slot<FoPanel3D>()?.Add(panel);
         else if (glyph is FoPathway3D pathway)
             Slot<FoPathway3D>()?.Add(pathway);
+        else
+            throw new Exception("Unknown Glyph Type");
+        
         return glyph;
     }
 

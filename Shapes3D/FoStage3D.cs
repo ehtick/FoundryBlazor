@@ -12,7 +12,7 @@ namespace FoundryBlazor.Shape;
 
 public interface IStage
 {
-    FoStage3D ClearAll();
+    //FoStage3D ClearAll();
     Scene SetScene(Scene scene, Viewer viewer);
     V AddShape<V>(V shape) where V : FoGlyph3D;
     T RemoveShape<T>(T value) where T : FoGlyph3D;
@@ -76,12 +76,12 @@ public class FoStage3D : FoGlyph3D, IStage
         return SetScene(scene,viewer);
     }
 
-    public FoStage3D ClearAll()
-    {
-        Shapes3D.Clear();
-        Pipes3D.Clear();
-        return this;
-    }
+    //public FoStage3D ClearAll()
+    //{
+    //    Shapes3D.Clear();
+    //    Pipes3D.Clear();
+    //    return this;
+    //}
 
     public bool EstablishBoundry()
     {
@@ -133,7 +133,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
             value.Render(CurrentScene, 0, 0);
             //IsDirty = true;
-            //FillStage();
+            FillStage();
         }
 
         return value;

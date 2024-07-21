@@ -3,6 +3,7 @@ using BlazorThreeJS.Enums;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Scenes;
 using BlazorThreeJS.Viewers;
+using FoundryBlazor.PubSub;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
 using FoundryRulesAndUnits.Extensions;
@@ -22,7 +23,7 @@ public interface IArena
 
     bool RenderDrawingToScene(IDrawing drawing);
     bool RenderWorld3DToScene(IWorld3D world);
-    bool RenderWorld3D(IWorld3D world);
+    void RenderWorld3D(IWorld3D world);
     Task<bool> PreRender(FoGlyph3D glyph);
 
     Task<bool> RemoveShapeFromScene(FoShape3D shape);
@@ -31,6 +32,8 @@ public interface IArena
     V RemoveShape<V>(V shape) where V : FoGlyph3D;
 
     FoStage3D CurrentStage();
+    Scene CurrentScene();
+    Viewer CurrentViewer();
 
     //FoWorld3D StressTest3DModelFromFile(string folder, string filename, string baseURL, int count);
     //FoWorld3D Load3DModelFromFile(UDTO_Body spec, string folder, string filename, string baseURL);
@@ -104,6 +107,7 @@ public class FoArena3D : FoGlyph3D, IArena
         //"UpdateArena".WriteInfo();
         await Viewer3D.UpdateScene();
     }
+
     public void SetScene(Scene scene, Viewer viewer)
     {
         Viewer3D = viewer;
@@ -306,18 +310,22 @@ public class FoArena3D : FoGlyph3D, IArena
         return true;
     }
 
-    public bool RenderWorld3D(IWorld3D world)
+    public void RenderWorld3D(IWorld3D world)
     {
-        if (world == null) return false;
+        if (world == null) return;
 
         $"RenderWorld {world.GetTreeNodeTitle()}".WriteNote();
 
-        PreRenderWorld3D(world);
-        return RenderWorld3DToScene(world);
+        Task.Run(async () =>
+        {
+            await PreRenderWorld3D(world);
+            RenderWorld3DToScene(world);
+            await UpdateArena();
+        });
     }
 
 
-    public void PreRenderWorld3D(IWorld3D world)
+    public async Task PreRenderWorld3D(IWorld3D world)
     {
         //$"PreRenderWorld world={world}".WriteInfo();
         if (world == null)
@@ -328,13 +336,12 @@ public class FoArena3D : FoGlyph3D, IArena
 
         var bodies = world.ShapeBodies();
         if (bodies != null)
-            PreRenderShape3D(bodies);
+            await PreRenderShape3D(bodies);
     }
 
 
     public bool RenderWorld3DToScene(IWorld3D world)
     {
-
         if (world == null || Scene == null)
         {
             $"world is empty or viewer is not present".WriteError();
@@ -369,7 +376,7 @@ public class FoArena3D : FoGlyph3D, IArena
 
 
         //RefreshUI();
-        //PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("RenderPlatformToScene"));
+        PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("RenderPlatformToScene"));
         return true;
     }
 
@@ -382,9 +389,8 @@ public class FoArena3D : FoGlyph3D, IArena
     }
 
 
-    public async void PreRenderShape3D(List<FoShape3D> shapes)
+    public async Task PreRenderShape3D(List<FoShape3D> shapes)
     {
-
         var glbBodies = shapes.Where((body) => body.Type.Matches("Glb")).ToList();
         var otherBodies = shapes.Where((body) => !body.Type.Matches("Glb")).ToList();
 
@@ -401,7 +407,7 @@ public class FoArena3D : FoGlyph3D, IArena
         {
             //$"PreRenderPlatform Body {body.Name}".WriteInfo();
             await body.PreRender(this, Viewer3D!);
-        };
+        }
 
     }
 

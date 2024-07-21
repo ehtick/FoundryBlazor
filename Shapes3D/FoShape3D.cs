@@ -180,6 +180,9 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
+
+        $"Create Mesh Box()".WriteInfo();
+
         return ShapeMesh;
     }
 
@@ -513,6 +516,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Color = this.Color,
             //Wireframe = true
         };
+        $"override GetMaterial {Color}".WriteInfo();
         return result;
     }
 
@@ -592,13 +596,17 @@ public class FoShape3D : FoGlyph3D, IShape3D
             };
 
             if (ShapeMesh != null)
+            {
+                $"Adding to Scene {GeomType}".WriteInfo();
                 ctx.Add(ShapeMesh);
+            }
         };
 
         if (ShapeMesh != null && !IsVisible)
         {
-            ctx.Remove(ShapeMesh);
-            ShapeMesh = null;
+            ctx.Add(ShapeMesh);
+            //ctx.Remove(ShapeMesh);
+            //ShapeMesh = null;
         }
     }
     public override async Task<bool> RemoveFromRender(Scene ctx, Viewer viewer, bool deep = true)

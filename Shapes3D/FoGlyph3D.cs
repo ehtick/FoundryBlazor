@@ -92,6 +92,7 @@ public class FoGlyph3D : FoComponent
         {
             Color = this.Color
         };
+        $"Default material {Color}".WriteInfo();
         return result;
     }
 
