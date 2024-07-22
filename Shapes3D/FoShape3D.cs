@@ -20,6 +20,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public string Url { get; set; } = "";
     public string GeomType { get; set; } = "";
 
+    public double Radius { get; set; } = 0.025;
     public Vector3? Position { get; set; }
     public List<Vector3>? Path { get; set; }
     public Vector3? Pivot { get; set; }
@@ -91,6 +92,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public FoShape3D CreateTube(string name, double radius, List<Vector3> path)
     {
         GeomType = "Tube";
+        Radius = radius;
         BoundingBox = new Vector3(radius, 0, 0);
         Key = name;
         Path = path;
@@ -181,8 +183,6 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Material = GetMaterial()
         };
 
-        $"Create Mesh Box()".WriteInfo();
-
         return ShapeMesh;
     }
 
@@ -241,12 +241,11 @@ public class FoShape3D : FoGlyph3D, IShape3D
     private Mesh Tube()
     {
         if (ShapeMesh != null) return ShapeMesh;
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
 
 
         ShapeMesh = new Mesh
         {
-            Geometry = new TubeGeometry(radius: box.X / 2, path: Path!, 8, 10),
+            Geometry = new TubeGeometry(radius: Radius, path: Path!, 8, 10),
             Position = GetPosition(),
             Pivot = GetPivot(),
             Scale = GetScale(),
@@ -516,7 +515,6 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Color = this.Color,
             //Wireframe = true
         };
-        $"override GetMaterial {Color}".WriteInfo();
         return result;
     }
 
@@ -597,16 +595,15 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
             if (ShapeMesh != null)
             {
-                $"Adding to Scene {GeomType}".WriteInfo();
-                ctx.Add(ShapeMesh);
+                 ctx.Add(ShapeMesh);
             }
         };
 
         if (ShapeMesh != null && !IsVisible)
         {
-            ctx.Add(ShapeMesh);
-            //ctx.Remove(ShapeMesh);
-            //ShapeMesh = null;
+            //ctx.Add(ShapeMesh);
+            ctx.Remove(ShapeMesh);
+            ShapeMesh = null;
         }
     }
     public override async Task<bool> RemoveFromRender(Scene ctx, Viewer viewer, bool deep = true)

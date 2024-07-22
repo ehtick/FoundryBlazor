@@ -38,6 +38,8 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
         {
             CanSelect = true,// default is false
             SelectedColor = "black",
+            Width = CanvasWidth,
+            Height = CanvasHeight,
             WebGLRendererSettings = new WebGLRendererSettings
             {
                 Antialias = false // if you need poor quality for some reasons
