@@ -18,6 +18,32 @@ public static class Vector3MathExtensions
         };
     }
 
+    //Lerp a point along a line specified by a vector using a scaler
+    public static Vector3 Lerp(this Vector3 a, Vector3 b, double t)
+    {
+        return new Vector3
+        {
+            X = a.X + (b.X - a.X) * t,
+            Y = a.Y + (b.Y - a.Y) * t,
+            Z = a.Z + (b.Z - a.Z) * t
+        };
+    }
+
+    //conver to euler angles
+    public static Vector3 ToEuler(this Vector3 a)
+    {
+        var x = Math.Atan2(a.Y, a.Z);
+        var y = Math.Atan2(a.Z, a.X);
+        var z = Math.Atan2(a.X, a.Y);
+        return new Vector3
+        {
+            X = x,
+            Y = y,
+            Z = z
+        };
+    }
+
+
     //subtract 2 vectors to create third
     public static Vector3 Subtract(this Vector3 a, Vector3 b)
     {
