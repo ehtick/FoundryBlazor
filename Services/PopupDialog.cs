@@ -22,11 +22,13 @@ public class PopupDialog : IPopupDialog
 
     public bool Open()
     {
-        return _dialogService?.Alert("Hello World", "Popup Dialog");
+        _dialogService?.Alert("Open", "Open");
+        return true;
     }
     public bool Alert(string message, string title)
     {
-        return _dialogService?.Alert(message, title);
+        _dialogService?.Alert(message, title);
+        return true;
     }
 
 
