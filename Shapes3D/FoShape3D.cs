@@ -438,10 +438,10 @@ public class FoShape3D : FoGlyph3D, IShape3D
             OnClick = async (ImportSettings self) =>
             {
                 self.Increment();
-                $"FoundryBlazor OnClick handler for self.Uuid={self.Uuid}, self.IsShow={self.IsShow()}".WriteInfo();
+                //$"FoundryBlazor OnClick handler for self.Uuid={self.Uuid}, self.IsShow={self.IsShow()}".WriteInfo();
                 UserHit?.Invoke(self);
                 await arena.UpdateArena();
-                $"FoundryBlazor OnClick handler UpdateArena called".WriteInfo();
+                //$"FoundryBlazor OnClick handler UpdateArena called".WriteInfo();
             },
             OnComplete = (Scene scene, Object3D object3D) =>
             {

@@ -120,7 +120,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
     private void OnRefreshUIEvent(RefreshUIEvent e)
     {
         InvokeAsync(StateHasChanged);
-        $"Canvas2DComponentBase OnRefreshUIEvent StateHasChanged {e.note}".WriteInfo();
+        //$"Canvas2DComponentBase OnRefreshUIEvent StateHasChanged {e.note}".WriteInfo();
     }
     private void OnTriggerRedrawEvent(TriggerRedrawEvent e)
     {

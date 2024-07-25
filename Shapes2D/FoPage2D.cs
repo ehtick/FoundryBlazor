@@ -512,7 +512,7 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         await ctx.SetFillStyleAsync("Black");
         await ctx.FillTextAsync($"Page: {Key}", PinX + 5, PinY + 5);
 
-        $"RenderNoItems Color={Color}".WriteInfo();
+        //$"RenderNoItems Color={Color}".WriteInfo();
         await ctx.SetFillStyleAsync(Color);
         await ctx.SetGlobalAlphaAsync(1.0F);
         await ctx.FillRectAsync(margin, margin, PageWidth.AsPixels(), PageHeight.AsPixels());
@@ -545,7 +545,7 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         await ctx.SetFillStyleAsync("Black");
         await ctx.FillTextAsync($"Page: {Key}", PinX + 5, PinY + 5);
 
-        $"RenderConcise Color={Color}".WriteInfo();
+        //$"RenderConcise Color={Color}".WriteInfo();
         await ctx.SetFillStyleAsync(Color);
         await ctx.SetGlobalAlphaAsync(1.0F);
         await ctx.FillRectAsync(margin, margin, PageWidth.AsPixels(), PageHeight.AsPixels());
