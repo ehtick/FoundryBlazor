@@ -1,13 +1,17 @@
 
 using FoundryBlazor.Message;
+using Microsoft.AspNetCore.Components;
 using Radzen;
+using System.Reflection.Metadata;
 namespace FoundryBlazor.Shared;
 
 public interface IPopupDialog
 {
 
-    bool Open();
-    bool Alert(string message, string title);
+    void Open<T>(string title, Dictionary<string, object> parameters = null!, DialogOptions options = null!) where T : ComponentBase;
+    Task<dynamic> OpenSideAsync<T>(string title, Dictionary<string, object> parameters = null!, SideDialogOptions options = null!) where T : ComponentBase;
+    void Alert(string message, string title, AlertOptions options = null!);
+    Task<bool?> Confirm(string message, string title, ConfirmOptions options = null!);
 }
 
 public class PopupDialog : IPopupDialog
@@ -20,16 +24,26 @@ public class PopupDialog : IPopupDialog
         _dialogService = dialogService;
     }
 
-    public bool Open()
+    public void Open<T>(string title, Dictionary<string, object> parameters = null!, DialogOptions options = null!) where T : ComponentBase
     {
-        _dialogService?.Alert("Open", "Open");
-        return true;
-    }
-    public bool Alert(string message, string title)
-    {
-        _dialogService?.Alert(message, title);
-        return true;
+        _dialogService?.Open<T>(title, parameters, options);
     }
 
+    public async Task<dynamic> OpenSideAsync<T>(string title, Dictionary<string, object> parameters = null!, SideDialogOptions options = null!) where T : ComponentBase
+    {
+        if ( _dialogService == null) return false;
+        return await _dialogService.OpenSideAsync<T>(title, parameters, options);
+    }
+    public void Alert(string message, string title, AlertOptions options = null!)
+    {
+        _dialogService?.Alert(message, title, options);
+    }
 
+    public async Task<bool?> Confirm(string message, string title, ConfirmOptions options = null!)
+    {
+        if ( _dialogService == null) return false;
+    
+        return await _dialogService.Confirm(message, title, options);
+
+    }
 }
