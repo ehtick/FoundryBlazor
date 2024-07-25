@@ -20,8 +20,8 @@
     <PackageId>ApprenticeFoundryBlazor</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Copyright>Copyright © 2020</Copyright>
-    <AssemblyVersion>13.1.0</AssemblyVersion>
-    <Version>13.1.0</Version>
+    <AssemblyVersion>13.2.0</AssemblyVersion>
+    <Version>13.2.0</Version>
     <Authors>Stephen Strong</Authors>
     <Company>Stephen Strong</Company>
     <PackageProjectUrl>https://apprenticefoundry.github.io/</PackageProjectUrl>
@@ -43,8 +43,9 @@
 
   <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.3" />
   <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
-  <PackageReference Include="QRCoder" Version="1.4.3" />
-  <PackageReference Include="Radzen.Blazor" Version="4.11.2" />
+  <PackageReference Include="QRCoder" Version="1.4.3" />    
+  <PackageReference Include="Radzen.Blazor" Version="5.0.2" />
+
   <PackageReference Include="SkiaSharp" Version="2.88.6" />
   <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 </ItemGroup>
