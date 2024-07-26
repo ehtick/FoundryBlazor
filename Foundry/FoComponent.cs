@@ -65,8 +65,9 @@ public class FoComponent : FoBase, IFoComponent
         Type = GetType().Name;
     }
 
-    public virtual bool OpenEdit() { return false; }
-    public virtual bool OpenCreate() { return false; }
+    public Func<bool> OpenCreater { get; set; } = null!;
+    public Func<bool> OpenEditor { get; set; } = null!;
+    public Func<bool> OpenViewer { get; set; } = null!;
 
 
     public virtual IFoCollection DynamicSlot(Type type)

@@ -185,9 +185,6 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
     public Action<Canvas2DContext, FoGlyph2D>? ShapeDraw;
     public Action<Canvas2DContext, FoGlyph2D>? ShapeDrawSelected;
 
-    public Action<FoGlyph2D>? DoOnOpenCreate;
-    public Action<FoGlyph2D>? DoOnOpenEdit;
-
     protected Matrix2D? _matrix;
     protected Matrix2D? _invMatrix;
 
@@ -1011,15 +1008,5 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
 
 
 
-    public override bool OpenCreate()
-    {
-        DoOnOpenCreate?.Invoke(this);
-        return DoOnOpenCreate != null;
-    }
 
-    public override bool OpenEdit()
-    {
-        DoOnOpenEdit?.Invoke(this);
-        return DoOnOpenEdit != null;
-    }
 }

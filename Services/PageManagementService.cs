@@ -267,8 +267,9 @@ public class PageManagementService : FoComponent, IPageManagement
 
         //SRS write a method to duplicate actions
         shape.ShapeDraw = value.ShapeDraw;
-        shape.DoOnOpenCreate = value.DoOnOpenCreate;
-        shape.DoOnOpenEdit = value.DoOnOpenEdit;
+        shape.OpenCreater = value.OpenCreater;
+        shape.OpenEditor = value.OpenEditor;
+        shape.OpenViewer = value.OpenViewer;
 
         AddShape<T>(shape);
         return shape;

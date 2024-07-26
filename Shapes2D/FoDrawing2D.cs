@@ -822,16 +822,16 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
         return true;
     }
 
-    public override bool OpenEdit()
+    public bool OpenEdit()
     {
         var item = PageManager.Selections().FirstOrDefault();
-        return item?.OpenEdit() ?? false;
+        return item?.OpenEditor.Invoke() ?? false;
     }
 
-    public override bool OpenCreate()
+    public bool OpenCreate()
     {
         var item = PageManager.Selections().FirstOrDefault();
-        return item?.OpenCreate() ?? false;
+        return item?.OpenCreater.Invoke() ?? false;
     }
 
 
