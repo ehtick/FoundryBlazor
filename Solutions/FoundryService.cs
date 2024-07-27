@@ -9,7 +9,7 @@ namespace FoundryBlazor.Solutions;
 public interface IFoundryService
 {
     ICommand Command();
-    DialogService Dialog();
+    IPopupDialog PopupDialog();
     IJSRuntime JS();
     ComponentBus PubSub();
     IToast Toast();
@@ -32,7 +32,7 @@ public class FoundryService : IFoundryService
     protected ISelectionService selection { get; set; }
     protected IHitTestService hittest { get; set; }
     protected IQRCodeService qrcode { get; set; }
-    protected DialogService dialog { get; set; }
+    protected IPopupDialog dialog { get; set; }
     protected IJSRuntime js { get; set; }
     protected ComponentBus pubsub { get; set; }
 
@@ -45,7 +45,7 @@ public class FoundryService : IFoundryService
         IPanZoomService panzoom,
         IDrawing drawing,
         IArena arena,
-        DialogService dialog,
+        IPopupDialog dialog,
         IJSRuntime js,
         ComponentBus pubsub)
     {
@@ -68,7 +68,7 @@ public class FoundryService : IFoundryService
         return cmd;
     }
 
-    public DialogService Dialog()
+    public IPopupDialog PopupDialog()
     {
         return dialog;
     }

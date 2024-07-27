@@ -1,7 +1,7 @@
 using Blazor.Extensions.Canvas.Canvas2D;
 using BlazorComponentBus;
 using FoundryBlazor.Shape;
-
+using FoundryBlazor.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
@@ -30,7 +30,7 @@ public class FoWorkbook : FoComponent, IWorkbook
     protected IWorkspace Workspace { get; set; }
     protected ICommand Command { get; set; }
     protected IFoundryService FoundryService { get; set; }
-    protected DialogService Dialog { get; set; }
+    protected IPopupDialog PopupDialog { get; set; }
     protected IJSRuntime JsRuntime { get; set; }
     protected ComponentBus PubSub { get; set; }
 
@@ -45,7 +45,7 @@ public class FoWorkbook : FoComponent, IWorkbook
         Workspace = space;
         FoundryService = foundry;
         Command = foundry.Command();
-        Dialog = foundry.Dialog();
+        PopupDialog = foundry.PopupDialog();
         JsRuntime = foundry.JS();
         PubSub = foundry.PubSub();
         QRCode = foundry.QRCode();

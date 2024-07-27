@@ -85,7 +85,7 @@ public class FoWorkspace : FoComponent, IWorkspace
     public IFoundryService Foundry { get; set; }
     protected IToast Toast { get; set; }
     protected ComponentBus PubSub { get; set; }
-    protected DialogService Dialog { get; set; }
+    protected IPopupDialog PopupDialog { get; set; }
     protected IJSRuntime JsRuntime { get; set; }
     protected ISelectionService SelectionService { get; set; }
 
@@ -106,7 +106,7 @@ public class FoWorkspace : FoComponent, IWorkspace
         ActiveArena = foundry.Arena();
         PubSub = foundry.PubSub();
         PanZoom = foundry.PanZoom();
-        Dialog = foundry.Dialog();
+        PopupDialog = foundry.PopupDialog();
         JsRuntime = foundry.JS();
 
         ActiveWorkbook = EstablishWorkbook<CommonWorkbook>("Shared");

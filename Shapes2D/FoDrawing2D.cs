@@ -28,6 +28,11 @@ public interface IDrawing : IRender
 
     Dictionary<string, Action> DefaultMenu();
 
+    void PauseFrameRefresh(bool pause);
+    bool IsFrameRefreshPaused();
+    void WhenFrameRefreshComplete(Action action);
+
+
     List<FoPage2D> GetAllPages();
     List<FoImage2D> GetAllImages();
     List<FoVideo2D> GetAllVideos();
@@ -76,6 +81,8 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
     private int TrueCanvasWidth = 0;
     private int TrueCanvasHeight = 0;
     private bool RenderHitTestTree = false;
+    private bool PauseAnimation = false;
+    private Action FrameRefreshComplete = null!;
 
     private Rectangle UserWindowRect { get; set; } = new Rectangle(0, 0, 1500, 400);
 
@@ -109,10 +116,25 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
     private bool IsCurrentlyProcessing = false;
     private readonly Queue<CanvasMouseArgs> MouseArgQueue = new();
 
+    public bool IsFrameRefreshPaused()
+    {
+        return PauseAnimation;
+    }
+    public void PauseFrameRefresh(bool pause)
+    {
+        PauseAnimation = pause;
+    }
+    public void WhenFrameRefreshComplete(Action action)
+    {
+        FrameRefreshComplete = action;
+    }
+
     public bool IsRendering()
     {
         return IsCurrentlyRendering;
     }
+
+
 
     public bool SetCurrentlyRendering(bool isRendering, int tick)
     {
@@ -143,6 +165,9 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
         }
 
         IsCurrentlyRendering = isRendering;
+        if (!isRendering)
+            FrameRefreshComplete?.Invoke();
+            
         return oldValue;
     }
 
@@ -450,8 +475,6 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
     }
 
 
-
-
     public bool UserWindowMovedTo(Point loc)
     {
         var region = SetUserWindow(loc);
@@ -471,9 +494,6 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
         //  $"UserWindowResized {rect.X} {rect.Y} {rect.Width} {rect.Height} ---".WriteLine(ConsoleColor.Blue);
         return true;
     }
-
-
-
 
     public async Task RenderDrawing(Canvas2DContext ctx, int tick, double fps)
     {

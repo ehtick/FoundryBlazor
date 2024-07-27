@@ -115,6 +115,7 @@ public class CanvasSVGComponentBase : ComponentBase, IAsyncDisposable, IDisposab
 
         var drawing = Workspace?.GetDrawing();
         if (drawing == null) return;
+        if (drawing.IsFrameRefreshPaused()) return;
 
         //if you are already rendering then skip it this cycle
         if (drawing.SetCurrentlyRendering(true, tick)) return;
