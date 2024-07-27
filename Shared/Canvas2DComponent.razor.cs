@@ -65,8 +65,8 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
         try
         {
             "Canvas2DComponentBase DisposeAsync".WriteInfo();
-            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
             await DoStop();
+            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
         }
         catch (Exception ex)
         {
@@ -76,6 +76,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
 
     public void Dispose()
     {
+         "Canvas2DComponentBase Dispose".WriteInfo();
         PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
         PubSub!.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
         GC.SuppressFinalize(this);

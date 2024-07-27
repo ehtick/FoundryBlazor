@@ -28,7 +28,7 @@ public interface IDrawing : IRender
 
     Dictionary<string, Action> DefaultMenu();
 
-    void PauseFrameRefresh(bool pause);
+    void PauseFrameRefresh(bool pause, int countdown=3);
     bool IsFrameRefreshPaused();
     void WhenFrameRefreshComplete(Action action);
 
@@ -82,6 +82,7 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
     private int TrueCanvasHeight = 0;
     private bool RenderHitTestTree = false;
     private bool PauseAnimation = false;
+    public int PauseRefreshCountdown { get; set; } = 3;
     private Action FrameRefreshComplete = null!;
 
     private Rectangle UserWindowRect { get; set; } = new Rectangle(0, 0, 1500, 400);
@@ -118,10 +119,18 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
 
     public bool IsFrameRefreshPaused()
     {
+        if ( PauseRefreshCountdown > 0)
+        {
+            PauseRefreshCountdown--;
+            PauseAnimation = PauseRefreshCountdown == 0;
+        }
         return PauseAnimation;
     }
-    public void PauseFrameRefresh(bool pause)
+    public void PauseFrameRefresh(bool pause, int countdown=3)
     {
+        if ( pause)
+            PauseRefreshCountdown = countdown;
+
         PauseAnimation = pause;
     }
     public void WhenFrameRefreshComplete(Action action)
