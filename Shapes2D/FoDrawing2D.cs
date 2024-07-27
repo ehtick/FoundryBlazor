@@ -119,16 +119,23 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
 
     public bool IsFrameRefreshPaused()
     {
+        if ( !PauseAnimation) return false;
+
+
         if ( PauseRefreshCountdown > 0)
         {
             PauseRefreshCountdown--;
-            PauseAnimation = PauseRefreshCountdown == 0;
+            return false;
         }
+        
+        if ( PauseRefreshCountdown == 0 )
+            PauseAnimation = true;
+
         return PauseAnimation;
     }
     public void PauseFrameRefresh(bool pause, int countdown=3)
     {
-        if ( pause)
+        if (pause)
             PauseRefreshCountdown = countdown;
 
         PauseAnimation = pause;
