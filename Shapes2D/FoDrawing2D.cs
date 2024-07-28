@@ -31,6 +31,7 @@ public interface IDrawing : IRender
     void PauseFrameRefresh(bool pause, int countdown=3);
     bool IsFrameRefreshPaused();
     void WhenFrameRefreshComplete(Action action);
+    void ClearCanvasBeforeRender(bool clear);
 
 
     List<FoPage2D> GetAllPages();
@@ -82,6 +83,7 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
     private int TrueCanvasHeight = 0;
     private bool RenderHitTestTree = false;
     private bool PauseAnimation = false;
+    private bool ClearBeforeRender = true;
     public int PauseRefreshCountdown { get; set; } = 3;
     private Action FrameRefreshComplete = null!;
 
@@ -143,6 +145,11 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
     public void WhenFrameRefreshComplete(Action action)
     {
         FrameRefreshComplete = action;
+    }
+
+    public void ClearCanvasBeforeRender(bool clear)
+    {
+        ClearBeforeRender = clear;
     }
 
     public bool IsRendering()
@@ -526,7 +533,8 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
         var page = PageManager.CurrentPage();
         //$"RenderDrawing {page.Name} {page.Title} ".WriteSuccess();
 
-        await ClearCanvas(ctx);
+        if ( ClearBeforeRender)
+            await ClearCanvas(ctx);
 
         await ctx.SaveAsync();
 
