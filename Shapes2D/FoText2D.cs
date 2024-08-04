@@ -37,9 +37,12 @@ public class FoText2D : FoShape2D, IShape2D
 
     public FoText2D(int width, int height, string color) : base("", width, height, color)
     {
-        Text = "Hello Everyone";
+        Text = "";
     }
-
+    public FoText2D(string name, int width, int height, string color) : base(name, width, height, color)
+    {
+        Text = name;
+    }
     public override FoDynamicRender GetDynamicRender()
     {
         foDynamicRender ??= new FoDynamicRender(typeof(Text2D), this);

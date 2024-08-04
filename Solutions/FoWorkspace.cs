@@ -211,9 +211,9 @@ public class FoWorkspace : FoComponent, IWorkspace
         return ActiveWorkbook;
     }
 
-    public FoPage2D EstablishCurrentPage(string pagename, string color = "Ivory")
+    public FoPage2D EstablishCurrentPage<T>(string pagename, string color = "Ivory") where T : FoPage2D
     {
-        return CurrentWorkbook().EstablishCurrentPage(pagename, color);
+        return CurrentWorkbook().EstablishCurrentPage<T>(pagename, color);
     }
 
     public FoPage2D CurrentPage()

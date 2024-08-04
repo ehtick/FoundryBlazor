@@ -79,8 +79,6 @@ public class ToolManagement : IToolManagement
         var rules = new List<BaseInteraction>()
         {
             {new PagePanAndZoom(1010, "pointer", draw, pubsub, this)},
-            // {new MentorConstruction(105, "default", draw, pubsub, this)},
-            // {new MoShapeLinking(100, "default", draw, pubsub, this)},
             {new ShapeMenu(90,"default", draw, pubsub, this)},
             {new ShapeConnecting(80,"default", draw, pubsub, this)},
             {new ShapeResizing(70,"nwse-resize", draw, pubsub, this)},
