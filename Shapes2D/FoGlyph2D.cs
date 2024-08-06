@@ -355,7 +355,7 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
         return this;
     }
 
-    public virtual bool LocalMouseHover(CanvasMouseArgs args, Action<Canvas2DContext, FoGlyph2D>? OnHover)
+    public virtual bool LocalMouseHover(CanvasMouseArgs args, Rectangle loc, Action<Canvas2DContext, FoGlyph2D>? OnHover)
     {
         return false;
     }

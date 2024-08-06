@@ -97,11 +97,13 @@ public class FoMenu2D : FoGlyph2D, IFoMenu, IShape2D
         return false;
     }
 
-    public override bool LocalMouseHover(CanvasMouseArgs args, Action<Canvas2DContext, FoGlyph2D>? OnHover) 
+    public override bool LocalMouseHover(CanvasMouseArgs args, Rectangle loc, Action<Canvas2DContext, FoGlyph2D>? OnHover) 
     {
         Members<FoButton2D>().ForEach(child => child.ClearHoverDraw());
+
         var pt = new Point(args.OffsetX - LeftEdge(), args.OffsetY - TopEdge());
         var found = Members<FoButton2D>().Where(item => item.HitTestRect().Contains(pt)).FirstOrDefault();
+        
         if ( found != null && OnHover != null) {
             found.SetHoverDraw(OnHover);
             return true;
