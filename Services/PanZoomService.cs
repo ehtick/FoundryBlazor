@@ -24,6 +24,7 @@ public interface IPanZoomService
     PanZoomService AfterMatrixRefresh(Action<PanZoomState> action);
 
     Point MouseDeltaMovement();
+    Rectangle HitLocation(CanvasMouseArgs args);
     Rectangle HitRectStart(CanvasMouseArgs args);
     Rectangle HitRectTopLeft(CanvasMouseArgs args, Rectangle rect);
     Rectangle HitRectContinue(CanvasMouseArgs args, Rectangle rect);
@@ -196,13 +197,19 @@ public class PanZoomService : IPanZoomService
         return _invMatrix;
     }
 
-    //for starting fence select
-    public Rectangle HitRectStart(CanvasMouseArgs args)
+    public Rectangle HitLocation(CanvasMouseArgs args)
     {
         //$"{_pan.X} {_pan.Y}".WriteLine(ConsoleColor.Blue);
         var (x, y) = GetInvMatrix().TransformPoint(args.OffsetX, args.OffsetY);
 
         var hit = new Rectangle(x, y, 1, 1);
+        return hit;
+    }
+
+    //for starting fence select
+    public Rectangle HitRectStart(CanvasMouseArgs args)
+    {
+        var hit = HitLocation(args);
         ComputeDelta(hit.Left, hit.Top);
         return hit;
     }
