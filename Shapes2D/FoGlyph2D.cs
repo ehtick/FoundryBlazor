@@ -360,6 +360,16 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
         return false;
     }
 
+    public virtual Point[] HitTestSegment()
+    {
+        var mat = GetMatrix();
+        var p1 = mat.TransformToPoint(0, 0);
+        var p2 = mat.TransformToPoint(Width, 0);
+        var p3 = mat.TransformToPoint(Width, Height);
+        var p4 = mat.TransformToPoint(0, Height);
+        return new Point[] { p1, p2, p3, p4 };
+    }
+    
     public virtual Rectangle HitTestRect()
     {
         //this does not work for rotated objects

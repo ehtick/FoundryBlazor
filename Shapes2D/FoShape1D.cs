@@ -157,6 +157,16 @@ public class FoShape1D : FoGlyph2D, IGlueOwner, IShape1D
         await ctx.StrokeAsync();
     };
 
+    public override Point[] HitTestSegment()
+    {
+        var dx = Math.Abs(x2 - x1);
+        var dy = Math.Abs(y2 - y1);
+        
+        var mat = GetMatrix();
+        var p1 = mat.TransformToPoint(0, 0);
+        var p2 = mat.TransformToPoint(dx, dy);
+        return new Point[] { p1, p2 };
+    }
     public override Rectangle HitTestRect()
     {
         var dx = Math.Abs(x2 - x1);
