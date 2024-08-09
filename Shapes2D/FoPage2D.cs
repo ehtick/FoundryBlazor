@@ -317,9 +317,11 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         shape.MarkSelected(false);
         ExtractShapes(shape.GlyphId);
         shape.UnglueAll();
+
+        FoGlyph2D.ResetHitTesting(true, $"FoPage2D DeleteShape {shape.Key}");
     }
 
-    public void InsertShapesToQuadTree(QuadTree<FoGlyph2D> tree, IPanZoomService panzoom)
+    public virtual void InsertShapesToQuadTree(QuadTree<FoGlyph2D> tree, IPanZoomService panzoom)
     {
         //Shapes1D.ForEach(child => tree.Insert(child)); 
 

@@ -2,6 +2,7 @@ using Blazor.Extensions.Canvas.Canvas2D;
 using FoundryBlazor.Shared.SVG;
 using FoundryRulesAndUnits.Extensions;
 using System.Drawing;
+using System.Linq.Dynamic.Core.CustomTypeProviders;
 
 namespace FoundryBlazor.Shape;
 
@@ -158,14 +159,23 @@ public class FoShape1D : FoGlyph2D, IGlueOwner, IShape1D
 
     public override Rectangle HitTestRect()
     {
-        var d = Height / 2;
-        //var sz = new Size(Height, Height);
-        var loc = PinLocation();
-        var matrix = GetMatrix();
-        var (x, y) = matrix.TransformPoint(loc.X - d, loc.Y - d); // ?? new Point(loc.X, loc.Y);
-        //hit test in the center 
-        var result = new Rectangle(x, y, Height, Height);
-        return result;
+        var dx = Math.Abs(x2 - x1);
+        var dy = Math.Abs(y2 - y1);
+        var x = (x2 + x1) / 2;  //compute PinX in center
+        var y = (y2 + y1) / 2; //compute PinY in center
+
+        var mat = GetMatrix();
+        mat.TransformRectangle(0, 0, dx, dy, ref rectangle);
+        return rectangle;
+
+        // var d = Height / 2;
+        // //var sz = new Size(Height, Height);
+        // var loc = PinLocation();
+        // var matrix = GetMatrix();
+        // var (x, y) = matrix.TransformPoint(loc.X - d, loc.Y - d); // ?? new Point(loc.X, loc.Y);
+        // //hit test in the center 
+        // var result = new Rectangle(x, y, Height, Height);
+        // return result;
     }
 
     public void RemoveGlue(string name)
