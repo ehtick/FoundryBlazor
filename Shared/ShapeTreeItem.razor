@@ -1,0 +1,91 @@
+@inherits ShapeTreeItemBase
+@using FoundryBlazor.Shape
+
+@namespace FoundryBlazor.Shared
+
+<style>
+    .item {
+        display: flex;
+        margin: 0;
+        list-style-type: none;
+        cursor: pointer;
+    }
+
+    .item:hover {
+        background-color: azure;
+    }
+
+    .item.selected {
+        background-color: lightblue;
+    }
+
+    .item > .arrow, .arrow-placeholder {
+        min-width: 16px;
+        user-select: none;
+    }
+
+    .item > .arrow:hover {
+        color: steelblue;
+    }
+</style>
+
+@if (Items != null)
+{
+    foreach (var item in GetItems())
+    {
+
+        <li class="item@(item.GetIsSelected() ? " selected" : "")" style="padding-left: @(Level * 16)px"
+            @onclick="() => ItemSelected(item)">
+            @if (item.HasChildren())
+            {
+                <span class="arrow" @onclick="() => item.ToggleExpanded()" @onclick:stopPropagation>
+                    @(item.IsCollapsed() ? "▶" : "◢")
+                </span>
+            }
+            else
+            {
+                <span class="arrow-placeholder"></span>
+            }
+            <span class="text">@item.GetTreeNodeTitle()</span>
+
+            @if (item.GetTreeNodeActions() != null)
+            {
+                @foreach (var action in item.GetTreeNodeActions()!)
+                {
+                    <button class="btn badge @action.Style" style="margin-left: 5px;"
+                        @onclick="() => EvalAction(item, action, Parent)">@action.Name</button>
+                }
+            }
+
+
+ 
+            @* 
+            @if (item is KnComponent comp)
+            {
+                <button class="btn badge" @onclick="() => ComputeItem(item, comp)">compute</button>
+            }
+            @if (item is ICreatable create)
+            {
+                <button class="btn badge" @onclick="() => CreateItem(item, create)">create</button>
+            }
+            @if (item is KnModel model)
+            {
+                <button class="btn badge" @onclick="() => Render3DItem(item, model, true)">3D</button>
+                <button class="btn badge" @onclick="() => Render2DItem(item, model, true)">2D</button>
+                <button class="btn badge" @onclick="() => RenderDiagram(item, model, true)">Diagram</button>
+            } 
+            *@
+
+        </li>
+
+        @if (item.HasChildren() && !item.IsCollapsed())
+        {
+            <ShapeTreeItem 
+                Items = "@item.GetChildren()" 
+                Parent = "@item"
+                Level = "@(Level + 1)" 
+                OnSelect="ItemSelected">
+            </ShapeTreeItem>
+        }
+    }
+}

@@ -59,7 +59,14 @@ namespace FoundryBlazor.Shared
 
         public async Task Finalize()
         {
-            await _jsRuntime!.InvokeVoidAsync("destroyJSIntegration");
+            try
+            {
+                await _jsRuntime!.InvokeVoidAsync("destroyJSIntegration");
+            }
+            catch (Exception ex)
+            {
+                $"JSIntegrationHelper Finalize Exception {ex.Message}".WriteError();
+            }
         }
 
         public async ValueTask DisposeAsync()

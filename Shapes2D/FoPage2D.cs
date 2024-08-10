@@ -2,15 +2,13 @@
 using System.Drawing;
 
 using Blazor.Extensions.Canvas.Canvas2D;
-using FoundryBlazor.Shared;
-using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Models;
 using FoundryRulesAndUnits.Units;
-using Microsoft.AspNetCore.Components.Rendering;
 
 namespace FoundryBlazor.Shape;
 
 
-public interface IFoPage2D
+public interface IFoPage2D : ITreeNode
 {
     int MapToPageXScale(Length value);
     int MapToPageYScale(Length value);
@@ -95,6 +93,19 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         return this;
     }
 
+    public override IEnumerable<ITreeNode> GetChildren()
+    {
+        var list = new List<ITreeNode>();
+        foreach (var item in Shapes1D.Values())
+        {
+            list.Add(item);
+        }
+        foreach (var item in Shapes2D.Values())
+        {
+            list.Add(item);
+        }
+        return list;
+    }
 
     public int MapToPageXScale(Length value)
     {
