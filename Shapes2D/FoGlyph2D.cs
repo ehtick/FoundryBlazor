@@ -381,7 +381,10 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
     public virtual FoGlyph2D ResizeTo(int width, int height) { (Width, Height) = (width, height); return this; }
     public void ResizeBy(int dx, int dy) => (Width, Height) = (Width + dx, Height + dy);
     public FoGlyph2D MoveTo(int x, int y) { (PinX, PinY) = (x, y); return this; }
-    public void MoveBy(int dx, int dy) => (PinX, PinY) = (PinX + dx, PinY + dy);
+    public virtual void MoveBy(int dx, int dy) 
+    {
+        (PinX, PinY) = (PinX + dx, PinY + dy);
+    }
     public void RotateBy(double da) => Angle += da;
     public virtual FoGlyph2D ZoomBy(double factor) { return this; }
     public FoGlyph2D RotateTo(double a) { Angle = a; return this; }

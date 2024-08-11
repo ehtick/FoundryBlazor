@@ -6,6 +6,7 @@ using System.Linq.Dynamic.Core.CustomTypeProviders;
 
 namespace FoundryBlazor.Shape;
 
+
 public interface IGlueOwner: IGlyph2D
 {
     void AddGlue(FoGlue2D glue);
@@ -106,7 +107,15 @@ public class FoShape1D : FoGlyph2D, IGlueOwner, IShape1D
         GlueFinishTo(finish);
     }
 
-   public override FoDynamicRender GetDynamicRender()
+    public override void MoveBy(int dx, int dy) 
+    {
+        if (HasNoGlue(this))
+        {
+            (StartX, StartY) = (StartX + dx, StartY + dy);
+            (FinishX, FinishY) = (FinishX + dx, FinishY + dy);
+        }
+    }
+    public override FoDynamicRender GetDynamicRender()
     {
         foDynamicRender ??= new FoDynamicRender(typeof(Shape1D), this);
         return foDynamicRender;
@@ -167,6 +176,7 @@ public class FoShape1D : FoGlyph2D, IGlueOwner, IShape1D
         var p2 = mat.TransformToPoint(dx, dy);
         return new Point[] { p1, p2 };
     }
+    
     public override Rectangle HitTestRect()
     {
         var dx = Math.Abs(x2 - x1);

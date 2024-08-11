@@ -413,8 +413,13 @@ public class QuadTree<T> where T : IHasRectangle
             {
                 //$"Tree Search Objects {m_rect} {m_objects.Count} {rect}".WriteInfo(2);
                 for (int i = 0; i < m_objects.Count; i++)
-                    if (rect.IntersectsWith(m_objects[i].Hit))
-                        results.Add(m_objects[i]);
+                {
+                    var obj = m_objects[i];
+                    var hit = obj.Hit;
+                    if (rect.IntersectsWith(hit))
+                        results.Add(obj);
+                }
+                    
             }
 
             // Get the objects for the search rectangle from the children
