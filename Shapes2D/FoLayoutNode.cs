@@ -7,7 +7,7 @@ using System.Drawing;
 namespace FoundryBlazor.Shape;
 
 
-public class FoLayoutNode<V> : IHasRectangle where V : FoGlyph2D
+public class FoLayoutNode<V> : ICanHitest where V : FoGlyph2D
 {
 
     public double X { get; set; } = 110.0;

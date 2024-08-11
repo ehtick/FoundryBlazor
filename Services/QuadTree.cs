@@ -7,18 +7,8 @@ using System.Drawing;
 
 namespace FoundryBlazor.Shape;
 
-/// <summary>
-/// Interface to define Rect, so that QuadTree knows how to store the object.
-/// </summary>
-/// 
 
-
-
-/// <summary>
-/// A QuadTree Object that provides fast and efficient storage of objects in a world space.
-/// </summary>
-/// <typeparam name="T">Any object iheriting from IHasRect.</typeparam>
-public class QuadTree<T> where T : IHasRectangle
+public class QuadTree<T> where T : ICanHitest
 {
     private static readonly Queue<QuadTree<T>> cashe = new();
     public static QuadTree<T> NewQuadTree(int x, int y, int width, int height)
