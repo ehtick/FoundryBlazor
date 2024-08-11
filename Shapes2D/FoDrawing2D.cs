@@ -477,8 +477,11 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
         // $"RefreshHitTesting For the Current Page{window}".WriteSuccess();
 
         HitTestService.RefreshQuadTree(CurrentPage());
-        if (window != null)
-            HitTestService.Insert(window, window.HitTestRect());
+        if (window == null)
+            return;
+
+        var obj = QuadTargetExtensions.NewHitTarget(window, window.HitTestRect());
+        HitTestService.Insert(obj);
     }
 
 

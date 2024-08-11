@@ -2,6 +2,7 @@
 using System.Drawing;
 
 using Blazor.Extensions.Canvas.Canvas2D;
+using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
 using FoundryRulesAndUnits.Units;
 
@@ -346,10 +347,26 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
             var rect = item.HitTestRect();
             // $"Inserting1  {item.Name} {rect} ".WriteSuccess(1);
             rect = panzoom.TransformRect(rect);
+            var target = new QuadHitTarget(rect, item);
             // $"Inserting2  {item.Name} {rect} ".WriteSuccess(1);
-            tree.Insert(item, rect);
+            tree.Insert(target);
         }
+        count = Shapes1D.Count();
+        //$"PAGE:: InsertShapesToQuadTree {Name} Shapes1D {count} items".WriteInfo(2);
+        foreach (var item in Shapes1D.Values())
+        {
+            if (!item.IsSelectable())
+                continue;
 
+            var list = item.HitTestSegment();
+            // $"Inserting1  {item.Name} {rect} ".WriteSuccess(1);
+            list = panzoom.TransformPoint(list);
+            for (int i = 0; i < list.Count()-1; i++)
+            {
+                var target = new QuadHitTarget(list[i], list[i+1], item);
+                tree.Insert(target);
+            }
+        }
     }
 
     public FoPage2D ClearAll()

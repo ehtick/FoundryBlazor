@@ -9,7 +9,7 @@ namespace FoundryBlazor.Shape;
 
 public interface IHitTestService
 {
-    bool Insert(FoGlyph2D glyph, Rectangle rect);
+    bool Insert(QuadHitTarget target);
     List<FoGlyph2D> FindGlyph(Rectangle rect);
     List<FoGlyph2D> FindGlyphExclude(Rectangle rect, FoGlyph2D? exclude);
     List<QuadHitTarget> AllShapesEverywhere();
@@ -84,9 +84,9 @@ public class HitTestService : IHitTestService
         return PreviousSearches;
     }
 
-    public bool Insert(FoGlyph2D glyph, Rectangle rect)
+    public bool Insert(QuadHitTarget target)
     {
-        Tree?.Insert(glyph, rect);
+        Tree?.Insert(target);
         return Tree != null;
     }
 

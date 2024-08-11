@@ -44,7 +44,7 @@ public class FoLayoutNode<V> : ICanHitTarget where V : FoGlyph2D
     }
     public Point[] HitTestSegment()
     {
-        return new Point[];
+        return new Point[0];
     }
 
     public bool IsSmashed()
