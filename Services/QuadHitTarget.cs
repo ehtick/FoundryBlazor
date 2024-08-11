@@ -11,20 +11,27 @@ public enum HitShape
     Circle,
     LineSegment,
 }
+public interface ICanHitTarget
+{
+    Rectangle HitTestRect();
+    Point[] HitTestSegment();
+    bool IsSmashed();
+}
+
 public class QuadHitTarget 
 {
     public Rectangle rect;
     public Point point;
-    public FoGlyph2D target;
+    public ICanHitTarget target;
     public HitShape hitShape = HitShape.None;
 
-    public QuadHitTarget(Rectangle rect, FoGlyph2D target)
+    public QuadHitTarget(Rectangle rect, ICanHitTarget target)
     {
         Update(rect, target);
         this.target = target;
     }
 
-    public QuadHitTarget Update(Rectangle rect, FoGlyph2D target)
+    public QuadHitTarget Update(Rectangle rect, ICanHitTarget target)
     {
         this.rect = rect;
         this.point = new Point(rect.X + rect.Width, rect.Y + rect.Height);
@@ -33,13 +40,13 @@ public class QuadHitTarget
         return this;
     }
 
-    public QuadHitTarget(Point point1, Point point2, FoGlyph2D target)
+    public QuadHitTarget(Point point1, Point point2, ICanHitTarget target)
     {
         Update(point1, point2, target);
         this.target = target;
     }
 
-    public QuadHitTarget Update(Point point1, Point point2, FoGlyph2D target)
+    public QuadHitTarget Update(Point point1, Point point2, ICanHitTarget target)
     {
         var width = point2.X - point1.X;
         var height = point2.Y - point1.Y;
@@ -48,5 +55,14 @@ public class QuadHitTarget
         this.target = target;
         this.hitShape = HitShape.LineSegment;
         return this;
+    }
+
+    public bool IsLineSegment()
+    {
+        return hitShape == HitShape.LineSegment;
+    }
+    public bool IsRectangle()
+    {
+        return hitShape == HitShape.Rectangle;
     }
 }

@@ -7,7 +7,7 @@ using System.Drawing;
 namespace FoundryBlazor.Shape;
 
 
-public class FoLayoutGroup<V,U> : ICanHitest where V : FoGlyph2D where U : FoGlyph2D
+public class FoLayoutGroup<V,U> : ICanHitTarget where V : FoGlyph2D where U : FoGlyph2D
 {
 
     public double X { get; set; } = 110.0;
@@ -166,5 +166,8 @@ public class FoLayoutGroup<V,U> : ICanHitest where V : FoGlyph2D where U : FoGly
         return new Point(pt.X + shape.LocPinX(shape), pt.Y + shape.LocPinY(shape));
     }
 
-
+    public Point[] HitTestSegment()
+    {
+        throw new NotImplementedException();
+    }
 }

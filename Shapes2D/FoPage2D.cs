@@ -332,7 +332,7 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         FoGlyph2D.ResetHitTesting(true, $"FoPage2D DeleteShape {shape.Key}");
     }
 
-    public virtual void InsertShapesToQuadTree(QuadTree<FoGlyph2D> tree, IPanZoomService panzoom)
+    public virtual void InsertShapesToQuadTree(QuadTree<QuadHitTarget> tree, IPanZoomService panzoom)
     {
         //Shapes1D.ForEach(child => tree.Insert(child)); 
 

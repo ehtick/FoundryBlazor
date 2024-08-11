@@ -7,7 +7,7 @@ using System.Drawing;
 namespace FoundryBlazor.Shape;
 
 
-public class FoLayoutNode<V> : ICanHitest where V : FoGlyph2D
+public class FoLayoutNode<V> : ICanHitTarget where V : FoGlyph2D
 {
 
     public double X { get; set; } = 110.0;
@@ -41,6 +41,10 @@ public class FoLayoutNode<V> : ICanHitest where V : FoGlyph2D
     public Rectangle HitTestRect()
     {
         return _item.HitTestRect();
+    }
+    public Point[] HitTestSegment()
+    {
+        return new Point[];
     }
 
     public bool IsSmashed()

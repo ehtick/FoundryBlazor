@@ -14,7 +14,7 @@ namespace FoundryBlazor.Shared.SVG;
 public class QuadTreeBase : ComponentBase
 {
 
-    [Parameter] public QuadTree<FoGlyph2D>? TreeNode { get; set; }
+    [Parameter] public QuadTree<QuadHitTarget>? TreeNode { get; set; }
 
     protected override void OnInitialized()
     {
@@ -32,9 +32,9 @@ public class QuadTreeBase : ComponentBase
         return TreeNode?.HitRectangles() ?? new List<Rectangle>();
     }
 
-    public QuadTree<FoGlyph2D>? TopLeftChild { get => TreeNode?.TopLeftChild;}
-    public QuadTree<FoGlyph2D>? TopRightChild { get => TreeNode?.TopRightChild;}
-    public QuadTree<FoGlyph2D>? BottomLeftChild { get => TreeNode?.BottomLeftChild;}
-    public QuadTree<FoGlyph2D>? BottomRightChild { get => TreeNode?.BottomRightChild;}
+    public QuadTree<QuadHitTarget>? TopLeftChild { get => TreeNode?.TopLeftChild;}
+    public QuadTree<QuadHitTarget>? TopRightChild { get => TreeNode?.TopRightChild;}
+    public QuadTree<QuadHitTarget>? BottomLeftChild { get => TreeNode?.BottomLeftChild;}
+    public QuadTree<QuadHitTarget>? BottomRightChild { get => TreeNode?.BottomRightChild;}
 
 }

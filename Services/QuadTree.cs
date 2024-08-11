@@ -3,12 +3,12 @@ using FoundryRulesAndUnits.Extensions;
 using System.Drawing;
 
 // https://happycoding.io/tutorials/processing/collision-detection
-//  https://bytes.com/topic/c-sharp/insights/880968-generic-quadtree-implementation
+// https://bytes.com/topic/c-sharp/insights/880968-generic-quadtree-implementation
 
 namespace FoundryBlazor.Shape;
 
 
-public class QuadTree<T> where T : ICanHitest
+public class QuadTree<T> where T : QuadHitTarget
 {
     private static readonly Queue<QuadTree<T>> cashe = new();
     public static QuadTree<T> NewQuadTree(int x, int y, int width, int height)
@@ -41,7 +41,7 @@ public class QuadTree<T> where T : ICanHitest
     #endregion
 
     #region Private Members
-    private List<(T item, Rectangle Hit)>? m_objects = null;       // The objects in this QuadTree
+    private List<QuadHitTarget>? m_objects = null;       // The objects in this QuadTree
     private Rectangle m_rect;               // The area this QuadTree represents
 
     private QuadTree<T>? m_childTL = null;   // Top Left Child
@@ -51,44 +51,30 @@ public class QuadTree<T> where T : ICanHitest
     #endregion
 
     #region Public Properties
-    /// <summary>
-    /// The area this QuadTree represents.
-    /// </summary>
+
     public Rectangle QuadRect { get { return m_rect; } }
 
-    /// <summary>
-    /// The top left child for this QuadTree
-    /// </summary>
+
     public QuadTree<T>? TopLeftChild { get { return m_childTL; } }
 
-    /// <summary>
-    /// The top right child for this QuadTree
-    /// </summary>
+
     public QuadTree<T>? TopRightChild { get { return m_childTR; } }
 
-    /// <summary>
-    /// The bottom left child for this QuadTree
-    /// </summary>
+
     public QuadTree<T>? BottomLeftChild { get { return m_childBL; } }
 
-    /// <summary>
-    /// The bottom right child for this QuadTree
-    /// </summary>
+
     public QuadTree<T>? BottomRightChild { get { return m_childBR; } }
 
-    /// <summary>
-    /// The objects contained in this QuadTree at it's level (ie, excludes children)
-    /// </summary>
-    public List<(T item, Rectangle Hit)>? Members() {return m_objects; }
+
+    public List<QuadHitTarget>? Members() {return m_objects; }
 
     public List<Rectangle> HitRectangles() 
     { 
-        return m_objects?.Select(obj => obj.Hit).ToList() ?? new List<Rectangle>(); 
+        return m_objects?.Where(obj => obj.IsRectangle()).Select(obj => obj.rect).ToList() ?? new List<Rectangle>(); 
     }
 
-    /// <summary>
-    /// How many total objects are contained within this QuadTree (ie, includes children)
-    /// </summary>
+
     public int Count { get { return this.ObjectCount(); } }
     #endregion
 
@@ -124,7 +110,7 @@ public class QuadTree<T> where T : ICanHitest
 
     public bool IsSmashed()
     {
-        var count = m_objects?.Count(obj => obj.item.IsSmashed());
+        var count = m_objects?.Count(obj => obj.target.IsSmashed());
         var smashed = count > 0;
         if ( !HasSubTrees() ) 
             return smashed;
@@ -150,8 +136,21 @@ public class QuadTree<T> where T : ICanHitest
             await ctx.SetGlobalAlphaAsync(0.75f);
             m_objects?.ForEach(async item =>
             {
-                var rect = item.Hit;
-                await ctx.FillRectAsync(rect.X+1, rect.Y+1, rect.Width-2, rect.Height-2);
+                if ( item.IsRectangle() )
+                {
+                    var rect = item.rect;
+                    await ctx.FillRectAsync(rect.X+1, rect.Y+1, rect.Width-2, rect.Height-2);
+                }
+                else if ( item.IsLineSegment() )
+                {
+                    var rect = item.rect;
+                    var point = item.point;
+                    await ctx.BeginPathAsync();
+                    await ctx.MoveToAsync(rect.X, rect.Y);
+                    await ctx.LineToAsync(point.X, point.Y);
+                    await ctx.StrokeAsync();
+                }
+
             });
             await ctx.RestoreAsync();
         }
@@ -162,34 +161,31 @@ public class QuadTree<T> where T : ICanHitest
         if (BottomRightChild != null) await BottomRightChild.DrawQuadTree(ctx,members);
     }
 
+    public QuadHitTarget FillTarget(Rectangle rect, ICanHitTarget target)
+    {
+        //in the future, reuse one that was purged
+        return new QuadHitTarget(m_rect, target);
+    }
+
 
     #region Private Members
-    /// <summary>
-    /// Add an item to the object list.
-    /// </summary>
-    /// <param name="item">The item to add.</param>
-    private void Add(T item, Rectangle rect)
+
+    private void Add(ICanHitTarget item, Rectangle rect)
     {
-        m_objects ??= new List<(T item, Rectangle Hit)>();
-        m_objects.Add((item,rect));
+        m_objects ??= new List<QuadHitTarget>();
+        m_objects.Add(FillTarget(rect, item));
         //$"Tree Add {m_rect} {m_objects.Count} {item}".WriteInfo(2);
     }
 
-    /// <summary>
-    /// Remove an item from the object list.
-    /// </summary>
-    /// <param name="item">The object to remove.</param>
-    private void Remove(T item)
+
+    private void Remove(ICanHitTarget item)
     {
         if (m_objects == null) return;
         
-        m_objects.RemoveAll(tupple => tupple.item.Equals(item));
+        m_objects.RemoveAll(obj => obj.target.Equals(item));
     }
 
-    /// <summary>
-    /// Get the total for all objects in this QuadTree, including children.
-    /// </summary>
-    /// <returns>The number of objects contained within this QuadTree and its children.</returns>
+
     private int ObjectCount()
     {
         int count = 0;
@@ -209,7 +205,6 @@ public class QuadTree<T> where T : ICanHitest
     }
 
 
-    /// Subdivide this QuadTree and move it's children into the appropriate Quads where applicable.
 
     private void Subdivide()
     {
@@ -227,8 +222,8 @@ public class QuadTree<T> where T : ICanHitest
         // If they're completely contained by the quad, bump objects down
         for (int i = 0; i < m_objects?.Count; i++)
         {
-            var item = m_objects[i].item;
-            var itemRect = m_objects[i].Hit;
+            var item = m_objects[i].target;
+            var itemRect = m_objects[i].rect;
             QuadTree<T> destTree = GetDestinationTree(item,itemRect);
 
             if (destTree != this)
@@ -241,12 +236,8 @@ public class QuadTree<T> where T : ICanHitest
         }
     }
 
-    /// <summary>
-    /// Get the child Quad that would contain an object.
-    /// </summary>
-    /// <param name="item">The object to get a child for.</param>
-    /// <returns></returns>
-    private QuadTree<T> GetDestinationTree(T item, Rectangle rect)
+
+    private QuadTree<T> GetDestinationTree(ICanHitTarget item, Rectangle rect)
     {
         // If a child can't contain an object, it will live in this Quad
         QuadTree<T> destTree = this;
@@ -273,9 +264,7 @@ public class QuadTree<T> where T : ICanHitest
     #endregion
 
     #region Public Methods
-    /// <summary>
-    /// Clears the QuadTree of all objects, including any objects living in its children.
-    /// </summary>
+
     public QuadTree<T> Clear(bool force)
     {
         // the question is:  do we want to clear the tree if it has no smashed objects?
@@ -307,15 +296,12 @@ public class QuadTree<T> where T : ICanHitest
         return this;
     }
 
-    /// <summary>
-    /// Deletes an item from this QuadTree. If the object is removed causes this Quad to have no objects in its children, it's children will be removed as well.
-    /// </summary>
-    /// <param name="item">The item to remove.</param>
-    public void Delete(T item)
+
+    public void Delete(ICanHitTarget item)
     {
         // If this level contains the object, remove it
         bool objectRemoved = false;
-        if (m_objects != null && m_objects.Count(obj => obj.item.Equals(item)) > 0)
+        if (m_objects != null && m_objects.Count(obj => obj.target.Equals(item)) > 0)
         {
             Remove(item);
             objectRemoved = true;
@@ -353,7 +339,7 @@ public class QuadTree<T> where T : ICanHitest
     }
     /// Insert an item into this QuadTree object.
 
-    public void Insert(T item, Rectangle itemRect)
+    public void Insert(ICanHitTarget item, Rectangle itemRect)
     {
         //$"Tree Inserting {item} items".WriteInfo(2);
 
@@ -381,12 +367,8 @@ public class QuadTree<T> where T : ICanHitest
         }
     }
 
-    /// <summary>
-    /// Get the objects in this tree that intersect with the specified rectangle.
-    /// </summary>
-    /// <param name="rect">The rectangle to find objects in.</param>
-    /// <param name="results">A reference to a list that will be populated with the results.</param>
-    public void GetObjects(Rectangle rect, ref List<(T item, Rectangle Hit)> results)
+
+    public void GetObjects(Rectangle rect, ref List<QuadHitTarget> results)
     {
         // We can't do anything if the results list doesn't exist
         if (results == null) return;
@@ -405,7 +387,7 @@ public class QuadTree<T> where T : ICanHitest
                 for (int i = 0; i < m_objects.Count; i++)
                 {
                     var obj = m_objects[i];
-                    var hit = obj.Hit;
+                    var hit = obj.rect;
                     if (rect.IntersectsWith(hit))
                         results.Add(obj);
                 }
@@ -422,11 +404,8 @@ public class QuadTree<T> where T : ICanHitest
         
     }
 
-    /// <summary>
-    /// Get all objects in this Quad, and it's children.
-    /// </summary>
-    /// <param name="results">A reference to a list in which to store the objects.</param>
-    public void GetAllObjects(ref List<(T item, Rectangle Hit)> results)
+
+    public void GetAllObjects(ref List<QuadHitTarget> results)
     {
         // If this Quad has objects, add them
         if (m_objects != null)

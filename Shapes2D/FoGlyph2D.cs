@@ -32,12 +32,7 @@ public enum ClickStyle
     DoubleClick
 }
 
-public interface ICanHitest
-{
-    Rectangle HitTestRect();
-    Point[] HitTestSegment();
-    bool IsSmashed();
-}
+
 
 public interface IRender
 {
@@ -58,7 +53,7 @@ public class MeasuredText
 
 }
 
-public interface IGlyph2D : ICanHitest
+public interface IGlyph2D : ICanHitTarget
 {
     FoGlyph2D MarkSelected(bool selected);
     bool IsSelectable();
