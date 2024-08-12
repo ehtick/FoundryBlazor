@@ -47,6 +47,11 @@ public class FoLayoutNode<V> : ICanHitTarget where V : FoGlyph2D
         return new Point[0];
     }
 
+    public string GetName()
+    {
+        return _item.Name ?? "No Name";
+    }
+
     public bool IsSmashed()
     {
         return _item.IsSmashed();

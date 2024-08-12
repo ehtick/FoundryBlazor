@@ -1,7 +1,10 @@
 
 
+using Blazor.Extensions.Canvas.Canvas2D;
+using FoundryRulesAndUnits.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing;
+using System.Linq.Dynamic.Core.CustomTypeProviders;
 
 namespace FoundryBlazor.Shape;
 public enum HitShape
@@ -13,6 +16,7 @@ public enum HitShape
 }
 public interface ICanHitTarget
 {
+    string GetName();
     Rectangle HitTestRect();
     Point[] HitTestSegment();
     bool IsSmashed();
@@ -24,6 +28,10 @@ public class QuadHitTarget
     public Point point;
     public ICanHitTarget target;
     public HitShape hitShape = HitShape.None;
+
+    public Point LastProjection = Point.Empty;
+    public Point LastMouseHit = Point.Empty;
+    public double LastDistance = 0;
 
     public QuadHitTarget Purge()
     {
@@ -58,8 +66,8 @@ public class QuadHitTarget
 
     public QuadHitTarget Update(Point point1, Point point2, ICanHitTarget target)
     {
-        var width = point2.X - point1.X;
-        var height = point2.Y - point1.Y;
+        var width = Math.Abs(point2.X - point1.X);
+        var height = Math.Abs(point2.Y - point1.Y);
         this.rectangle = new Rectangle(point1.X, point1.Y, width, height);
         this.point = point2;
         this.target = target;
@@ -80,6 +88,32 @@ public class QuadHitTarget
         return hitShape == HitShape.Rectangle;
     }
 
+    public async Task DrawQuadHitTarget(Canvas2DContext ctx)
+    {
+        if (IsLineSegment())
+        {
+            await ctx.SetStrokeStyleAsync("black");
+            await ctx.SetLineWidthAsync(8);
+            await ctx.BeginPathAsync();
+            await ctx.MoveToAsync(rectangle.Location.X, rectangle.Location.Y);
+            await ctx.LineToAsync(point.X, point.Y);
+
+            await ctx.MoveToAsync(LastMouseHit.X, LastMouseHit.Y);
+            await ctx.LineToAsync(LastProjection.X, LastProjection.Y);
+            await ctx.StrokeAsync();
+            
+            $"{target.GetName()} Distance {LastDistance}  M:{LastMouseHit.X}  {LastMouseHit.Y} P: {LastProjection.X} {LastProjection.Y}".WriteInfo();
+        }
+        else if (IsRectangle())
+        {
+            await ctx.SetStrokeStyleAsync("black");
+            await ctx.SetLineWidthAsync(8);
+            await ctx.BeginPathAsync();
+            await ctx.StrokeRectAsync(rectangle.X-2, rectangle.Y-2, rectangle.Width+4, rectangle.Height+4);
+            await ctx.StrokeAsync();
+        }
+    }
+
     public bool IsContainedBy(Rectangle rect)
     {
         if (IsLineSegment())
@@ -95,15 +129,17 @@ public class QuadHitTarget
 
 
 
-    public bool IsIntersectedBy(Rectangle rect)
+    public bool IsIntersectedBy(Rectangle rect, double minRequired)
+
     {
+        LastMouseHit = rectangle.Location;
         if (IsLineSegment())
         {
-            var point = rectangle.Location;
+            var distance = DistancePointToLineSegment(LastMouseHit);
             //return SegmentIntersects(rect);
             //return SegmentContainsPoint(point);
             //for now do not try to hit test the segment
-            return false;
+            return distance < minRequired;
         }
         else if (IsRectangle())
         {
@@ -193,18 +229,37 @@ public class QuadHitTarget
     {
         Point v = rectangle.Location;
         Point w = point;
+
         var lengthSquared = Math.Pow(w.X - v.X, 2) + Math.Pow(w.Y - v.Y, 2);
-        if (lengthSquared == 0) return DistanceBetweenPoints(p, v);
+        if (lengthSquared == 0) {
+            
+            LastProjection = v;
+            LastDistance = DistanceBetweenPoints(p, v);
+            return LastDistance;
+        }
 
         var t = ((p.X - v.X) * (w.X - v.X) + (p.Y - v.Y) * (w.Y - v.Y)) / lengthSquared;
 
-        if (t < 0) return DistanceBetweenPoints(p, v);
-        else if (t > 1) return DistanceBetweenPoints(p, w);
+        if (t < 0) 
+        {
+            LastProjection = v;
+            LastDistance = DistanceBetweenPoints(p, v);
+        }
+        else if (t > 1) 
+        {
+            LastProjection = w;
+            LastDistance = DistanceBetweenPoints(p, w);
+        }
+        else 
+        {
+            var xx = v.X + t * (w.X - v.X);
+            var yy = v.Y + t * (w.Y - v.Y);
+            $"t {t} xx {xx} yy {yy}".WriteInfo();
+            LastProjection = new Point((int)xx, (int)yy);
+            LastDistance = DistanceBetweenPoints(p, LastProjection);
+        }
         
-        var xx = v.X + t * (w.X - v.X);
-        var yy = v.Y + t * (w.Y - v.Y);
-        var projection = new Point((int)xx, (int)yy);
-        return DistanceBetweenPoints(p, projection);
+        return LastDistance;
     }
 
     public double DistanceBetweenPoints(Point p1, Point p2)

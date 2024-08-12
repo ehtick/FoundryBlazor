@@ -62,7 +62,6 @@ public class QuadTree<T> where T : QuadHitTarget
         if (quadTreeCache.Count == 0)
             return new QuadTree<T>(x, y, width, height);
     
-
         //$"Recycle QuadTree {cashe.Count}".WriteInfo();
         var result = quadTreeCache.Dequeue();
         result.Reset(x, y, width, height);
@@ -112,14 +111,6 @@ public class QuadTree<T> where T : QuadHitTarget
         m_rect = new Rectangle(x, y, width, height);
     }
 
-    public void PrintTree(int level = 0)
-    {
-        $"PrintTree {QuadRect} {Count}".WriteSuccess(level);
-        if (m_childTL != null) m_childTL.PrintTree(level + 1);
-        if (m_childTR != null) m_childTR.PrintTree(level + 1);
-        if (m_childBL != null) m_childBL.PrintTree(level + 1);
-        if (m_childBR != null) m_childBR.PrintTree(level + 1);
-    }
 
 
     public QuadTree<T> Reset(int x, int y, int width, int height)
@@ -146,13 +137,13 @@ public class QuadTree<T> where T : QuadHitTarget
 
  
 
-    public async Task DrawQuadTree(Canvas2DContext ctx, bool members = false)
+    public async Task DrawQuadTree(Canvas2DContext ctx, bool drawMembers = true)
     {
 
         await ctx.SetStrokeStyleAsync("Green");
         await ctx.StrokeRectAsync(m_rect.X+1, m_rect.Y+1, m_rect.Width-2, m_rect.Height-2);
 
-        if ( members )
+        if ( drawMembers )
         {
             await ctx.SaveAsync();
             await ctx.SetFillStyleAsync("Yellow");
@@ -160,29 +151,18 @@ public class QuadTree<T> where T : QuadHitTarget
 
             Members().ForEach(async item =>
             {
-                if ( item.IsRectangle() )
-                {
-                    var rect = item.rectangle;
-                    await ctx.FillRectAsync(rect.X+1, rect.Y+1, rect.Width-2, rect.Height-2);
-                }
-                else if ( item.IsLineSegment() )
-                {
-                    var rect = item.rectangle.Location;
-                    var point = item.point;
-                    await ctx.BeginPathAsync();
-                    await ctx.MoveToAsync(rect.X, rect.Y);
-                    await ctx.LineToAsync(point.X, point.Y);
-                    await ctx.StrokeAsync();
-                }
-
+                await item.DrawQuadHitTarget(ctx);
             });
             await ctx.RestoreAsync();
         }
 
-        if (TopLeftChild != null) await TopLeftChild.DrawQuadTree(ctx,members);
-        if (TopRightChild != null) await TopRightChild.DrawQuadTree(ctx,members);
-        if (BottomLeftChild != null) await BottomLeftChild.DrawQuadTree(ctx,members);
-        if (BottomRightChild != null) await BottomRightChild.DrawQuadTree(ctx,members);
+        if ( !HasSubTrees() ) 
+            return;
+
+        await TopLeftChild!.DrawQuadTree(ctx,drawMembers);
+        await TopRightChild!.DrawQuadTree(ctx,drawMembers);
+        await BottomLeftChild!.DrawQuadTree(ctx,drawMembers);
+        await BottomRightChild!.DrawQuadTree(ctx,drawMembers);
     }
 
 
@@ -396,21 +376,17 @@ public class QuadTree<T> where T : QuadHitTarget
         }
     }
 
-    public QuadHitTarget? FindNearestMember(Point point, double minRequired = 0.1)
+    public QuadHitTarget? FindNearestMember()
     {
         QuadHitTarget? nearestLine = null;
         double minDistance = double.MaxValue;
 
-        foreach (var line in Members())
+        foreach (var member in Members())
         {
-            if ( !line.IsLineSegment() )
-                continue;
-
-            double distance = line.DistancePointToLineSegment(point);
-            if (distance < minDistance && distance < minRequired)
+            if (member.LastDistance < minDistance)
             {
-                minDistance = distance;
-                nearestLine = line;
+                minDistance = member.LastDistance;
+                nearestLine = member;
             }
         }
         return nearestLine;
@@ -434,14 +410,12 @@ public class QuadTree<T> where T : QuadHitTarget
             //$"Tree Search Objects {m_rect} {m_objects.Count} {rect}".WriteInfo(2);
             foreach (var segment in Members())
             {
-                if (segment.IsIntersectedBy(range))
+                // if line hit is withing range select that QuadHitTarget
+                if (segment.IsIntersectedBy(range, 1.0))
                     results.Add(segment);
             }
 
-            //look for the line segment this is closest point to the search rectangle
-            var found = FindNearestMember(range.Location);
-            if ( found != null)
-                results.Add(found);
+
                     
             // Get the objects for the search rectangle from the children
             if ( HasSubTrees() )

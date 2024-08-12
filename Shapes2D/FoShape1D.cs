@@ -12,7 +12,6 @@ public interface IGlueOwner: IGlyph2D
     void AddGlue(FoGlue2D glue);
     void RemoveGlue(FoGlue2D glue);
     void RemoveGlue(string name);
-    string GetName();
     string GetGlyphId();
     bool Smash(bool force);
 }

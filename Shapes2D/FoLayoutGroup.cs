@@ -27,6 +27,11 @@ public class FoLayoutGroup<V,U> : ICanHitTarget where V : FoGlyph2D where U : Fo
         MoveTo(x, y);
     }
 
+    public string GetName()
+    {
+        return _item.Name ?? "No Name";
+    }
+
     public void PurgeMembers()
     {
         _members = new();

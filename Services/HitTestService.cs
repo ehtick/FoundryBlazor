@@ -129,7 +129,7 @@ public class HitTestService : IHitTestService
         await ctx.SetLineWidthAsync(6);
         await ctx.SetLineDashAsync(new float[] { 20, 20 });
 
-        await GetTree().DrawQuadTree(ctx, true);
+        await GetTree().DrawQuadTree(ctx);
 
         if (showTracks)
         {
