@@ -1,5 +1,6 @@
 
 
+using Microsoft.AspNetCore.Mvc;
 using System.Drawing;
 
 namespace FoundryBlazor.Shape;
@@ -187,5 +188,27 @@ public class QuadHitTarget
 
         return true;
     }
+  
+    public double DistancePointToLineSegment(Point p)
+    {
+        Point v = rectangle.Location;
+        Point w = point;
+        var lengthSquared = Math.Pow(w.X - v.X, 2) + Math.Pow(w.Y - v.Y, 2);
+        if (lengthSquared == 0) return DistanceBetweenPoints(p, v);
 
+        var t = ((p.X - v.X) * (w.X - v.X) + (p.Y - v.Y) * (w.Y - v.Y)) / lengthSquared;
+
+        if (t < 0) return DistanceBetweenPoints(p, v);
+        else if (t > 1) return DistanceBetweenPoints(p, w);
+        
+        var xx = v.X + t * (w.X - v.X);
+        var yy = v.Y + t * (w.Y - v.Y);
+        var projection = new Point((int)xx, (int)yy);
+        return DistanceBetweenPoints(p, projection);
+    }
+
+    public double DistanceBetweenPoints(Point p1, Point p2)
+    {
+        return Math.Sqrt(Math.Pow(p2.X - p1.X, 2) + Math.Pow(p2.Y - p1.Y, 2));
+    }
 }

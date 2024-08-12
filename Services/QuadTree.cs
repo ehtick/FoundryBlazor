@@ -167,7 +167,7 @@ public class QuadTree<T> where T : QuadHitTarget
                 }
                 else if ( item.IsLineSegment() )
                 {
-                    var rect = item.rectangle;
+                    var rect = item.rectangle.Location;
                     var point = item.point;
                     await ctx.BeginPathAsync();
                     await ctx.MoveToAsync(rect.X, rect.Y);
@@ -396,6 +396,25 @@ public class QuadTree<T> where T : QuadHitTarget
         }
     }
 
+    public QuadHitTarget? FindNearestMember(Point point, double minRequired = 0.1)
+    {
+        QuadHitTarget? nearestLine = null;
+        double minDistance = double.MaxValue;
+
+        foreach (var line in Members())
+        {
+            if ( !line.IsLineSegment() )
+                continue;
+
+            double distance = line.DistancePointToLineSegment(point);
+            if (distance < minDistance && distance < minRequired)
+            {
+                minDistance = distance;
+                nearestLine = line;
+            }
+        }
+        return nearestLine;
+    }
 
 
     public void QueryObjects(Rectangle range, ref List<QuadHitTarget> results)
@@ -419,6 +438,10 @@ public class QuadTree<T> where T : QuadHitTarget
                     results.Add(segment);
             }
 
+            //look for the line segment this is closest point to the search rectangle
+            var found = FindNearestMember(range.Location);
+            if ( found != null)
+                results.Add(found);
                     
             // Get the objects for the search rectangle from the children
             if ( HasSubTrees() )
