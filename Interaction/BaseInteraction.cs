@@ -74,9 +74,29 @@ public class BaseInteraction : FoComponent, IBaseInteraction
     {
         await ctx.SaveAsync();
 
-        await ctx.SetLineWidthAsync(5);
-        await ctx.SetStrokeStyleAsync("Red");
-        await ctx.StrokeRectAsync(0, 0, obj.Width, obj.Height);
+        if ( obj is FoShape1D shape1d)
+        {
+            await ctx.SetLineWidthAsync(5);
+            await ctx.SetStrokeStyleAsync("Red");
+           
+            var start = shape1d.Start();
+            var finish = shape1d.Finish();
+
+            await ctx.BeginPathAsync();
+            await ctx.MoveToAsync(start.X, start.Y);
+            await ctx.LineToAsync(finish.X, finish.Y);
+            await ctx.ClosePathAsync();
+
+            await ctx.StrokeAsync();
+        }
+
+        else
+        {
+            await ctx.SetLineWidthAsync(5);
+            await ctx.SetStrokeStyleAsync("Red");
+            await ctx.StrokeRectAsync(0, 0, obj.Width, obj.Height);
+        }
+
 
         await ctx.RestoreAsync();
     };

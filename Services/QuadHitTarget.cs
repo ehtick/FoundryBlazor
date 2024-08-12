@@ -19,14 +19,14 @@ public interface ICanHitTarget
 
 public class QuadHitTarget 
 {
-    public Rectangle rect;
+    public Rectangle rectangle;
     public Point point;
     public ICanHitTarget target;
     public HitShape hitShape = HitShape.None;
 
     public QuadHitTarget Purge()
     {
-        rect = Rectangle.Empty;
+        rectangle = Rectangle.Empty;
         point = Point.Empty;
         target = null!;
         hitShape = HitShape.None;
@@ -42,7 +42,7 @@ public class QuadHitTarget
 
     public QuadHitTarget Update(Rectangle rect, ICanHitTarget target)
     {
-        this.rect = rect;
+        this.rectangle = rect;
         this.point = new Point(rect.X + rect.Width, rect.Y + rect.Height);
         this.target = target;
         this.hitShape = HitShape.Rectangle;
@@ -59,7 +59,7 @@ public class QuadHitTarget
     {
         var width = point2.X - point1.X;
         var height = point2.Y - point1.Y;
-        this.rect = new Rectangle(point1.X, point1.Y, width, height);
+        this.rectangle = new Rectangle(point1.X, point1.Y, width, height);
         this.point = point2;
         this.target = target;
         this.hitShape = HitShape.LineSegment;
@@ -83,11 +83,30 @@ public class QuadHitTarget
     {
         if (IsLineSegment())
         {
-            return rect.Contains(this.rect) && rect.Contains(point);
+            return rect.Contains(this.rectangle.Location) && rect.Contains(point);
         }
         else if (IsRectangle())
         {
-            return rect.Contains(this.rect);
+            return rect.Contains(this.rectangle);
+        }
+        return false;
+    }
+
+
+
+    public bool IsIntersectedBy(Rectangle rect)
+    {
+        if (IsLineSegment())
+        {
+            var point = rectangle.Location;
+            //return SegmentIntersects(rect);
+            //return SegmentContainsPoint(point);
+            //for now do not try to hit test the segment
+            return false;
+        }
+        else if (IsRectangle())
+        {
+            return rect.IntersectsWith(rectangle);
         }
         return false;
     }
@@ -154,7 +173,7 @@ public class QuadHitTarget
 
     public bool SegmentContainsPoint(Point point, double tolerance = 0.1)
     {
-        var Start = rect.Location;
+        var Start = rectangle.Location;
         var End = point;
 
         double crossProduct = (point.Y - Start.Y) * (End.X - Start.X) - (point.X - Start.X) * (End.Y - Start.Y);

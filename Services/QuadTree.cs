@@ -44,6 +44,18 @@ public static class QuadTargetExtensions
 
 public class QuadTree<T> where T : QuadHitTarget
 {
+    
+    private const int MAX_OBJECTS_PER_NODE = 2;
+
+    private List<QuadHitTarget>? m_objects = null;       // The objects in this QuadTree
+    private Rectangle m_rect;               // The area this QuadTree represents
+
+    private QuadTree<T>? m_childTL = null;   // Top Left Child
+    private QuadTree<T>? m_childTR = null;   // Top Right Child
+    private QuadTree<T>? m_childBL = null;   // Bottom Left Child
+    private QuadTree<T>? m_childBR = null;   // Bottom Right Child
+
+
     private static readonly Queue<QuadTree<T>> quadTreeCache = new();
     public static QuadTree<T> NewQuadTree(int x, int y, int width, int height)
     {
@@ -69,15 +81,6 @@ public class QuadTree<T> where T : QuadHitTarget
 
 
 
-    private const int MAX_OBJECTS_PER_NODE = 2;
-
-    private List<QuadHitTarget>? m_objects = null;       // The objects in this QuadTree
-    private Rectangle m_rect;               // The area this QuadTree represents
-
-    private QuadTree<T>? m_childTL = null;   // Top Left Child
-    private QuadTree<T>? m_childTR = null;   // Top Right Child
-    private QuadTree<T>? m_childBL = null;   // Bottom Left Child
-    private QuadTree<T>? m_childBR = null;   // Bottom Right Child
 
 
  
@@ -88,17 +91,17 @@ public class QuadTree<T> where T : QuadHitTarget
     public QuadTree<T>? TopRightChild { get { return m_childTR; } }
     public QuadTree<T>? BottomLeftChild { get { return m_childBL; } }
     public QuadTree<T>? BottomRightChild { get { return m_childBR; } }
-    public List<QuadHitTarget>? Members() {return m_objects; }
+    public List<QuadHitTarget> Members() {return m_objects ?? new List<QuadHitTarget>(); }
 
     public List<Rectangle> HitRectangles() 
     { 
-        return Members()?.Where(obj => obj.IsRectangle()).Select(obj => obj.rect).ToList() ?? new List<Rectangle>(); 
+        return Members().Where(obj => obj.IsRectangle()).Select(obj => obj.rectangle).ToList(); 
     }
 
     public int Count { get { return this.ObjectCount(); } }
 
 
-    #region Constructor
+
 
     public QuadTree(Rectangle rect)
     {
@@ -111,7 +114,7 @@ public class QuadTree<T> where T : QuadHitTarget
 
     public void PrintTree(int level = 0)
     {
-        $"PrintTree {m_rect} {Count}".WriteSuccess(level);
+        $"PrintTree {QuadRect} {Count}".WriteSuccess(level);
         if (m_childTL != null) m_childTL.PrintTree(level + 1);
         if (m_childTR != null) m_childTR.PrintTree(level + 1);
         if (m_childBL != null) m_childBL.PrintTree(level + 1);
@@ -141,7 +144,7 @@ public class QuadTree<T> where T : QuadHitTarget
         return smashed;
     }
 
-    #endregion
+ 
 
     public async Task DrawQuadTree(Canvas2DContext ctx, bool members = false)
     {
@@ -154,16 +157,17 @@ public class QuadTree<T> where T : QuadHitTarget
             await ctx.SaveAsync();
             await ctx.SetFillStyleAsync("Yellow");
             await ctx.SetGlobalAlphaAsync(0.5f);
-            Members()?.ForEach(async item =>
+
+            Members().ForEach(async item =>
             {
                 if ( item.IsRectangle() )
                 {
-                    var rect = item.rect;
+                    var rect = item.rectangle;
                     await ctx.FillRectAsync(rect.X+1, rect.Y+1, rect.Width-2, rect.Height-2);
                 }
                 else if ( item.IsLineSegment() )
                 {
-                    var rect = item.rect;
+                    var rect = item.rectangle;
                     var point = item.point;
                     await ctx.BeginPathAsync();
                     await ctx.MoveToAsync(rect.X, rect.Y);
@@ -184,7 +188,6 @@ public class QuadTree<T> where T : QuadHitTarget
 
 
 
-    #region Private Members
 
     private void AddToQuad(QuadHitTarget obj)
     {
@@ -208,18 +211,17 @@ public class QuadTree<T> where T : QuadHitTarget
 
     private int ObjectCount()
     {
-        int count = 0;
-
         // Add the objects at this level
-        if (m_objects != null) count += m_objects.Count;
+        int count = Members().Count();
 
         // Add the objects that are contained in the children
-
-        count += m_childTL == null ? 0 : m_childTL.ObjectCount();
-        count += m_childTR == null ? 0 : m_childTR.ObjectCount();
-        count += m_childBL == null ? 0 : m_childBL.ObjectCount();
-        count += m_childBR == null ? 0 : m_childBR.ObjectCount();
-
+        if ( HasSubTrees() )
+        {
+            count += m_childTL!.ObjectCount();
+            count += m_childTR!.ObjectCount();
+            count += m_childBL!.ObjectCount();
+            count += m_childBR!.ObjectCount();
+        }
 
         return count;
     }
@@ -228,7 +230,7 @@ public class QuadTree<T> where T : QuadHitTarget
 
     private void Subdivide()
     {
-          //$"Tree Subdivide items".WriteInfo(2);
+        //$"Tree Subdivide items".WriteInfo(2);
 
         // We've reached capacity, subdivide...
         Point size = new(m_rect.Width / 2, m_rect.Height / 2);
@@ -243,7 +245,7 @@ public class QuadTree<T> where T : QuadHitTarget
         for (int i = 0; i < m_objects?.Count; i++)
         {
             var item = m_objects[i];
-            QuadTree<T> destTree = GetDestinationTree(item);
+            var destTree = GetDestinationTree(item);
 
             if (destTree != this)
             {
@@ -281,9 +283,7 @@ public class QuadTree<T> where T : QuadHitTarget
         return destTree;
     }
 
-    #endregion
 
-    #region Public Methods
 
     public QuadTree<T> Clear(bool force)
     {
@@ -291,6 +291,7 @@ public class QuadTree<T> where T : QuadHitTarget
 
         //$"Tree Clear items {m_rect} {Count} {force}".WriteInfo(2);
         var smashed = IsSmashed();
+
         //no smashed objects, no need to clear
         if ( smashed && !force && !HasSubTrees()) 
             return this;
@@ -302,18 +303,21 @@ public class QuadTree<T> where T : QuadHitTarget
             m_objects?.Clear();
         }
 
-        m_childTL?.Clear(force);
-        m_childTR?.Clear(force);
-        m_childBL?.Clear(force);
-        m_childBR?.Clear(force);
-
-        // Set the children to null
-        if ( force )
+        if ( HasSubTrees() )
         {
-            m_childTL = SmashQuadTree(m_childTL);
-            m_childTR = SmashQuadTree(m_childTR);
-            m_childBL = SmashQuadTree(m_childBL);
-            m_childBR = SmashQuadTree(m_childBR);
+            m_childTL?.Clear(force);
+            m_childTR?.Clear(force);
+            m_childBL?.Clear(force);
+            m_childBR?.Clear(force);
+            
+            // Set the children to null
+            if ( force )
+            {
+                m_childTL = SmashQuadTree(m_childTL);
+                m_childTR = SmashQuadTree(m_childTR);
+                m_childBL = SmashQuadTree(m_childBL);
+                m_childBR = SmashQuadTree(m_childBR);
+            }
         }
 
         return this;
@@ -324,7 +328,7 @@ public class QuadTree<T> where T : QuadHitTarget
     {
         // If this level contains the object, remove it
         bool objectRemoved = false;
-        if (m_objects != null && m_objects.Count(obj => obj.Equals(item)) > 0)
+        if (Members().Count(obj => obj.Equals(item)) > 0)
         {
             RemoveFromQuad(item);
             objectRemoved = true;
@@ -366,14 +370,16 @@ public class QuadTree<T> where T : QuadHitTarget
         //$"Tree Inserting {item} items".WriteInfo(2);
 
         // If this quad doesn't intersect the items rectangle, do nothing
-        if ( !obj.IsContainedBy(m_rect) )
+        if ( !obj.IsContainedBy(QuadRect) )
             return;
 
 
         if (m_objects == null )
-            AddToQuad(obj); // If there's room to add the object, just add it       
+            AddToQuad(obj); // If there's room to add the object, just add it   
+
         else if ( m_objects.Count + 1 <= MAX_OBJECTS_PER_NODE && HasSubTrees() == false)
             AddToQuad(obj); // If there's room to add the object, just add it
+
         else
         {
             // No quads, create them and bump objects down where appropriate
@@ -392,38 +398,36 @@ public class QuadTree<T> where T : QuadHitTarget
 
 
 
-    public void GetObjects(Rectangle rect, ref List<QuadHitTarget> results)
+    public void QueryObjects(Rectangle range, ref List<QuadHitTarget> results)
     {
         // We can't do anything if the results list doesn't exist
         if (results == null) return;
         
-        if (rect.Contains(m_rect))
+        if (range.Contains(QuadRect))
         {
             // If the search area completely contains this quad, just get every object this quad and all it's children have
             GetAllObjects(ref results);
         }
-        else if (rect.IntersectsWith(m_rect))
+        else if (range.IntersectsWith(QuadRect))
         {
             // Otherwise, if the quad isn't fully contained, only add objects that intersect with the search rectangle
-            if (m_objects != null)
+
+            //$"Tree Search Objects {m_rect} {m_objects.Count} {rect}".WriteInfo(2);
+            foreach (var segment in Members())
             {
-                //$"Tree Search Objects {m_rect} {m_objects.Count} {rect}".WriteInfo(2);
-                for (int i = 0; i < m_objects.Count; i++)
-                {
-                    var obj = m_objects[i];
-                    var hit = obj.rect;
-                    if (rect.IntersectsWith(hit))
-                        results.Add(obj);
-                }
-                    
+                if (segment.IsIntersectedBy(range))
+                    results.Add(segment);
             }
 
+                    
             // Get the objects for the search rectangle from the children
-
-            m_childTL?.GetObjects(rect, ref results);
-            m_childTR?.GetObjects(rect, ref results);
-            m_childBL?.GetObjects(rect, ref results);
-            m_childBR?.GetObjects(rect, ref results);
+            if ( HasSubTrees() )
+            {
+                m_childTL?.QueryObjects(range, ref results);
+                m_childTR?.QueryObjects(range, ref results);
+                m_childBL?.QueryObjects(range, ref results);
+                m_childBR?.QueryObjects(range, ref results);
+            }
         }
         
     }
@@ -432,17 +436,61 @@ public class QuadTree<T> where T : QuadHitTarget
     public void GetAllObjects(ref List<QuadHitTarget> results)
     {
         // If this Quad has objects, add them
-        if (m_objects != null)
-            results.AddRange(m_objects);
+        results.AddRange(Members());
 
         // If we have children, get their objects too
-
-        m_childTL?.GetAllObjects(ref results);
-        m_childTR?.GetAllObjects(ref results);
-        m_childBL?.GetAllObjects(ref results);
-        m_childBR?.GetAllObjects(ref results);
+        if ( HasSubTrees() )
+        {
+            m_childTL?.GetAllObjects(ref results);
+            m_childTR?.GetAllObjects(ref results);
+            m_childBL?.GetAllObjects(ref results);
+            m_childBR?.GetAllObjects(ref results);
+        }
 
     }
-    #endregion
+
+
+    public void QueryRange(Rectangle range, ref List<QuadHitTarget> results)
+    {
+
+        if (!range.IntersectsWith(QuadRect))
+            return;
+
+        foreach (var segment in Members())
+        {
+            if (segment.SegmentIntersects(range))
+                results.Add(segment);
+        }
+
+        if ( HasSubTrees() )
+        {
+            m_childTL?.QueryRange(range, ref results);
+            m_childTR?.QueryRange(range, ref results);
+            m_childBL?.QueryRange(range, ref results);
+            m_childBR?.QueryRange(range, ref results);
+        }
+    }   
+
+    public void QueryPoint(Point point, ref List<QuadHitTarget> results)
+    {
+
+        if (!QuadRect.Contains(point))
+            return;
+
+        foreach (var segment in Members())
+        {
+            if (segment.SegmentContainsPoint(point))
+                results.Add(segment);
+        }
+
+        if ( HasSubTrees() )
+        {
+            m_childTL?.QueryPoint(point, ref results);
+            m_childTR?.QueryPoint(point, ref results);
+            m_childBL?.QueryPoint(point, ref results);
+            m_childBR?.QueryPoint(point, ref results);
+        };
+    }
+
 }
 

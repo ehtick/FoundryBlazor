@@ -187,15 +187,6 @@ public class FoShape1D : FoGlyph2D, IGlueOwner, IShape1D
         var mat = GetMatrix();
         mat.TransformRectangle(0, 0, dx, dy, ref rectangle);
         return rectangle;
-
-        // var d = Height / 2;
-        // //var sz = new Size(Height, Height);
-        // var loc = PinLocation();
-        // var matrix = GetMatrix();
-        // var (x, y) = matrix.TransformPoint(loc.X - d, loc.Y - d); // ?? new Point(loc.X, loc.Y);
-        // //hit test in the center 
-        // var result = new Rectangle(x, y, Height, Height);
-        // return result;
     }
 
     public void RemoveGlue(string name)

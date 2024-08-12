@@ -98,38 +98,17 @@ public class HitTestService : IHitTestService
             PreviousSearches.RemoveRange(0, 6);
 
         PreviousSearches.Add(rect);
-        //$"Search {rect.X} {rect.Y} {rect.Width} {rect.Height}".WriteLine(ConsoleColor.Blue);
 
         List<QuadHitTarget> list = new();
-        Tree?.GetObjects(rect, ref list);
-        //$"Found {list.Count} Searches {PreviousSearches.Count}".WriteLine(ConsoleColor.Blue);
+        Tree?.QueryObjects(rect, ref list);
 
-        // PreviousSearches.ForEach(rect =>
-        // {
-        //     $"=> Searches {rect.X} {rect.Y} {rect.Width} {rect.Height}".WriteLine(ConsoleColor.Blue);
-        // });
         return list.Select(obj => obj.target).Cast<FoGlyph2D>().ToList();
     }
 
     public List<FoGlyph2D> FindGlyphExclude(Rectangle rect, FoGlyph2D? exclude)
     {
-        rect = _panzoom.TransformRect(rect);
 
-        if (PreviousSearches.Count > 10)
-            PreviousSearches.RemoveRange(0, 6);
-
-        PreviousSearches.Add(rect);
-        //$"Search {rect.X} {rect.Y} {rect.Width} {rect.Height}".WriteLine(ConsoleColor.Blue);
-
-        List<QuadHitTarget> list = new();
-        Tree?.GetObjects(rect, ref list);
-        //$"Found {list.Count} Searches {PreviousSearches.Count}".WriteLine(ConsoleColor.Blue);
-
-        // PreviousSearches.ForEach(rect =>
-        // {
-        //     $"=> Searches {rect.X} {rect.Y} {rect.Width} {rect.Height}".WriteLine(ConsoleColor.Blue);
-        // });
-        return list.Where(item => item.target != exclude).Select(obj =>obj.target).Cast<FoGlyph2D>().ToList();
+        return FindGlyph(rect).Where(item => item != exclude).ToList();
     }
 
 
