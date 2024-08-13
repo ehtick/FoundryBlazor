@@ -255,7 +255,8 @@ public class PanZoomService : IPanZoomService
         var newPoints = new Point[points.Length];
         for (var i = 0; i < points.Length; i++)
         {
-            var pt = matrix.TransformToPoint(points[i].X, points[i].Y);
+            var oldPoint = points[i];
+            var pt = matrix.TransformToPoint(oldPoint.X, oldPoint.Y);
             newPoints[i] = pt;
         }
 

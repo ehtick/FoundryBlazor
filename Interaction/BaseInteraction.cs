@@ -73,12 +73,11 @@ public class BaseInteraction : FoComponent, IBaseInteraction
     public Action<Canvas2DContext, FoGlyph2D>? OnHover { get; set; } = async (ctx, obj) =>
     {
         await ctx.SaveAsync();
+        await ctx.SetLineWidthAsync(8);
+        await ctx.SetStrokeStyleAsync("Red");
 
         if ( obj is FoShape1D shape1d)
         {
-            await ctx.SetLineWidthAsync(5);
-            await ctx.SetStrokeStyleAsync("Red");
-           
             var start = shape1d.Start();
             var finish = shape1d.Finish();
 
@@ -86,17 +85,13 @@ public class BaseInteraction : FoComponent, IBaseInteraction
             await ctx.MoveToAsync(start.X, start.Y);
             await ctx.LineToAsync(finish.X, finish.Y);
             await ctx.ClosePathAsync();
-
-            await ctx.StrokeAsync();
         }
-
         else
         {
-            await ctx.SetLineWidthAsync(5);
-            await ctx.SetStrokeStyleAsync("Red");
             await ctx.StrokeRectAsync(0, 0, obj.Width, obj.Height);
         }
 
+        await ctx.StrokeAsync();
 
         await ctx.RestoreAsync();
     };

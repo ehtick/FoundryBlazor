@@ -166,18 +166,12 @@ public class QuadTree<T> where T : QuadHitTarget
     }
 
 
-
-
-
     private void AddToQuad(QuadHitTarget obj)
     {
-
         m_objects ??= new List<QuadHitTarget>();
         m_objects.Add(obj);
-        //$"Tree Add {m_rect} {m_objects.Count} {item}".WriteInfo(2);
+        //$"Tree AddToQuad {m_rect} {m_objects.Count} {obj}".WriteInfo(2);
     }
-
-
 
 
     private void RemoveFromQuad(QuadHitTarget item)
@@ -347,7 +341,7 @@ public class QuadTree<T> where T : QuadHitTarget
 
     public void Insert(QuadHitTarget obj)
     {
-        //$"Tree Inserting {item} items".WriteInfo(2);
+        //$"Tree Inserting {obj} items".WriteInfo(2);
 
         // If this quad doesn't intersect the items rectangle, do nothing
         if ( !obj.IsContainedBy(QuadRect) )
@@ -376,43 +370,49 @@ public class QuadTree<T> where T : QuadHitTarget
         }
     }
 
-    public QuadHitTarget? FindNearestMember()
-    {
-        QuadHitTarget? nearestLine = null;
-        double minDistance = double.MaxValue;
+    // public QuadHitTarget? FindNearestMember()
+    // {
+    //     QuadHitTarget? nearestLine = null;
+    //     double minDistance = double.MaxValue;
 
-        foreach (var member in Members())
-        {
-            if (member.LastDistance < minDistance)
-            {
-                minDistance = member.LastDistance;
-                nearestLine = member;
-            }
-        }
-        return nearestLine;
-    }
+    //     foreach (var member in Members())
+    //     {
+    //         if (member.LastDistance < minDistance)
+    //         {
+    //             minDistance = member.LastDistance;
+    //             nearestLine = member;
+    //         }
+    //     }
+    //     return nearestLine;
+    // }
 
 
     public void QueryObjects(Rectangle range, ref List<QuadHitTarget> results)
     {
         // We can't do anything if the results list doesn't exist
         if (results == null) return;
+        //$"Tree Query Objects {m_rect} CT:{Members().Count} {range}".WriteInfo(2);
         
         if (range.Contains(QuadRect))
         {
             // If the search area completely contains this quad, just get every object this quad and all it's children have
             GetAllObjects(ref results);
+            foreach (var member in Members())
+            {
+                // if line hit is withing range select that QuadHitTarget
+                member.IsIntersectedBy(range, 10.0);
+            }           
         }
         else if (range.IntersectsWith(QuadRect))
         {
             // Otherwise, if the quad isn't fully contained, only add objects that intersect with the search rectangle
 
             //$"Tree Search Objects {m_rect} {m_objects.Count} {rect}".WriteInfo(2);
-            foreach (var segment in Members())
+            foreach (var member in Members())
             {
                 // if line hit is withing range select that QuadHitTarget
-                if (segment.IsIntersectedBy(range, 1.0))
-                    results.Add(segment);
+                if (member.IsIntersectedBy(range, 10.0))
+                    results.Add(member);
             }
 
 

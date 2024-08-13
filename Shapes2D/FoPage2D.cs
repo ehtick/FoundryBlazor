@@ -347,7 +347,7 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
             var rect = item.HitTestRect();
             // $"Inserting1  {item.Name} {rect} ".WriteSuccess(1);
             rect = panzoom.TransformRect(rect);
-            var target = new QuadHitTarget(rect, item);
+            var target = QuadTargetExtensions.NewHitTarget(item, rect);
             // $"Inserting2  {item.Name} {rect} ".WriteSuccess(1);
             tree.Insert(target);
         }
@@ -363,7 +363,7 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
             list = panzoom.TransformPoint(list);
             for (int i = 0; i < list.Count()-1; i++)
             {
-                var target = new QuadHitTarget(list[i], list[i+1], item);
+                var target = QuadTargetExtensions.NewHitTarget(item, list[i], list[i+1]);
                 tree.Insert(target);
             }
         }

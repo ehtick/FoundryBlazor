@@ -72,6 +72,8 @@ public class QuadHitTarget
         this.point = point2;
         this.target = target;
         this.hitShape = HitShape.LineSegment;
+
+        //$"QuadHitTarget Update {point1} {point2} {target.GetName()}".WriteInfo();
         return this;
     }
 
@@ -88,6 +90,8 @@ public class QuadHitTarget
         return hitShape == HitShape.Rectangle;
     }
 
+//quadraticCurveTo(cpx, cpy, x, y)
+
     public async Task DrawQuadHitTarget(Canvas2DContext ctx)
     {
         if (IsLineSegment())
@@ -97,12 +101,16 @@ public class QuadHitTarget
             await ctx.BeginPathAsync();
             await ctx.MoveToAsync(rectangle.Location.X, rectangle.Location.Y);
             await ctx.LineToAsync(point.X, point.Y);
+            await ctx.StrokeAsync();
 
+            await ctx.SetStrokeStyleAsync("yellow");
+            await ctx.SetLineDashAsync([]);
+            await ctx.BeginPathAsync();
             await ctx.MoveToAsync(LastMouseHit.X, LastMouseHit.Y);
             await ctx.LineToAsync(LastProjection.X, LastProjection.Y);
             await ctx.StrokeAsync();
-            
-            $"{target.GetName()} Distance {LastDistance}  M:{LastMouseHit.X}  {LastMouseHit.Y} P: {LastProjection.X} {LastProjection.Y}".WriteInfo();
+
+            //$"{target.GetName()} Distance {LastDistance}  M:{LastMouseHit.X}  {LastMouseHit.Y} P: {LastProjection.X} {LastProjection.Y}".WriteInfo();
         }
         else if (IsRectangle())
         {
@@ -116,15 +124,17 @@ public class QuadHitTarget
 
     public bool IsContainedBy(Rectangle rect)
     {
+        var found = false;
         if (IsLineSegment())
         {
-            return rect.Contains(this.rectangle.Location) && rect.Contains(point);
+            found = rect.Contains(this.rectangle.Location) && rect.Contains(point);
+            //$"LineSegment {found}  {rectangle.Location}  {point}".WriteInfo();
         }
         else if (IsRectangle())
         {
-            return rect.Contains(this.rectangle);
+            found = rect.Contains(this.rectangle);
         }
-        return false;
+        return found;
     }
 
 
@@ -132,18 +142,19 @@ public class QuadHitTarget
     public bool IsIntersectedBy(Rectangle rect, double minRequired)
 
     {
-        LastMouseHit = rectangle.Location;
         if (IsLineSegment())
         {
+            LastMouseHit = rect.Location;
             var distance = DistancePointToLineSegment(LastMouseHit);
-            //return SegmentIntersects(rect);
-            //return SegmentContainsPoint(point);
-            //for now do not try to hit test the segment
-            return distance < minRequired;
+            var success = distance < minRequired;
+            //$"Distance {success}  {distance} type {hitShape}".WriteInfo();
+            return success;
         }
         else if (IsRectangle())
         {
-            return rect.IntersectsWith(rectangle);
+            var success = rect.IntersectsWith(rectangle);
+            //$"Distance {success} type {hitShape}".WriteInfo();
+            return success;
         }
         return false;
     }
@@ -227,6 +238,7 @@ public class QuadHitTarget
   
     public double DistancePointToLineSegment(Point p)
     {
+
         Point v = rectangle.Location;
         Point w = point;
 
@@ -234,7 +246,7 @@ public class QuadHitTarget
         if (lengthSquared == 0) {
             
             LastProjection = v;
-            LastDistance = DistanceBetweenPoints(p, v);
+            LastDistance = DistanceBetweenPoints(p, w);
             return LastDistance;
         }
 
@@ -254,10 +266,12 @@ public class QuadHitTarget
         {
             var xx = v.X + t * (w.X - v.X);
             var yy = v.Y + t * (w.Y - v.Y);
-            $"t {t} xx {xx} yy {yy}".WriteInfo();
+           // $"t {t} xx {xx} yy {yy}".WriteInfo();
             LastProjection = new Point((int)xx, (int)yy);
             LastDistance = DistanceBetweenPoints(p, LastProjection);
+
         }
+        //$"DistancePointToLineSegment {LastDistance} {t} {LastProjection}  M{p}".WriteInfo();
         
         return LastDistance;
     }
@@ -266,4 +280,43 @@ public class QuadHitTarget
     {
         return Math.Sqrt(Math.Pow(p2.X - p1.X, 2) + Math.Pow(p2.Y - p1.Y, 2));
     }
+
+    public (Point, double) CalculateIntersectionAndDistance(Point p3)
+    {
+        Point p1 = rectangle.Location;
+        Point p2 = point;
+
+        // Compute the direction vector components
+        double dx = p2.X - p1.X;
+        double dy = p2.Y - p1.Y;
+
+        // Since Y increases downward, the normal vector components are (dy, -dx)
+        double A = dy;   // Y-component of the normal vector
+        double B = -dx;  // X-component of the normal vector
+        double C = dx * p1.Y - dy * p1.X;
+
+        // Calculate the perpendicular distance from p3 to the line
+        double numerator = Math.Abs(A * p3.X + B * p3.Y + C);
+        double denominator = Math.Sqrt(A * A + B * B);  // This is used to compute the distance
+
+        // Calculate the projection of p3 onto the line
+        double tNumerator = (p3.X - p1.X) * dx + (p3.Y - p1.Y) * dy;
+        double tDenominator = dx * dx + dy * dy;
+        double t = tNumerator / tDenominator;
+
+        // Find the intersection point (projection of p3 onto the line)
+        var xx = p1.X + t * dx;
+        var yy = p1.Y + t * dy;
+        Point intersectionPoint = new Point((int)xx, (int)yy);
+
+        // Calculate the squared distance between p3 and the intersection point
+        int dx1 = p3.X - intersectionPoint.X;
+        int dy1 = p3.Y - intersectionPoint.Y;
+        double distanceSquared = dx1 * dx1 + dy1 * dy1;
+        double distance = Math.Sqrt(distanceSquared);
+
+        $"{target.GetName()} Distance {distance} {t}  M:{p3.X}  {p3.Y} P: {intersectionPoint.X} {intersectionPoint.Y}".WriteInfo();
+        return (intersectionPoint, distance);
+    }
+
 }

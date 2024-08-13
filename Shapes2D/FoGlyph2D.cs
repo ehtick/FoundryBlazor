@@ -363,7 +363,7 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
         var p2 = mat.TransformToPoint(Width, 0);
         var p3 = mat.TransformToPoint(Width, Height);
         var p4 = mat.TransformToPoint(0, Height);
-        return new Point[] { p1, p2, p3, p4 };
+        return [p1, p2, p3, p4];
     }
     
     public virtual Rectangle HitTestRect()
