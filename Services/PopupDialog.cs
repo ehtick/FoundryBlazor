@@ -12,6 +12,7 @@ public interface IPopupDialog
     Task<dynamic> OpenSideAsync<T>(string title, Dictionary<string, object> parameters = null!, SideDialogOptions options = null!) where T : ComponentBase;
     void Alert(string message, string title, AlertOptions options = null!);
     Task<bool?> Confirm(string message, string title, ConfirmOptions options = null!);
+    void Close(dynamic result=null!);
 }
 
 public class PopupDialog : IPopupDialog
@@ -22,6 +23,11 @@ public class PopupDialog : IPopupDialog
     public PopupDialog(DialogService dialogService)
     {
         _dialogService = dialogService;
+    }
+
+    public void Close(dynamic result=null!)
+    {
+        _dialogService?.Close(result);
     }
 
     public void Open<T>(string title, Dictionary<string, object> parameters = null!, DialogOptions options = null!) where T : ComponentBase
