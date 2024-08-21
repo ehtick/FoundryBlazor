@@ -6,12 +6,12 @@ using System.Linq.Dynamic.Core.CustomTypeProviders;
 
 namespace FoundryBlazor.Shape;
 
+
 public interface IGlueOwner: IGlyph2D
 {
     void AddGlue(FoGlue2D glue);
     void RemoveGlue(FoGlue2D glue);
     void RemoveGlue(string name);
-    string GetName();
     string GetGlyphId();
     bool Smash(bool force);
 }
@@ -77,7 +77,8 @@ public class FoShape1D : FoGlyph2D, IGlueOwner, IShape1D
     {
         ShapeDraw = DrawSimpleLine;
         ShapeDrawSelected = DrawDashedLine;
-        this.height = 10;
+        Height = 10;
+        Thickness = Height;
     }
     public FoShape1D(int x1, int y1, int x2, int y2, int height, string color) : base("", color)
     {
@@ -87,7 +88,8 @@ public class FoShape1D : FoGlyph2D, IGlueOwner, IShape1D
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
-        this.height = height;
+        Height = height;
+        Thickness = Height;
     }
 
 
@@ -99,16 +101,25 @@ public class FoShape1D : FoGlyph2D, IGlueOwner, IShape1D
         this.y1 = start?.PinY ?? 0;
         this.x2 = finish?.PinX ?? 0;
         this.y2 = finish?.PinY ?? 0;
-        this.height = height;
+        Height = height;
+        Thickness = Height;
 
         GlueStartTo(start);
 
         GlueFinishTo(finish);
     }
 
-   public override FoDynamicRender GetDynamicRender()
+    public override void MoveBy(int dx, int dy) 
     {
-        foDynamicRender ??= new FoDynamicRender(typeof(Shape1D), this);
+        if (HasNoGlue(this))
+        {
+            (StartX, StartY) = (StartX + dx, StartY + dy);
+            (FinishX, FinishY) = (FinishX + dx, FinishY + dy);
+        }
+    }
+    public override FoDynamicRender GetDynamicRender()
+    {
+        foDynamicRender ??= new FoDynamicRender(typeof(FoShape1D), this);
         return foDynamicRender;
     }
     public (int, int) ComputeLocation(double percent)
@@ -159,33 +170,31 @@ public class FoShape1D : FoGlyph2D, IGlueOwner, IShape1D
 
     public override Point[] HitTestSegment()
     {
-        var dx = Math.Abs(x2 - x1);
-        var dy = Math.Abs(y2 - y1);
-        
-        var mat = GetMatrix();
-        var p1 = mat.TransformToPoint(0, 0);
-        var p2 = mat.TransformToPoint(dx, dy);
-        return new Point[] { p1, p2 };
+        //var dx = Math.Abs(x2 - x1);
+        //var dy = Math.Abs(y2 - y1);
+
+        //var mat = GetMatrix();
+        //var p1 = mat.TransformToPoint(0, 0);
+        //var p2 = mat.TransformToPoint(dx, dy);
+        //var p1 = mat.TransformToPoint(StartX, StartY);
+        //var p2 = mat.TransformToPoint(FinishX, FinishY);
+        //var p1 = Start();
+        //var p2 = Finish();
+        var p1 = new Point(StartX, StartY);
+        var p2 = new Point(FinishX, FinishY);
+        return [p1, p2];
     }
+    
     public override Rectangle HitTestRect()
     {
         var dx = Math.Abs(x2 - x1);
         var dy = Math.Abs(y2 - y1);
-        var x = (x2 + x1) / 2;  //compute PinX in center
-        var y = (y2 + y1) / 2; //compute PinY in center
+        //var x = (x2 + x1) / 2;  //compute PinX in center
+        //var y = (y2 + y1) / 2; //compute PinY in center
 
         var mat = GetMatrix();
         mat.TransformRectangle(0, 0, dx, dy, ref rectangle);
         return rectangle;
-
-        // var d = Height / 2;
-        // //var sz = new Size(Height, Height);
-        // var loc = PinLocation();
-        // var matrix = GetMatrix();
-        // var (x, y) = matrix.TransformPoint(loc.X - d, loc.Y - d); // ?? new Point(loc.X, loc.Y);
-        // //hit test in the center 
-        // var result = new Rectangle(x, y, Height, Height);
-        // return result;
     }
 
     public void RemoveGlue(string name)

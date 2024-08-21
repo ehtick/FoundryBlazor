@@ -2,15 +2,14 @@
 using System.Drawing;
 
 using Blazor.Extensions.Canvas.Canvas2D;
-using FoundryBlazor.Shared;
 using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Models;
 using FoundryRulesAndUnits.Units;
-using Microsoft.AspNetCore.Components.Rendering;
 
 namespace FoundryBlazor.Shape;
 
 
-public interface IFoPage2D
+public interface IFoPage2D : ITreeNode
 {
     int MapToPageXScale(Length value);
     int MapToPageYScale(Length value);
@@ -95,6 +94,19 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         return this;
     }
 
+    public override IEnumerable<ITreeNode> GetChildren()
+    {
+        var list = new List<ITreeNode>();
+        foreach (var item in Shapes1D.Values())
+        {
+            list.Add(item);
+        }
+        foreach (var item in Shapes2D.Values())
+        {
+            list.Add(item);
+        }
+        return list;
+    }
 
     public int MapToPageXScale(Length value)
     {
@@ -321,7 +333,7 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         FoGlyph2D.ResetHitTesting(true, $"FoPage2D DeleteShape {shape.Key}");
     }
 
-    public virtual void InsertShapesToQuadTree(QuadTree<FoGlyph2D> tree, IPanZoomService panzoom)
+    public virtual void InsertShapesToQuadTree(QuadTree<QuadHitTarget> tree, IPanZoomService panzoom)
     {
         //Shapes1D.ForEach(child => tree.Insert(child)); 
 
@@ -335,10 +347,26 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
             var rect = item.HitTestRect();
             // $"Inserting1  {item.Name} {rect} ".WriteSuccess(1);
             rect = panzoom.TransformRect(rect);
+            var target = QuadTargetExtensions.NewHitTarget(item, rect);
             // $"Inserting2  {item.Name} {rect} ".WriteSuccess(1);
-            tree.Insert(item, rect);
+            tree.Insert(target);
         }
+        count = Shapes1D.Count();
+        //$"PAGE:: InsertShapesToQuadTree {Name} Shapes1D {count} items".WriteInfo(2);
+        foreach (var item in Shapes1D.Values())
+        {
+            if (!item.IsSelectable())
+                continue;
 
+            var list = item.HitTestSegment();
+            // $"Inserting1  {item.Name} {rect} ".WriteSuccess(1);
+            list = panzoom.TransformPoint(list);
+            for (int i = 0; i < list.Count()-1; i++)
+            {
+                var target = QuadTargetExtensions.NewHitTarget(item, list[i], list[i+1]);
+                tree.Insert(target);
+            }
+        }
     }
 
     public FoPage2D ClearAll()

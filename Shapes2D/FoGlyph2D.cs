@@ -32,11 +32,7 @@ public enum ClickStyle
     DoubleClick
 }
 
-public interface IHasRectangle
-{
-    Rectangle HitTestRect();
-    bool IsSmashed();
-}
+
 
 public interface IRender
 {
@@ -57,7 +53,7 @@ public class MeasuredText
 
 }
 
-public interface IGlyph2D : IHasRectangle
+public interface IGlyph2D : ICanHitTarget
 {
     FoGlyph2D MarkSelected(bool selected);
     bool IsSelectable();
@@ -367,7 +363,7 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
         var p2 = mat.TransformToPoint(Width, 0);
         var p3 = mat.TransformToPoint(Width, Height);
         var p4 = mat.TransformToPoint(0, Height);
-        return new Point[] { p1, p2, p3, p4 };
+        return [p1, p2, p3, p4];
     }
     
     public virtual Rectangle HitTestRect()
@@ -381,7 +377,10 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
     public virtual FoGlyph2D ResizeTo(int width, int height) { (Width, Height) = (width, height); return this; }
     public void ResizeBy(int dx, int dy) => (Width, Height) = (Width + dx, Height + dy);
     public FoGlyph2D MoveTo(int x, int y) { (PinX, PinY) = (x, y); return this; }
-    public void MoveBy(int dx, int dy) => (PinX, PinY) = (PinX + dx, PinY + dy);
+    public virtual void MoveBy(int dx, int dy) 
+    {
+        (PinX, PinY) = (PinX + dx, PinY + dy);
+    }
     public void RotateBy(double da) => Angle += da;
     public virtual FoGlyph2D ZoomBy(double factor) { return this; }
     public FoGlyph2D RotateTo(double a) { Angle = a; return this; }

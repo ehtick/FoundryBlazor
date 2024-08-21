@@ -31,6 +31,7 @@ public interface IPanZoomService
     Task<PanZoomService> TranslateAndScale(Canvas2DContext ctx, FoGlyph2D page);
     PanZoomService TranslateAndScale(FoGlyph2D page);
     Rectangle TransformRect(Rectangle rect);
+    Point[] TransformPoint(Point[] points);
     Rectangle AntiScaleRect(Rectangle rect);
     Rectangle Normalize(Rectangle rect);
     public void Deconstruct(out double zoom, out int panx, out int pany);
@@ -247,6 +248,19 @@ public class PanZoomService : IPanZoomService
         var newRect = new Rectangle(pt1.X, pt1.Y, pt2.X - pt1.X, pt2.Y - pt1.Y);
 
         return newRect;
+    }
+    public Point[] TransformPoint(Point[] points)
+    {
+        var matrix = GetMatrix();
+        var newPoints = new Point[points.Length];
+        for (var i = 0; i < points.Length; i++)
+        {
+            var oldPoint = points[i];
+            var pt = matrix.TransformToPoint(oldPoint.X, oldPoint.Y);
+            newPoints[i] = pt;
+        }
+
+        return newPoints;
     }
 
     public Rectangle AntiScaleRect(Rectangle rect)

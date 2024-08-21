@@ -59,9 +59,10 @@ public class CanvasSVGComponentBase : ComponentBase, IAsyncDisposable, IDisposab
     {
         try
         {
+            //await DoStop();
             "CanvasSVGComponentBase DisposeAsync".WriteInfo();
-            await DoStop();
-            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
+            //await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
+            await ValueTask.CompletedTask;
         }
         catch (Exception ex)
         {

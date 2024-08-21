@@ -9,12 +9,12 @@ public class FoDynamicRender
 
     public static FoDynamicRender Video2D(Dictionary<string,object> parameters) 
     {
-        return new FoDynamicRender(typeof(Video2D), parameters);
+        return new FoDynamicRender(typeof(FoVideo2D), parameters);
     }
     
     public static FoDynamicRender Image2D(Dictionary<string,object> parameters) 
     {
-        return new FoDynamicRender(typeof(Image2D), parameters);
+        return new FoDynamicRender(typeof(FoImage2D), parameters);
     }
 
     public FoDynamicRender(Type target, FoGlyph2D item) 

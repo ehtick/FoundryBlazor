@@ -39,7 +39,7 @@ public class MouseTrackerBase : ComponentBase
         });
     }
 
-    public QuadTree<FoGlyph2D> GetTreeNode()
+    public QuadTree<QuadHitTarget> GetTreeNode()
     {
         var tree = HitTest!.GetTree();
         return tree;

@@ -7,7 +7,7 @@ using System.Drawing;
 namespace FoundryBlazor.Shape;
 
 
-public class FoLayoutGroup<V,U> : IHasRectangle where V : FoGlyph2D where U : FoGlyph2D
+public class FoLayoutGroup<V,U> : ICanHitTarget where V : FoGlyph2D where U : FoGlyph2D
 {
 
     public double X { get; set; } = 110.0;
@@ -25,6 +25,11 @@ public class FoLayoutGroup<V,U> : IHasRectangle where V : FoGlyph2D where U : Fo
         _item = node;
         _members = new();
         MoveTo(x, y);
+    }
+
+    public string GetName()
+    {
+        return _item.Name ?? "No Name";
     }
 
     public void PurgeMembers()
@@ -166,5 +171,8 @@ public class FoLayoutGroup<V,U> : IHasRectangle where V : FoGlyph2D where U : Fo
         return new Point(pt.X + shape.LocPinX(shape), pt.Y + shape.LocPinY(shape));
     }
 
-
+    public Point[] HitTestSegment()
+    {
+        throw new NotImplementedException();
+    }
 }

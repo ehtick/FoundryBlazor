@@ -10,12 +10,14 @@ using FoundryRulesAndUnits.Extensions;
 using System.Drawing;
 using FoundryRulesAndUnits.Units;
 using FoundryBlazor.PubSub;
+using FoundryRulesAndUnits.Models;
+using FoundryBlazor.Shared.SVG;
 
 namespace FoundryBlazor.Shape;
 
 
 
-public interface IDrawing : IRender
+public interface IDrawing : IRender, ITreeNode
 {
     bool SetCurrentlyRendering(bool value, int tick);
     bool IsRendering();
@@ -238,6 +240,15 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
 
 
 
+    public override IEnumerable<ITreeNode> GetChildren()
+    {
+        var list = new List<ITreeNode>();
+        foreach (var item in PageManager.GetAllPages())
+        {
+            list.Add(item);
+        }
+        return list;
+    }
     public bool ToggleHitTestRender()
     {
         RenderHitTestTree = !RenderHitTestTree;
@@ -466,8 +477,11 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
         // $"RefreshHitTesting For the Current Page{window}".WriteSuccess();
 
         HitTestService.RefreshQuadTree(CurrentPage());
-        if (window != null)
-            HitTestService.Insert(window, window.HitTestRect());
+        if (window == null)
+            return;
+
+        var obj = QuadTargetExtensions.NewHitTarget(window, window.HitTestRect());
+        HitTestService.Insert(obj);
     }
 
 

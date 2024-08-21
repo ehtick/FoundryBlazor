@@ -9,23 +9,23 @@ namespace FoundryBlazor.Shape;
 
 public interface IHitTestService
 {
-    bool Insert(FoGlyph2D glyph, Rectangle rect);
+    bool Insert(QuadHitTarget target);
     List<FoGlyph2D> FindGlyph(Rectangle rect);
     List<FoGlyph2D> FindGlyphExclude(Rectangle rect, FoGlyph2D? exclude);
-    List<(FoGlyph2D, Rectangle)> AllShapesEverywhere();
-    List<(FoGlyph2D, Rectangle)> RefreshQuadTree(FoPage2D page);
+    List<QuadHitTarget> AllShapesEverywhere();
+    List<QuadHitTarget> RefreshQuadTree(FoPage2D page);
     Task RenderQuadTree(Canvas2DContext ctx, bool showTracks);
 
     void SetCanvasSizeInPixels(int width, int height);
     List<Rectangle> GetSearches();
-    QuadTree<FoGlyph2D> GetTree();
+    QuadTree<QuadHitTarget> GetTree();
 
 }
 
 public class HitTestService : IHitTestService
 {
 
-    private QuadTree<FoGlyph2D>? Tree { get; set; }
+    private QuadTree<QuadHitTarget>? Tree { get; set; }
 
     private readonly List<Rectangle> PreviousSearches = new();
     private readonly IPanZoomService _panzoom;
@@ -44,13 +44,13 @@ public class HitTestService : IHitTestService
         CanvasSize.Height = height;
     }
 
-    public QuadTree<FoGlyph2D> GetTree()
+    public QuadTree<QuadHitTarget> GetTree()
     {
-        Tree ??= new QuadTree<FoGlyph2D>(CanvasRectangle);
+        Tree ??= new QuadTree<QuadHitTarget>(CanvasRectangle);
         return Tree;
     }
 
-    public QuadTree<FoGlyph2D> InitTreeRoot()
+    public QuadTree<QuadHitTarget> InitTreeRoot()
     {
         Tree = GetTree();
         Tree.Clear(true);
@@ -64,7 +64,7 @@ public class HitTestService : IHitTestService
         return Tree;
     }
 
-    public List<(FoGlyph2D, Rectangle)> RefreshQuadTree(FoPage2D page)
+    public List<QuadHitTarget> RefreshQuadTree(FoPage2D page)
     {
         FoGlyph2D.ResetHitTesting(false, $"RefreshQuadTree {page.Key}");
         // $"Refresh Hit Test Tree {page.Name} ".WriteSuccess();
@@ -84,9 +84,9 @@ public class HitTestService : IHitTestService
         return PreviousSearches;
     }
 
-    public bool Insert(FoGlyph2D glyph, Rectangle rect)
+    public bool Insert(QuadHitTarget target)
     {
-        Tree?.Insert(glyph, rect);
+        Tree?.Insert(target);
         return Tree != null;
     }
 
@@ -98,44 +98,23 @@ public class HitTestService : IHitTestService
             PreviousSearches.RemoveRange(0, 6);
 
         PreviousSearches.Add(rect);
-        //$"Search {rect.X} {rect.Y} {rect.Width} {rect.Height}".WriteLine(ConsoleColor.Blue);
 
-        List<(FoGlyph2D item, Rectangle hit)> list = new();
-        Tree?.GetObjects(rect, ref list);
-        //$"Found {list.Count} Searches {PreviousSearches.Count}".WriteLine(ConsoleColor.Blue);
+        List<QuadHitTarget> list = new();
+        Tree?.QueryObjects(rect, ref list);
 
-        // PreviousSearches.ForEach(rect =>
-        // {
-        //     $"=> Searches {rect.X} {rect.Y} {rect.Width} {rect.Height}".WriteLine(ConsoleColor.Blue);
-        // });
-        return list.Select(obj => obj.item).ToList();
+        return list.Select(obj => obj.target).Cast<FoGlyph2D>().ToList();
     }
 
     public List<FoGlyph2D> FindGlyphExclude(Rectangle rect, FoGlyph2D? exclude)
     {
-        rect = _panzoom.TransformRect(rect);
 
-        if (PreviousSearches.Count > 10)
-            PreviousSearches.RemoveRange(0, 6);
-
-        PreviousSearches.Add(rect);
-        //$"Search {rect.X} {rect.Y} {rect.Width} {rect.Height}".WriteLine(ConsoleColor.Blue);
-
-        List<(FoGlyph2D item, Rectangle hit)> list = new();
-        Tree?.GetObjects(rect, ref list);
-        //$"Found {list.Count} Searches {PreviousSearches.Count}".WriteLine(ConsoleColor.Blue);
-
-        // PreviousSearches.ForEach(rect =>
-        // {
-        //     $"=> Searches {rect.X} {rect.Y} {rect.Width} {rect.Height}".WriteLine(ConsoleColor.Blue);
-        // });
-        return list.Select(obj => obj.item).Where(item => item != exclude).ToList();
+        return FindGlyph(rect).Where(item => item != exclude).ToList();
     }
 
 
-    public List<(FoGlyph2D, Rectangle)> AllShapesEverywhere()
+    public List<QuadHitTarget> AllShapesEverywhere()
     {
-        List<(FoGlyph2D, Rectangle)> list = new();
+        List<QuadHitTarget> list = new();
         Tree?.GetAllObjects(ref list);
         return list;
     }
@@ -150,7 +129,7 @@ public class HitTestService : IHitTestService
         await ctx.SetLineWidthAsync(6);
         await ctx.SetLineDashAsync(new float[] { 20, 20 });
 
-        await GetTree().DrawQuadTree(ctx, true);
+        await GetTree().DrawQuadTree(ctx);
 
         if (showTracks)
         {
@@ -167,5 +146,6 @@ public class HitTestService : IHitTestService
 
         await ctx.RestoreAsync();
     }
+
 
 }
