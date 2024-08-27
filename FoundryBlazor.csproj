@@ -39,6 +39,8 @@
 
 <ItemGroup> 
   <!--<PackageReference Include="ApprenticeFoundryBlazorThreeJS" Version="14.1.0" />-->
+  <!-- <PackageReference Include="ApprenticeFoundryBlazorThreeJS" Version="14.1.0" /> -->
+  <ProjectReference Include="..\BlazorThreeJS\BlazorThreeJS.csproj" />
   <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1" />
   <PackageReference Include="BlazorComponentBus" Version="2.2.0" />
 
