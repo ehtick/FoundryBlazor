@@ -213,7 +213,7 @@ public class FoComponent : FoBase, IFoComponent
 
         var folder = FolderOf<T>();
         if ( skip )
-            list.AddRange(folder.GetChildren());
+            list.AddRange(folder.GetTreeChildren());
         else
             list.Add(folder);  
     }

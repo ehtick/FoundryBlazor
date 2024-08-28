@@ -599,9 +599,9 @@ public class FoShape3D : FoGlyph3D, IShape3D
             }
         };
 
+        //delete mesh if you are invisible
         if (ShapeMesh != null && !IsVisible)
         {
-            //ctx.Add(ShapeMesh);
             ctx.Remove(ShapeMesh);
             ShapeMesh = null;
         }

@@ -15,6 +15,7 @@ namespace FoundryBlazor.Shape;
 
 public interface IWorld3D: ITreeNode
 {
+    //public List<FoShape2D>? Shapes();
     public List<FoGroup3D>? ShapeGroups();
     public List<FoDatum3D>? Datums();
     public List<FoShape3D>? ShapeBodies();
@@ -106,7 +107,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         return this;
     }
 
-    public override IEnumerable<ITreeNode> GetChildren()
+    public override IEnumerable<ITreeNode> GetTreeChildren()
     {
         var list = new List<ITreeNode>();
         AddFolderIfNotEmpty<FoGroup3D>(list);

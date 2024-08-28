@@ -15,6 +15,7 @@ public interface IStageManagement
     V RemoveShape<V>(V shape) where V : FoGlyph3D;
     void ClearAll();
     int StageCount();
+    List<FoStage3D> GetAllStages();
 
     Task RenderDetailed(Scene scene, int tick, double fps);
 
@@ -47,7 +48,10 @@ public class StageManagementService : FoComponent, IStageManagement
     }
 
 
-
+    public List<FoStage3D> GetAllStages()
+    {
+        return Members<FoStage3D>();
+    }
     public int StageCount()
     {
         return Members<FoStage3D>().Count;

@@ -9,7 +9,6 @@ namespace FoundryBlazor.Shared;
 public partial class ShapeTreeBase : ComponentBase
 {
 
-    //[Inject] private NavigationManager? Navigation { get; set; }
     [Inject] private ComponentBus? PubSub { get; set; }
     [Inject] private IFoundryService? Service { get; set; }
 
@@ -17,14 +16,11 @@ public partial class ShapeTreeBase : ComponentBase
 
     public IEnumerable<ITreeNode> GetAllNodes()
     {
-        //"GetAllNodes".WriteWarning(3);
-        //if (KnBase.RefreshTree && MentorManager != null)
-
         if (Service != null)
         {
             AllNodes.Clear();
-            //var nodes = drawing.GetChildren().Where( n => n != null).ToList();
             AllNodes.Add(Service.Drawing());
+            AllNodes.Add(Service.Arena());
         }
 
         return AllNodes;

@@ -7,13 +7,13 @@ using FoundryBlazor.PubSub;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
 using FoundryRulesAndUnits.Extensions;
-
+using FoundryRulesAndUnits.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace FoundryBlazor.Shape;
 
-public interface IArena
+public interface IArena: ITreeNode
 {
     void SetScene(Scene scene, Viewer viewer);
     Task RenderArena(Scene scene, int tick, double fps);
@@ -65,6 +65,19 @@ public class FoArena3D : FoGlyph3D, IArena
     {
         var stage = StageManager.CurrentStage();
         return stage;
+    }
+
+    public override IEnumerable<ITreeNode> GetTreeChildren()
+    {
+        var list = new List<ITreeNode>();
+        foreach (var item in StageManager.GetAllStages())
+        {
+            list.Add(item);
+        }
+        // if (  this.Scene is ITreeNode scene)
+        //     list.Add(scene);
+
+        return list;
     }
 
     // public void SetCanvasSizeInPixels(int width, int height)
@@ -351,8 +364,9 @@ public class FoArena3D : FoGlyph3D, IArena
 
         world.ShapeBodies()?.ForEach(body =>
         {
+            CurrentStage().AddShape<FoShape3D>(body);
             // $"RenderPlatformToScene Body Name={body.Name} Type={body.Type}".WriteInfo();
-            body.Render(Scene, 0, 0);
+            //body.Render(Scene, 0, 0);
         });
 
         world.Labels()?.ForEach(label =>
@@ -376,7 +390,7 @@ public class FoArena3D : FoGlyph3D, IArena
 
 
         //RefreshUI();
-        PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("RenderPlatformToScene"));
+        //PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("RenderPlatformToScene"));
         return true;
     }
 

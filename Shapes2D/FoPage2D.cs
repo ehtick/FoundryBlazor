@@ -94,7 +94,7 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
         return this;
     }
 
-    public override IEnumerable<ITreeNode> GetChildren()
+    public override IEnumerable<ITreeNode> GetTreeChildren()
     {
         var list = new List<ITreeNode>();
         foreach (var item in Shapes1D.Values())
