@@ -1,6 +1,7 @@
 using BlazorComponentBus;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Shared;
+
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -20,6 +21,7 @@ public interface IFoundryService
     IHitTestService HitTest();
     IQRCodeService QRCode();
     IToolManagement Tools();
+    IWorldManager WorldManager();
 }
 
 public class FoundryService : IFoundryService
@@ -28,6 +30,7 @@ public class FoundryService : IFoundryService
     protected ICommand cmd { get; set; }
     protected IDrawing drawing { get; set; }
     protected IArena arena { get; set; }
+    protected IWorldManager manager { get; set; }
     protected IPanZoomService panzoom { get; set; }
     protected ISelectionService selection { get; set; }
     protected IHitTestService hittest { get; set; }
@@ -45,6 +48,7 @@ public class FoundryService : IFoundryService
         IPanZoomService panzoom,
         IDrawing drawing,
         IArena arena,
+        IWorldManager manager,
         IPopupDialog dialog,
         IJSRuntime js,
         ComponentBus pubsub)
@@ -56,6 +60,7 @@ public class FoundryService : IFoundryService
         this.toast = toast;
         this.drawing = drawing;
         this.arena = arena;
+        this.manager = manager;
         this.panzoom = panzoom;
         this.selection = selection;
         this.hittest = hittest;
@@ -119,5 +124,10 @@ public class FoundryService : IFoundryService
     public IToolManagement Tools()
     {
         return Drawing().Tools();
+    }
+
+    public IWorldManager WorldManager()
+    {
+        return manager;
     }
 }
