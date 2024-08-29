@@ -21,16 +21,17 @@ public interface IArena: ITreeNode
     Task UpdateArena();
     void SetDoCreate(Action<CanvasMouseArgs> action);
 
-    bool RenderDrawingToScene(IDrawing drawing);
-    bool RenderWorld3DToScene(IWorld3D world);
-    void RenderWorld3D(IWorld3D world);
-    Task<bool> PreRender(FoGlyph3D glyph);
 
-    Task<bool> RemoveShapeFromScene(FoShape3D shape);
+    //void RenderWorld3D(IWorld3D world);
+    //Task<bool> PreRender(FoGlyph3D glyph);
+
+    //Task<bool> RemoveShapeFromScene(FoShape3D shape);
 
     V AddShape<V>(V shape) where V : FoGlyph3D;
     V RemoveShape<V>(V shape) where V : FoGlyph3D;
 
+    IStageManagement Stages();
+    List<FoStage3D> GetAllStages();
     FoStage3D CurrentStage();
     Scene CurrentScene();
     Viewer CurrentViewer();
@@ -66,16 +67,22 @@ public class FoArena3D : FoGlyph3D, IArena
         var stage = StageManager.CurrentStage();
         return stage;
     }
+    public IStageManagement Stages()
+    {
+        return StageManager;
+    }
+    public List<FoStage3D> GetAllStages()
+    {
+        return StageManager.GetAllStages();
+    }
 
     public override IEnumerable<ITreeNode> GetTreeChildren()
     {
         var list = new List<ITreeNode>();
-        foreach (var item in StageManager.GetAllStages())
+        foreach (var item in GetAllStages())
         {
             list.Add(item);
         }
-        // if (  this.Scene is ITreeNode scene)
-        //     list.Add(scene);
 
         return list;
     }
@@ -115,7 +122,8 @@ public class FoArena3D : FoGlyph3D, IArena
 
     public async Task UpdateArena()
     {
-        if (Viewer3D == null) return;
+        if (Viewer3D == null) 
+            return;
 
         //"UpdateArena".WriteInfo();
         await Viewer3D.UpdateScene();
@@ -323,87 +331,48 @@ public class FoArena3D : FoGlyph3D, IArena
         return true;
     }
 
-    public void RenderWorld3D(IWorld3D world)
-    {
-        if (world == null) return;
+    // public void RenderWorld3D(IWorld3D world)
+    // {
+    //     if (world == null) return;
 
-        $"RenderWorld {world.GetTreeNodeTitle()}".WriteNote();
+    //     $"RenderWorld {world.GetTreeNodeTitle()}".WriteNote();
 
-        Task.Run(async () =>
-        {
-            await PreRenderWorld3D(world);
-            RenderWorld3DToScene(world);
-            await UpdateArena();
-        });
-    }
-
-
-    public async Task PreRenderWorld3D(IWorld3D world)
-    {
-        //$"PreRenderWorld world={world}".WriteInfo();
-        if (world == null)
-        {
-            $"world is empty or viewer is not preent".WriteError();
-            return;
-        }
-
-        var bodies = world.ShapeBodies();
-        if (bodies != null)
-            await PreRenderShape3D(bodies);
-    }
+    //     Task.Run(async () =>
+    //     {
+    //         await PreRenderWorld3D(world);
+    //         RenderWorld3DToScene(world);
+    //         await UpdateArena();
+    //     });
+    // }
 
 
-    public bool RenderWorld3DToScene(IWorld3D world)
-    {
-        if (world == null || Scene == null)
-        {
-            $"world is empty or viewer is not present".WriteError();
-            return false;
-        }
+    // public async Task PreRenderWorld3D(IWorld3D world)
+    // {
+    //     //$"PreRenderWorld world={world}".WriteInfo();
+    //     if (world == null)
+    //     {
+    //         $"world is empty or viewer is not preent".WriteError();
+    //         return;
+    //     }
+
+    //     var bodies = world.ShapeBodies();
+    //     if (bodies != null)
+    //         await PreRenderGLBClones(bodies);
+    // }
 
 
-        world.ShapeBodies()?.ForEach(body =>
-        {
-            CurrentStage().AddShape<FoShape3D>(body);
-            // $"RenderPlatformToScene Body Name={body.Name} Type={body.Type}".WriteInfo();
-            //body.Render(Scene, 0, 0);
-        });
+   
 
-        world.Labels()?.ForEach(label =>
-        {
-            //$"RenderPlatformToScene Label Name={label.Name} Text={label.Text}".WriteInfo();
-            label.Render(Scene, 0, 0);
-        });
+    // public async Task<bool> RemoveShapeFromScene(FoShape3D shape)
+    // {
+    //     if ( Scene == null)
+    //         return false;
 
-        world.Panels()?.ForEach(panel =>
-        {
-            //$"RenderPlatformToScene Label Name={label.Name} Text={label.Text}".WriteInfo();
-            panel.Render(Scene, 0, 0);
-        });
-
-        world.Datums()?.ForEach(datum =>
-        {
-            // $"RenderPlatformToScene Datum {datum.Name}".WriteInfo();
-            datum.Render(Scene, 0, 0);
-        });
+    //     return await shape.RemoveFromRender(CurrentScene(), CurrentViewer());
+    // }
 
 
-
-        //RefreshUI();
-        //PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("RenderPlatformToScene"));
-        return true;
-    }
-
-    public async Task<bool> RemoveShapeFromScene(FoShape3D shape)
-    {
-        if ( Scene == null)
-            return false;
-
-        return await shape.RemoveFromRender(CurrentScene(), CurrentViewer());
-    }
-
-
-    public async Task PreRenderShape3D(List<FoShape3D> shapes)
+    public async Task PreRenderGLBClones(List<FoShape3D> shapes)
     {
         var glbBodies = shapes.Where((body) => body.Type.Matches("Glb")).ToList();
         var otherBodies = shapes.Where((body) => !body.Type.Matches("Glb")).ToList();

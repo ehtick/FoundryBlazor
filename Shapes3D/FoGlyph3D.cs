@@ -27,6 +27,9 @@ public class FoGlyph3D : FoComponent
         set { this.StatusBits.IsVisible = value; }
     }
 
+
+    public Action<Scene, FoGlyph3D>? ShapeDraw;
+
     public FoGlyph3D() : base("")
     {
     }
@@ -100,6 +103,15 @@ public class FoGlyph3D : FoComponent
         return false;
     }
 
+    public virtual async Task Draw(Scene ctx, int tick)
+    {
+        //await ctx.SaveAsync();
+        ShapeDraw?.Invoke(ctx, this);
+        //await ctx.RestoreAsync();
+        //await DrawPin(ctx);
+        await Task.CompletedTask;
+    }
+
     public FoGlyph3D MoveTo(int x, int y, int z)
     {
         var pos = GetPosition(x, y, z);
@@ -135,10 +147,10 @@ public class FoGlyph3D : FoComponent
         return false;
     }
 
-    public virtual bool Render(IArena arena, int tick, double fps, bool deep = true)
-    {
-        return Render (arena.CurrentScene(), tick, fps, deep);
-    }
+    // public virtual bool Render(IArena arena, int tick, double fps, bool deep = true)
+    // {
+    //     return Render(arena.CurrentScene(), tick, fps, deep);
+    // }
 
     public virtual bool Render(Scene ctx, int tick, double fps, bool deep = true)
     {

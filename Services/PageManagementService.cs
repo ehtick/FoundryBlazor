@@ -61,6 +61,12 @@ public class PageManagementService : FoComponent, IPageManagement
 
             return _page!;
         }
+        set
+        {
+            GetAllPages().ForEach(page => page.IsActive = false);
+            _page = value;
+            _page.IsActive = true;
+        }
     }
 
     public PageManagementService(
@@ -215,13 +221,12 @@ public class PageManagementService : FoComponent, IPageManagement
         if (_page == page && _page.IsActive)
             return _page;
 
-        Slot<FoPage2D>().ForEach(item => item.IsActive = false);
-        _page = page;
-        _page.IsActive = true;
+
+        ActivePage = page;
 
         //force refresh of hit testing
         FoGlyph2D.ResetHitTesting(true);
-        return _page;
+        return ActivePage;
     }
 
     public FoPage2D AddPage(FoPage2D page)
@@ -283,7 +288,7 @@ public class PageManagementService : FoComponent, IPageManagement
         shape.Key = "";
         shape.GlyphId = "";
 
-        AddShape<U>(shape);
+        Add<U>(shape);
         return shape;
     }
 

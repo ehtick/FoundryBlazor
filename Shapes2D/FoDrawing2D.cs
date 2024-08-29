@@ -243,7 +243,7 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
     public override IEnumerable<ITreeNode> GetTreeChildren()
     {
         var list = new List<ITreeNode>();
-        foreach (var item in PageManager.GetAllPages())
+        foreach (var item in GetAllPages())
         {
             list.Add(item);
         }

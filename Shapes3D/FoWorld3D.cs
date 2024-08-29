@@ -31,13 +31,14 @@ public interface IWorld3D: ITreeNode
 
     public IWorld3D RemoveDuplicates();
     public IWorld3D ClearAll();
+    void AddAction(string name, string color, Action action);
 
 }
 
 public class FoWorld3D : FoGlyph3D, IWorld3D
 {
 
-
+    public List<TreeNodeAction> DefaultActions = [];
     public FoWorld3D(string name) : base(name)
     {
         GetSlot<FoGroup3D>();
@@ -52,6 +53,18 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
     public string GetName()
     {
         return Key;
+    }
+
+    public void AddAction(string name, string color, Action action)
+    {
+        DefaultActions.AddAction(name, color, action);
+    }
+
+    public override IEnumerable<TreeNodeAction> GetTreeNodeActions()
+    {
+        var result = new List<TreeNodeAction>();
+        result.AddRange(DefaultActions);
+        return result;
     }
 
     public T AddGlyph3D<T>(T glyph) where T : FoGlyph3D
@@ -122,6 +135,18 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         return list;
     }
 
+    public bool PublishToStage(FoStage3D stage)
+    {
+        GetMembers<FoShape3D>()?.ForEach(shape => stage.AddShape<FoShape3D>(shape));
+        GetMembers<FoGroup3D>()?.ForEach(group => stage.AddShape<FoGroup3D>(group));
+        GetMembers<FoText3D>()?.ForEach(label => stage.AddShape<FoText3D>(label));
+        GetMembers<FoDatum3D>()?.ForEach(datum => stage.AddShape<FoDatum3D>(datum));
+        GetMembers<FoMenu3D>()?.ForEach(menu => stage.AddShape<FoMenu3D>(menu));
+        GetMembers<FoPanel3D>()?.ForEach(panel => stage.AddShape<FoPanel3D>(panel));
+        GetMembers<FoPathway3D>()?.ForEach(pathway => stage.AddShape<FoPathway3D>(pathway));
+
+        return true;
+    }
  
     public List<FoGroup3D>? ShapeGroups()
     {

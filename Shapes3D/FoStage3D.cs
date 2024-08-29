@@ -77,6 +77,8 @@ public class FoStage3D : FoGlyph3D, IStage
         return SetScene(scene,viewer);
     }
 
+
+
     public override IEnumerable<ITreeNode> GetTreeChildren()
     {
         var list = new List<ITreeNode>();
@@ -148,7 +150,6 @@ public class FoStage3D : FoGlyph3D, IStage
 
             value.Render(CurrentScene, 0, 0);
             IsDirty = true;
-            //FillStage();
         }
 
         return value;
@@ -175,6 +176,8 @@ public class FoStage3D : FoGlyph3D, IStage
             Pipes3D.Remove(value);
             //$"IPipe3D Added {value.Name}".WriteSuccess();
         }
+
+        //do we need to remove mesh from scene
 
         return value;
     }

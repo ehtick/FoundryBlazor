@@ -30,11 +30,26 @@ public class StageManagementService : FoComponent, IStageManagement
 {
 
     private bool RenderHitTestTree = false;
-    private FoStage3D ActiveStage { get; set; }
-    //private readonly FoCollection<FoStage3D> Stages = new();
     private readonly IHitTestService _hitTestService;
     private readonly ISelectionService _selectService;
 
+    private FoStage3D? _stage;
+    public FoStage3D ActiveStage
+    {
+        get
+        {
+            if (_stage?.IsActive != true)
+                $"Get Active Stage {_stage?.Key} is broken".WriteInfo();
+
+            return _stage!;
+        }
+        set
+        {
+            GetAllStages().ForEach(stage => stage.IsActive = false);
+            _stage = value;
+            _stage.IsActive = true;
+        }
+    }
 
     public StageManagementService
     (
@@ -44,7 +59,6 @@ public class StageManagementService : FoComponent, IStageManagement
         _hitTestService = hit;
         _selectService = sel;
 
-        ActiveStage = CurrentStage();
     }
 
 
@@ -82,9 +96,6 @@ public class StageManagementService : FoComponent, IStageManagement
      public T AddShape<T>(T value) where T : FoGlyph3D
     {
         var found = CurrentStage().AddShape(value);
-        //if ( found != null)
-        //    _hitTestService.Insert(value);
-
         return found!;
     }
 
@@ -107,29 +118,69 @@ public class StageManagementService : FoComponent, IStageManagement
                 found = new FoStage3D("Stage-1",10,10,10,"Red");
                 AddStage(found);
             }
-            ActiveStage = found;
-            ActiveStage.IsActive = true;
+            return SetCurrentStage(found);
         }
 
         return ActiveStage;
     }
-    public FoStage3D SetCurrentStage(FoStage3D page)
+    public FoStage3D SetCurrentStage(FoStage3D stage)
     {
-        ActiveStage = page;
-        Members<FoStage3D>().ForEach(item => item.IsActive = false);
-        ActiveStage.IsActive = true;
-        return ActiveStage!;
+        if (_stage == stage && _stage.IsActive)
+            return _stage;
+
+        ActiveStage = stage;
+
+        //force refresh of hit testing
+        FoGlyph2D.ResetHitTesting(true);
+        return ActiveStage;
     }
 
-    public FoStage3D AddStage(FoStage3D scene)
+    public FoStage3D AddStage(FoStage3D stage)
     {
-        var found = Members<FoStage3D>().Where(item => item == scene).FirstOrDefault();
+        var found = Members<FoStage3D>().Where(item => item == stage).FirstOrDefault();
         if (found == null)
-            Add(scene);
-        return scene;
+            Slot<FoStage3D>().Add(stage);
+        return stage;
     }
 
- 
+     public FoStage3D RemoveStage(FoStage3D stage)
+    {
+        var found = Members<FoStage3D>().Where(item => item == stage).FirstOrDefault();
+        if (found != null)
+        {
+            Slot<FoStage3D>().Remove(found);
+            if (found == _stage)
+            {
+                found = Members<FoStage3D>().FirstOrDefault();
+                SetCurrentStage(found!);
+            }
+        }
+        return stage;
+    }
+
+    public FoStage3D? FindStage(string name)
+    {
+        var found = Members<FoStage3D>().Where(item => item.Key.Matches(name)).FirstOrDefault();
+        return found;
+    }
+
+    public T Duplicate<T>(T value) where T : FoGlyph3D
+    {
+        var body = CodingExtensions.Dehydrate<T>(value, false);
+        var shape = CodingExtensions.Hydrate<T>(body, false);
+
+        shape.Key = "";
+        shape.GlyphId = "";
+
+        //SRS write a method to duplicate actions
+        shape.ShapeDraw = value.ShapeDraw;
+        shape.OpenCreater = value.OpenCreater;
+        shape.OpenEditor = value.OpenEditor;
+        shape.OpenViewer = value.OpenViewer;
+
+        AddShape<T>(shape);
+        return shape;
+    }
 
     public U MorphTo<T, U>(T value) where T : FoGlyph3D where U : FoGlyph3D
     {
@@ -151,5 +202,8 @@ public class StageManagementService : FoComponent, IStageManagement
         menu?.Clear();
     }
 
-
+    public virtual async Task Draw(Scene ctx, int tick)
+    {
+        await CurrentStage().Draw(ctx, tick);
+    }
 }
