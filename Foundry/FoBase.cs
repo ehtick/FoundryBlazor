@@ -69,7 +69,7 @@ public class FoBase: ITreeNode
         return null;
     }
 
-    public virtual IEnumerable<ITreeNode> GetChildren()
+    public virtual IEnumerable<ITreeNode> GetTreeChildren()
     {
         return new List<ITreeNode>();
     }

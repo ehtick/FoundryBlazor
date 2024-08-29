@@ -31,9 +31,11 @@ public class FoFolder : FoBase
         return this;
     }
 
-    public override IEnumerable<ITreeNode> GetChildren()
+    public override IEnumerable<ITreeNode> GetTreeChildren()
     {
-        return Children;
+        var result = new List<ITreeNode>();
+        result.AddRange(Children);
+        return result;
     }
 
     public bool AddReference(FoBase? item)

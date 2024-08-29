@@ -599,9 +599,9 @@ public class FoShape3D : FoGlyph3D, IShape3D
             }
         };
 
+        //delete mesh if you are invisible
         if (ShapeMesh != null && !IsVisible)
         {
-            //ctx.Add(ShapeMesh);
             ctx.Remove(ShapeMesh);
             ShapeMesh = null;
         }
@@ -698,23 +698,9 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override bool Render(Scene ctx, int tick, double fps, bool deep = true)
     {
-        // if ( ShapeObject3D != null && IsVisible)
-        // {
-        //     ctx.Add(ShapeObject3D);
-        //     return true;
-        // }
-        // else if ( ShapeObject3D != null && !IsVisible)
-        // {
-        //     ctx.Remove(ShapeObject3D);
-        //     ShapeObject3D = null;
-        //     return true;
-        // }
-
         RenderPrimitives(ctx);
 
         SetupHitTest(ctx, tick, fps, deep);
-
-
         return true;
     }
 

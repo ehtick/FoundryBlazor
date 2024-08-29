@@ -4,6 +4,7 @@ using BlazorThreeJS.Scenes;
 using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Models;
 
 
 namespace FoundryBlazor.Shape;
@@ -14,6 +15,7 @@ public class FoGlyph3D : FoComponent
     public float Opacity { get; set; } = 1.0F;
     public string Color { get; set; } = "Green";
     public string Address { get; set; } = "";
+
 
     protected double width = 0;
     public double Width { get { return this.width; } set { this.width = AssignDouble(value, width); } }
@@ -27,6 +29,21 @@ public class FoGlyph3D : FoComponent
         set { this.StatusBits.IsVisible = value; }
     }
 
+
+    public Action<Scene, FoGlyph3D>? ShapeDraw;
+    public List<TreeNodeAction> DefaultActions = [];
+    public void AddAction(string name, string color, Action action)
+    {
+        DefaultActions.AddAction(name, color, action);
+    }
+
+    public override IEnumerable<TreeNodeAction> GetTreeNodeActions()
+    {
+        var result = new List<TreeNodeAction>();
+        result.AddRange(DefaultActions);
+        return result;
+    }
+    
     public FoGlyph3D() : base("")
     {
     }
@@ -100,6 +117,15 @@ public class FoGlyph3D : FoComponent
         return false;
     }
 
+    public virtual async Task Draw(Scene ctx, int tick)
+    {
+        //await ctx.SaveAsync();
+        ShapeDraw?.Invoke(ctx, this);
+        //await ctx.RestoreAsync();
+        //await DrawPin(ctx);
+        await Task.CompletedTask;
+    }
+
     public FoGlyph3D MoveTo(int x, int y, int z)
     {
         var pos = GetPosition(x, y, z);
@@ -134,6 +160,8 @@ public class FoGlyph3D : FoComponent
         await Task.CompletedTask;
         return false;
     }
+
+
 
     public virtual bool Render(Scene ctx, int tick, double fps, bool deep = true)
     {

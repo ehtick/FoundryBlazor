@@ -1,4 +1,5 @@
 using BlazorThreeJS.Scenes;
+using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
 
@@ -6,8 +7,8 @@ namespace FoundryBlazor.Shape;
 
 public interface IStageManagement
 {
-
-    FoStage3D CurrentStage();
+    FoStage3D? FindStage(string name);
+    FoStage3D EstablishStage(Scene scene, Viewer viewer, string name="Stage-1");
     FoStage3D SetCurrentStage(FoStage3D page);
     FoStage3D AddStage(FoStage3D page);
 
@@ -15,6 +16,7 @@ public interface IStageManagement
     V RemoveShape<V>(V shape) where V : FoGlyph3D;
     void ClearAll();
     int StageCount();
+    List<FoStage3D> GetAllStages();
 
     Task RenderDetailed(Scene scene, int tick, double fps);
 
@@ -29,11 +31,26 @@ public class StageManagementService : FoComponent, IStageManagement
 {
 
     private bool RenderHitTestTree = false;
-    private FoStage3D ActiveStage { get; set; }
-    //private readonly FoCollection<FoStage3D> Stages = new();
     private readonly IHitTestService _hitTestService;
     private readonly ISelectionService _selectService;
 
+    private FoStage3D? _stage;
+    public FoStage3D ActiveStage
+    {
+        get
+        {
+            if (_stage?.IsActive != true)
+                $"Get Active Stage {_stage?.Key} is broken".WriteInfo();
+
+            return _stage!;
+        }
+        set
+        {
+            GetAllStages().ForEach(stage => stage.IsActive = false);
+            _stage = value;
+            _stage.IsActive = true;
+        }
+    }
 
     public StageManagementService
     (
@@ -43,11 +60,13 @@ public class StageManagementService : FoComponent, IStageManagement
         _hitTestService = hit;
         _selectService = sel;
 
-        ActiveStage = CurrentStage();
     }
 
 
-
+    public List<FoStage3D> GetAllStages()
+    {
+        return Members<FoStage3D>();
+    }
     public int StageCount()
     {
         return Members<FoStage3D>().Count;
@@ -55,7 +74,7 @@ public class StageManagementService : FoComponent, IStageManagement
 
     public async Task RenderDetailed(Scene scene, int tick, double fps)
     {
-        await CurrentStage().RenderDetailed(scene, tick, fps);
+        await ActiveStage.RenderDetailed(scene, tick, fps);
     }
 
 
@@ -63,7 +82,7 @@ public class StageManagementService : FoComponent, IStageManagement
     public void ClearAll()
     {
         FoGlyph2D.ResetHitTesting(true,"ClearAll");
-       // CurrentStage().ClearAll();
+        ActiveStage.ClearAll();
     }
 
     public bool ToggleHitTestRender()
@@ -77,55 +96,96 @@ public class StageManagementService : FoComponent, IStageManagement
 
      public T AddShape<T>(T value) where T : FoGlyph3D
     {
-        var found = CurrentStage().AddShape(value);
-        //if ( found != null)
-        //    _hitTestService.Insert(value);
-
+        var found = ActiveStage.AddShape(value);
         return found!;
     }
 
     public T RemoveShape<T>(T value) where T : FoGlyph3D
     {
-        var found = CurrentStage().RemoveShape(value);
+        var found = ActiveStage.RemoveShape(value);
         //if ( found != null)
         //    _hitTestService.Insert(value);
 
         return found!;
     }
 
-    public FoStage3D CurrentStage()
+    public FoStage3D EstablishStage(Scene scene, Viewer viewer, string name="Stage-1")
     {
-        if (ActiveStage == null)
+        if (_stage == null)
         {
-            var found = Members<FoStage3D>().Where(page => page.IsActive).FirstOrDefault();
+            var found = Members<FoStage3D>().Where(stage => stage.IsActive).FirstOrDefault();
             if (found == null)
             {
-                found = new FoStage3D("Stage-1",10,10,10,"Red");
+                found = new FoStage3D(name,10,10,10,"Red");
+                found.InitScene(scene,viewer);
                 AddStage(found);
             }
-            ActiveStage = found;
-            ActiveStage.IsActive = true;
+            return SetCurrentStage(found);
         }
 
         return ActiveStage;
     }
-    public FoStage3D SetCurrentStage(FoStage3D page)
+
+    public FoStage3D SetCurrentStage(FoStage3D stage)
     {
-        ActiveStage = page;
-        Members<FoStage3D>().ForEach(item => item.IsActive = false);
-        ActiveStage.IsActive = true;
-        return ActiveStage!;
+        if (_stage == stage && _stage.IsActive)
+            return _stage;
+
+        ActiveStage = stage;
+
+        //force refresh of hit testing
+        FoGlyph2D.ResetHitTesting(true);
+        return ActiveStage;
     }
 
-    public FoStage3D AddStage(FoStage3D scene)
+    public FoStage3D AddStage(FoStage3D stage)
     {
-        var found = Members<FoStage3D>().Where(item => item == scene).FirstOrDefault();
+        var found = Members<FoStage3D>().Where(item => item == stage).FirstOrDefault();
         if (found == null)
-            Add(scene);
-        return scene;
+        {
+            Slot<FoStage3D>().Add(stage);
+        }
+        return stage;
     }
 
- 
+     public FoStage3D RemoveStage(FoStage3D stage)
+    {
+        var found = Members<FoStage3D>().Where(item => item == stage).FirstOrDefault();
+        if (found != null)
+        {
+            Slot<FoStage3D>().Remove(found);
+            if (found == _stage)
+            {
+                found = Members<FoStage3D>().FirstOrDefault();
+                SetCurrentStage(found!);
+            }
+        }
+        return stage;
+    }
+
+    public FoStage3D? FindStage(string name)
+    {
+        var found = Members<FoStage3D>().Where(item => item.Key.Matches(name)).FirstOrDefault();
+        return found;
+    }
+
+    public T Duplicate<T>(T value) where T : FoGlyph3D
+    {
+        var body = CodingExtensions.Dehydrate<T>(value, false);
+        var shape = CodingExtensions.Hydrate<T>(body, false);
+
+        shape.Key = "";
+        shape.GlyphId = "";
+
+        //SRS write a method to duplicate actions
+        shape.ShapeDraw = value.ShapeDraw;
+        shape.OpenCreater = value.OpenCreater;
+        shape.OpenEditor = value.OpenEditor;
+        shape.OpenViewer = value.OpenViewer;
+
+        AddShape<T>(shape);
+        return shape;
+    }
 
     public U MorphTo<T, U>(T value) where T : FoGlyph3D where U : FoGlyph3D
     {
@@ -142,10 +202,13 @@ public class StageManagementService : FoComponent, IStageManagement
 
     public void ClearMenu3D<U>(string name) where U : FoMenu3D
     {
-        var stage = CurrentStage();
-        var menu = stage.Find<U>(name);
+
+        var menu = ActiveStage.Find<U>(name);
         menu?.Clear();
     }
 
-
+    public virtual async Task Draw(Scene ctx, int tick)
+    {
+        await ActiveStage.Draw(ctx, tick);
+    }
 }

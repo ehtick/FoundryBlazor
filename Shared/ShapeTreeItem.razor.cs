@@ -47,11 +47,10 @@ public partial class ShapeTreeItemBase : ComponentBase
 
     protected async Task EvalAction(ITreeNode item, TreeNodeAction action, ITreeNode? parent)
     {
+        //$"EvalAction {action.Name} {action.Style}".WriteSuccess();
+        action.Action.Invoke(); 
         await Task.CompletedTask;
-
-        $"EvalKnAction {action.Name} {action.Style}".WriteSuccess();
-        // action.Action.Invoke(); 
-        // PubSub?.Publish<RefreshRenderMessage>(RefreshRenderMessage.ClearAllSelected());   
+        //PubSub?.Publish<RefreshRenderMessage>(RefreshRenderMessage.ClearAllSelected());   
     }
 
 

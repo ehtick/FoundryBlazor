@@ -81,7 +81,7 @@
         @if (item.HasChildren() && !item.IsCollapsed())
         {
             <ShapeTreeItem 
-                Items = "@item.GetChildren()" 
+                Items = "@item.GetTreeChildren()" 
                 Parent = "@item"
                 Level = "@(Level + 1)" 
                 OnSelect="ItemSelected">
