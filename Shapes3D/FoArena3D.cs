@@ -65,7 +65,7 @@ public class FoArena3D : FoGlyph3D, IArena
 
     public FoStage3D CurrentStage()
     {
-        var stage = StageManager.CurrentStage();
+        var stage = StageManager.EstablishStage(CurrentScene(), Viewer3D!);
         return stage;
     }
     public IStageManagement Stages()

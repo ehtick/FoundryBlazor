@@ -1,4 +1,5 @@
 using BlazorThreeJS.Scenes;
+using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
 
@@ -7,7 +8,7 @@ namespace FoundryBlazor.Shape;
 public interface IStageManagement
 {
 
-    FoStage3D CurrentStage();
+    FoStage3D EstablishStage(Scene scene, Viewer viewer, string name="Stage-1");
     FoStage3D SetCurrentStage(FoStage3D page);
     FoStage3D AddStage(FoStage3D page);
 
@@ -73,7 +74,7 @@ public class StageManagementService : FoComponent, IStageManagement
 
     public async Task RenderDetailed(Scene scene, int tick, double fps)
     {
-        await CurrentStage().RenderDetailed(scene, tick, fps);
+        await ActiveStage.RenderDetailed(scene, tick, fps);
     }
 
 
@@ -81,7 +82,7 @@ public class StageManagementService : FoComponent, IStageManagement
     public void ClearAll()
     {
         FoGlyph2D.ResetHitTesting(true,"ClearAll");
-       // CurrentStage().ClearAll();
+        ActiveStage.ClearAll();
     }
 
     public bool ToggleHitTestRender()
@@ -95,27 +96,28 @@ public class StageManagementService : FoComponent, IStageManagement
 
      public T AddShape<T>(T value) where T : FoGlyph3D
     {
-        var found = CurrentStage().AddShape(value);
+        var found = ActiveStage.AddShape(value);
         return found!;
     }
 
     public T RemoveShape<T>(T value) where T : FoGlyph3D
     {
-        var found = CurrentStage().RemoveShape(value);
+        var found = ActiveStage.RemoveShape(value);
         //if ( found != null)
         //    _hitTestService.Insert(value);
 
         return found!;
     }
 
-    public FoStage3D CurrentStage()
+    public FoStage3D EstablishStage(Scene scene, Viewer viewer, string name="Stage-1")
     {
         if (ActiveStage == null)
         {
             var found = Members<FoStage3D>().Where(stage => stage.IsActive).FirstOrDefault();
             if (found == null)
             {
-                found = new FoStage3D("Stage-1",10,10,10,"Red");
+                found = new FoStage3D(name,10,10,10,"Red");
+                found.InitScene(scene,viewer);
                 AddStage(found);
             }
             return SetCurrentStage(found);
@@ -131,13 +133,6 @@ public class StageManagementService : FoComponent, IStageManagement
 
         ActiveStage = stage;
 
-        var arena = stage.GetParentOfType<FoArena3D>();
-        if ( arena != null)
-            stage.InitScene(arena.CurrentScene(),arena.CurrentViewer());
-        else
-            $"SetCurrentStage {stage.Key} has no parent".WriteWarning();
-            
-
         //force refresh of hit testing
         FoGlyph2D.ResetHitTesting(true);
         return ActiveStage;
@@ -148,7 +143,6 @@ public class StageManagementService : FoComponent, IStageManagement
         var found = Members<FoStage3D>().Where(item => item == stage).FirstOrDefault();
         if (found == null)
         {
-            stage.GetParent = () => this;
             Slot<FoStage3D>().Add(stage);
         }
         return stage;
@@ -208,13 +202,13 @@ public class StageManagementService : FoComponent, IStageManagement
 
     public void ClearMenu3D<U>(string name) where U : FoMenu3D
     {
-        var stage = CurrentStage();
-        var menu = stage.Find<U>(name);
+
+        var menu = ActiveStage.Find<U>(name);
         menu?.Clear();
     }
 
     public virtual async Task Draw(Scene ctx, int tick)
     {
-        await CurrentStage().Draw(ctx, tick);
+        await ActiveStage.Draw(ctx, tick);
     }
 }
