@@ -38,7 +38,6 @@ public interface IWorld3D: ITreeNode
 public class FoWorld3D : FoGlyph3D, IWorld3D
 {
 
-    public List<TreeNodeAction> DefaultActions = [];
     public FoWorld3D(string name) : base(name)
     {
         GetSlot<FoGroup3D>();
@@ -55,17 +54,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         return Key;
     }
 
-    public void AddAction(string name, string color, Action action)
-    {
-        DefaultActions.AddAction(name, color, action);
-    }
 
-    public override IEnumerable<TreeNodeAction> GetTreeNodeActions()
-    {
-        var result = new List<TreeNodeAction>();
-        result.AddRange(DefaultActions);
-        return result;
-    }
 
     public T AddGlyph3D<T>(T glyph) where T : FoGlyph3D
     {

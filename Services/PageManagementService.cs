@@ -202,7 +202,7 @@ public class PageManagementService : FoComponent, IPageManagement
 
     public FoPage2D CurrentPage()
     {
-        if (ActivePage == null)
+        if (_page == null)
         {
             var found = Members<FoPage2D>().Where(page => page.IsActive).FirstOrDefault();
             if (found == null)

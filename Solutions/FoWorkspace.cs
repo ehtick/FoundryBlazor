@@ -221,6 +221,16 @@ public class FoWorkspace : FoComponent, IWorkspace
         return CurrentWorkbook().CurrentPage();
     }
 
+    public FoStage3D EstablishCurrentStage<T>(string pagename, string color = "Ivory") where T : FoStage3D
+    {
+        return CurrentWorkbook().EstablishCurrentStage<T>(pagename, color);
+    }
+
+    public FoStage3D CurrentStage()
+    {
+        return CurrentWorkbook().CurrentStage();
+    }
+
     public virtual async Task RenderWatermark(Canvas2DContext ctx, int tick)
     {
         AllWorkbooks()?.ForEach(async item =>

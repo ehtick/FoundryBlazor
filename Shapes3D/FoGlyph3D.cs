@@ -4,6 +4,7 @@ using BlazorThreeJS.Scenes;
 using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Models;
 
 
 namespace FoundryBlazor.Shape;
@@ -30,7 +31,19 @@ public class FoGlyph3D : FoComponent
 
 
     public Action<Scene, FoGlyph3D>? ShapeDraw;
+    public List<TreeNodeAction> DefaultActions = [];
+    public void AddAction(string name, string color, Action action)
+    {
+        DefaultActions.AddAction(name, color, action);
+    }
 
+    public override IEnumerable<TreeNodeAction> GetTreeNodeActions()
+    {
+        var result = new List<TreeNodeAction>();
+        result.AddRange(DefaultActions);
+        return result;
+    }
+    
     public FoGlyph3D() : base("")
     {
     }

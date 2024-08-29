@@ -2,6 +2,7 @@ using Blazor.Extensions.Canvas.Canvas2D;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Shared.SVG;
 using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Models;
 using System.Drawing;
 using Unglide;
 
@@ -184,6 +185,19 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
     protected Matrix2D? _matrix;
     protected Matrix2D? _invMatrix;
 
+    public List<TreeNodeAction> DefaultActions = [];
+    public void AddAction(string name, string color, Action action)
+    {
+        DefaultActions.AddAction(name, color, action);
+    }
+
+    public override IEnumerable<TreeNodeAction> GetTreeNodeActions()
+    {
+        var result = new List<TreeNodeAction>();
+        result.AddRange(DefaultActions);
+        return result;
+    }
+    
     public FoGlyph2D() : base("")
     {
         Color = "Green";

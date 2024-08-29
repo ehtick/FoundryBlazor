@@ -15,13 +15,13 @@ namespace FoundryBlazor.Shape;
 
 public interface IArena: ITreeNode
 {
-    void SetScene(Scene scene, Viewer viewer);
+    void SetSceneAndViewer(Scene scene, Viewer viewer);
     Task RenderArena(Scene scene, int tick, double fps);
     Task ClearArena();
     Task UpdateArena();
     void SetDoCreate(Action<CanvasMouseArgs> action);
 
-
+    FoStage3D SetCurrentStage(FoStage3D stage);
     //void RenderWorld3D(IWorld3D world);
     //Task<bool> PreRender(FoGlyph3D glyph);
 
@@ -62,7 +62,13 @@ public class FoArena3D : FoGlyph3D, IArena
 
         PubSub = pubSub;
     }
-
+    public FoStage3D SetCurrentStage(FoStage3D stage)
+    {
+        StageManager.SetCurrentStage(stage);
+        stage.InitScene(CurrentScene(), Viewer3D!);
+        //PanZoomService.ReadFromPage(page);
+        return stage;
+    }
     public FoStage3D CurrentStage()
     {
         var stage = StageManager.EstablishStage(CurrentScene(), Viewer3D!);
@@ -104,6 +110,7 @@ public class FoArena3D : FoGlyph3D, IArena
 
     public V AddShape<V>(V shape) where V : FoGlyph3D
     {
+        CurrentStage();
         return StageManager.AddShape<V>(shape);
     }
 
@@ -130,11 +137,11 @@ public class FoArena3D : FoGlyph3D, IArena
         await Viewer3D.UpdateScene();
     }
 
-    public void SetScene(Scene scene, Viewer viewer)
+    public void SetSceneAndViewer(Scene scene, Viewer viewer)
     {
         Viewer3D = viewer;
         Scene = scene;
-
+        $"SetSceneAndViewer {Name} {scene.Name}".WriteSuccess();
     }
 
     public Viewer CurrentViewer()

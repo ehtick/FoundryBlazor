@@ -13,6 +13,9 @@ public interface IWorkbook
 {
     FoPage2D CurrentPage();
     FoPage2D EstablishCurrentPage<T>(string pagename, string color = "Ivory") where T : FoPage2D;
+    FoStage3D CurrentStage();
+    FoStage3D EstablishCurrentStage<T>(string pagename, string color = "Ivory") where T : FoStage3D;
+
     void CreateCommands(IWorkspace space, IJSRuntime js, NavigationManager nav, string serverUrl);
     List<IFoCommand> CollectCommands(List<IFoCommand> list);
     List<IFoMenu> CollectMenus(List<IFoMenu> list);
@@ -39,7 +42,7 @@ public class FoWorkbook : FoComponent, IWorkbook
     public bool IsActive { get; set; } = false;
     public bool IsDirty { get; set; } = false;
     private FoPage2D? WorkPage { get; set; }
-
+    private FoStage3D? WorkStage { get; set; }
     public FoWorkbook(IWorkspace space, IFoundryService foundry)
     {
         Workspace = space;
@@ -73,6 +76,28 @@ public class FoWorkbook : FoComponent, IWorkbook
             return WorkPage;
 
         return EstablishCurrentPage<FoPage2D>(Key, "Black");
+    }
+
+    public FoStage3D EstablishCurrentStage<T>(string pagename, string color) where T: FoStage3D
+    {
+        var arena = Workspace.GetArena()!;
+        var manager = arena.Stages();
+        WorkStage = manager.FindStage(pagename);
+        if (WorkStage == null)
+        {
+            WorkStage = (Activator.CreateInstance(typeof(T), pagename, color) as FoStage3D)!;
+            manager.AddStage(WorkStage);
+        }
+        arena.SetCurrentStage(WorkStage);
+        return WorkStage;
+    }
+
+    public FoStage3D CurrentStage()
+    {
+        if (WorkStage != null)
+            return WorkStage;
+
+        return EstablishCurrentStage<FoStage3D>(Key, "Black");
     }
 
     public virtual void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)

@@ -97,7 +97,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
         if (firstRender)
         {
             var arena = Workspace?.GetArena();
-            arena?.SetScene(GetActiveScene(), ThreeJSViewer3D);
+            arena?.SetSceneAndViewer(GetActiveScene(), ThreeJSViewer3D);
 
             PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
             ThreeJSViewer3D.ObjectLoaded += OnThreeJSObjectLoaded;
