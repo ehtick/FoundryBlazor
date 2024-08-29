@@ -65,7 +65,11 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return false;
     }
 
-
+    public override string GetTreeNodeTitle()
+    {
+        var HasMesh = ShapeMesh != null ? "Mesh" : "No Mesh";
+        return $"{Key} {GetType().Name}  {GeomType}  {HasMesh}";
+    }
 
 
     public FoShape3D CreateBox(string name, double width, double height, double depth)
@@ -549,9 +553,14 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override async Task<bool> PreRender(FoArena3D arena, Viewer viewer, bool deep = true)
     {
+        if ( ShapeMesh != null || ShapeObject3D != null)
+            return true;
+            
         //is symbol ends with ....
         //LoadingURL = Symbol.Replace("http:", "https:");
         //await Task.CompletedTask;
+
+        $"Shape PRERENDER {Name}".WriteWarning();
 
         LoadingURL = Url;
         var result = GeomType switch

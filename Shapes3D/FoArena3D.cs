@@ -21,6 +21,8 @@ public interface IArena: ITreeNode
     Task UpdateArena();
     void SetDoCreate(Action<CanvasMouseArgs> action);
 
+    Task<bool> PreRender(FoGlyph3D glyph);
+
     FoStage3D SetCurrentStage(FoStage3D stage);
     void AddAction(string name, string color, Action action);
 

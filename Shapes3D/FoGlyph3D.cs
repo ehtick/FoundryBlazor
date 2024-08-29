@@ -158,6 +158,7 @@ public class FoGlyph3D : FoComponent
     public virtual async Task<bool> PreRender(FoArena3D arena, Viewer viewer, bool deep = true)
     {
         await Task.CompletedTask;
+        $"NO Prerender {Name}".WriteWarning();
         return false;
     }
 
