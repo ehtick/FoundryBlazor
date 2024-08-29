@@ -176,11 +176,13 @@ public class FoStage3D : FoGlyph3D, IStage
         return value;
     }
 
-
+    public void PreRender(IArena arena)
+    {
+        Shapes3D?.ForEach(async shape => await arena.PreRender(shape));
+    }
     public async Task RenderDetailed(Scene scene, int tick, double fps)
     {
         IsDirty = false;
-
         Shapes3D?.ForEach(shape => shape.Render(scene, tick, fps));
         Pipes3D?.ForEach(shape => shape.Render(scene, tick, fps));
         await Task.CompletedTask;
