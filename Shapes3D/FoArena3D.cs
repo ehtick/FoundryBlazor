@@ -59,6 +59,7 @@ public class FoArena3D : FoGlyph3D, IArena
         ComponentBus pubSub)
     {
         StageManager = manager;
+
         PubSub = pubSub;
     }
 
@@ -133,7 +134,7 @@ public class FoArena3D : FoGlyph3D, IArena
     {
         Viewer3D = viewer;
         Scene = scene;
-        CurrentStage().InitScene(scene,viewer);
+
     }
 
     public Viewer CurrentViewer()

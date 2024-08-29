@@ -112,7 +112,7 @@ public class StageManagementService : FoComponent, IStageManagement
     {
         if (ActiveStage == null)
         {
-            var found = Members<FoStage3D>().Where(page => page.IsActive).FirstOrDefault();
+            var found = Members<FoStage3D>().Where(stage => stage.IsActive).FirstOrDefault();
             if (found == null)
             {
                 found = new FoStage3D("Stage-1",10,10,10,"Red");
@@ -123,12 +123,20 @@ public class StageManagementService : FoComponent, IStageManagement
 
         return ActiveStage;
     }
+
     public FoStage3D SetCurrentStage(FoStage3D stage)
     {
         if (_stage == stage && _stage.IsActive)
             return _stage;
 
         ActiveStage = stage;
+
+        var arena = stage.GetParentOfType<FoArena3D>();
+        if ( arena != null)
+            stage.InitScene(arena.CurrentScene(),arena.CurrentViewer());
+        else
+            $"SetCurrentStage {stage.Key} has no parent".WriteWarning();
+            
 
         //force refresh of hit testing
         FoGlyph2D.ResetHitTesting(true);
@@ -139,7 +147,10 @@ public class StageManagementService : FoComponent, IStageManagement
     {
         var found = Members<FoStage3D>().Where(item => item == stage).FirstOrDefault();
         if (found == null)
+        {
+            stage.GetParent = () => this;
             Slot<FoStage3D>().Add(stage);
+        }
         return stage;
     }
 

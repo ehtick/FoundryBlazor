@@ -15,6 +15,7 @@ public class FoGlyph3D : FoComponent
     public string Color { get; set; } = "Green";
     public string Address { get; set; } = "";
 
+
     protected double width = 0;
     public double Width { get { return this.width; } set { this.width = AssignDouble(value, width); } }
     protected double height = 0;
@@ -147,10 +148,7 @@ public class FoGlyph3D : FoComponent
         return false;
     }
 
-    // public virtual bool Render(IArena arena, int tick, double fps, bool deep = true)
-    // {
-    //     return Render(arena.CurrentScene(), tick, fps, deep);
-    // }
+
 
     public virtual bool Render(Scene ctx, int tick, double fps, bool deep = true)
     {

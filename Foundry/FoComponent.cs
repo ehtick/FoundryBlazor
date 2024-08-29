@@ -59,6 +59,7 @@ public class FoComponent : FoBase, IFoComponent
     public string Type { get; init; }
     private SlotGroups Slots { get; set; } = new();
 
+    public Func<FoComponent?> GetParent = () => null;
 
     public FoComponent(string key = "") : base(key)
     {
@@ -76,6 +77,21 @@ public class FoComponent : FoBase, IFoComponent
         return found;
     }
 
+    public T? GetParentOfType<T>() where T : FoComponent
+    {
+        if ( this is T)
+            return this as T;
+
+
+        var parent = GetParent();
+        if ( parent == null)
+            return null;
+            
+        if ( parent is T)
+            return parent as T;
+
+        return parent.GetParentOfType<T>();
+    }
 
     public virtual FoCollection<T> Slot<T>() where T : FoBase
     {

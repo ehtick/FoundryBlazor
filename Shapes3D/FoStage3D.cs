@@ -14,7 +14,6 @@ namespace FoundryBlazor.Shape;
 public interface IStage
 {
     FoStage3D ClearAll();
-    Scene SetScene(Scene scene, Viewer viewer);
     V AddShape<V>(V shape) where V : FoGlyph3D;
     T RemoveShape<T>(T value) where T : FoGlyph3D;
 }
@@ -32,7 +31,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
     private Scene? CurrentScene { get; set; }
     private Viewer? CurrentViewer { get; set; }
-    private Mesh? ShapeMesh { get; set; }
+    private Mesh? StageMesh { get; set; }
 
 
 
@@ -58,23 +57,22 @@ public class FoStage3D : FoGlyph3D, IStage
     }
 
 
-    public Scene SetScene(Scene scene, Viewer viewer)
-    {
-        CurrentScene = scene;
-        CurrentViewer = viewer;
-        return CurrentScene;
-    }
-
-
     public Scene InitScene(Scene scene, Viewer viewer)
     {
-        scene.Add(new AmbientLight());
-        scene.Add(new PointLight()
+        if ( CurrentScene == null ) 
         {
-            Position = new Vector3(1, 3, 0)
-        });
+            scene.Add(new AmbientLight());
+            scene.Add(new PointLight()
+            {
+                Position = new Vector3(1, 3, 0)
+            });
+        }
 
-        return SetScene(scene,viewer);
+        CurrentScene = scene;
+        CurrentViewer = viewer;
+
+        $"InitScene {scene.Name}".WriteSuccess();
+        return CurrentScene;
     }
 
 
@@ -102,10 +100,11 @@ public class FoStage3D : FoGlyph3D, IStage
 
     public bool EstablishBoundry()
     {
-        if (ShapeMesh != null) return false;
+        if (StageMesh != null) 
+            return false;
 
 
-        ShapeMesh = new Mesh
+        StageMesh = new Mesh
         {
             Geometry = new BoxGeometry(Width, Height, Depth),
             Position = new Vector3(0, 0, 0),
@@ -116,7 +115,7 @@ public class FoStage3D : FoGlyph3D, IStage
             }
         };
 
-        CurrentScene?.Add(ShapeMesh);
+        CurrentScene?.Add(StageMesh);
 
 
         //$"EstablishBoundry {Width} {Height} {Depth}".WriteSuccess();
@@ -125,7 +124,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
     public T AddShape<T>(T value) where T : FoGlyph3D
     {
-
+        IsDirty = true;
         var collection = DynamicSlot(value.GetType());
         if (string.IsNullOrEmpty(value.Key))
         {
@@ -145,19 +144,14 @@ public class FoStage3D : FoGlyph3D, IStage
             //$"IPipe3D Added {value.Name}".WriteSuccess();
         }
 
-        if (CurrentScene != null)
-        {
 
-            value.Render(CurrentScene, 0, 0);
-            IsDirty = true;
-        }
 
         return value;
     }
 
     public T RemoveShape<T>(T value) where T : FoGlyph3D
     {
-
+        IsDirty = true;
         var collection = DynamicSlot(value.GetType());
         if (string.IsNullOrEmpty(value.Key))
         {
@@ -181,21 +175,20 @@ public class FoStage3D : FoGlyph3D, IStage
 
         return value;
     }
+
+
     public async Task RenderDetailed(Scene scene, int tick, double fps)
     {
-        //$"RenderDetailed {tick} {Shapes3D.Count()}".WriteInfo();
-        Shapes3D?.ForEach(shape => shape.ContextLink?.Invoke(shape, tick));
+        IsDirty = false;
+
+        Shapes3D?.ForEach(shape => shape.Render(scene, tick, fps));
+        Pipes3D?.ForEach(shape => shape.Render(scene, tick, fps));
         await Task.CompletedTask;
     }
-    // public override bool Render(Scene ctx, int tick, double fps, bool deep = true)
-    // {
-    //     $"Render {tick} {Shapes3D.Count()}".WriteInfo();
-    //     Shapes3D?.ForEach(shape => shape.ContextLink?.Invoke(shape,tick));
-    //     return true;
-    // }
 
 
-    private void FillStage()
+
+    private void TestAddingMeshesToSceneDirectly()
     {
         if (CurrentScene == null) return;
 

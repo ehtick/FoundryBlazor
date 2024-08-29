@@ -154,7 +154,7 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
         return foDynamicRender;
     }
 
-    public Func<FoGlyph2D?> GetParent = () => null;
+
 
     public Func<FoGlyph2D, int> LocPinX = (obj) => obj.Width / 2;
     public Func<FoGlyph2D, int> LocPinY = (obj) => obj.Height / 2;

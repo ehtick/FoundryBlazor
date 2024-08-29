@@ -37,7 +37,12 @@ public partial class ShapeTreeBase : ComponentBase
             AllNodes.Add(Service.Arena());
 
             if ( _addScene )
-                AllNodes.Add(Service.Arena().CurrentScene());
+            {
+                var scene = Service.Arena().CurrentScene();
+                var folder = new FoSceneFolder(scene);
+                AllNodes.Add(folder);
+            }
+
             
         }
 
