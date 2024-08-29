@@ -22,10 +22,7 @@ public interface IArena: ITreeNode
     void SetDoCreate(Action<CanvasMouseArgs> action);
 
     FoStage3D SetCurrentStage(FoStage3D stage);
-    //void RenderWorld3D(IWorld3D world);
-    //Task<bool> PreRender(FoGlyph3D glyph);
-
-    //Task<bool> RemoveShapeFromScene(FoShape3D shape);
+    void AddAction(string name, string color, Action action);
 
     V AddShape<V>(V shape) where V : FoGlyph3D;
     V RemoveShape<V>(V shape) where V : FoGlyph3D;
