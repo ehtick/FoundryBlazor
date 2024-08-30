@@ -43,8 +43,8 @@
   <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1" />
   <PackageReference Include="BlazorComponentBus" Version="2.2.0" />
 
-  <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.8" />
-  <!-- <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="8.0.7" /> -->
+  <!-- <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="8.0.0" />
+  <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.8" /> -->
   
   <PackageReference Include="QRCoder" Version="1.4.3" />    
   <PackageReference Include="Radzen.Blazor" Version="5.0.2" />

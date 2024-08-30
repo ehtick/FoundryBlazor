@@ -9,7 +9,7 @@ using FoundryBlazor.Shared;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.SignalR.Client;
+
 using Microsoft.JSInterop;
 using Radzen;
 using FoundryRulesAndUnits.Extensions;
@@ -249,17 +249,17 @@ public class FoWorkspace : FoComponent, IWorkspace
     public async Task InitializedAsync(string defaultHubURI)
     {
         PubSub!.SubscribeTo<ViewStyle>(OnWorkspaceViewStyleChanged);
-        if (!Command.HasHub())
-        {
-            EstablishDrawingSyncHub(defaultHubURI);
-        }
+        // if (!Command.HasHub())
+        // {
+        //     EstablishDrawingSyncHub(defaultHubURI);
+        // }
 
         await PubSub!.Publish<InputStyle>(InputStyle);
     }
 
     public void StartHub()
     {
-        Command.StartHub();
+        // Command.StartHub();
         var defaultHubURI = Command.GetServerUri()?.ToString() ?? "GetServerUri Error";
         var note = $"Starting SignalR Hub:{defaultHubURI}".WriteNote();
         Command.SendToast(ToastType.Info, note);
@@ -267,17 +267,17 @@ public class FoWorkspace : FoComponent, IWorkspace
 
     public void StopHub()
     {
-        Command.StopHub();
+        // Command.StopHub();
         var defaultHubURI = Command.GetServerUri()?.ToString() ?? "GetServerUri Error";
         var note = $"Starting SignalR Hub:{defaultHubURI}".WriteNote();
         Command.SendToast(ToastType.Info, note);
     }
     public void OnDispose()
     {
-        if (Command.HasHub())
-        {
-            DisconnectDrawingSyncHub();
-        }
+        // if (Command.HasHub())
+        // {
+        //     DisconnectDrawingSyncHub();
+        // }
     }
 
     private void OnWorkspaceViewStyleChanged(ViewStyle e)
@@ -565,61 +565,61 @@ public class FoWorkspace : FoComponent, IWorkspace
         return GetViewStyle() == ViewStyle.View3D;
     }
 
-    public HubConnection EstablishDrawingSyncHub(string defaultHubURI)
-    {
-        if (Command.HasHub())
-            return Command.GetSignalRHub()!;
+    // public HubConnection EstablishDrawingSyncHub(string defaultHubURI)
+    // {
+    //     if (Command.HasHub())
+    //         return Command.GetSignalRHub()!;
 
-        //var secureHub = defaultHubURI.Replace("http://", "https://");
-        var secureHubURI = new Uri(defaultHubURI);
+    //     //var secureHub = defaultHubURI.Replace("http://", "https://");
+    //     var secureHubURI = new Uri(defaultHubURI);
 
 
-        var hub = new HubConnectionBuilder()
-            .WithUrl(secureHubURI)
-            .Build();
+    //     var hub = new HubConnectionBuilder()
+    //         .WithUrl(secureHubURI)
+    //         .Build();
 
-        Command.SetSignalRHub(hub, secureHubURI, GetUserID(), Toast);
-        SetSignalRHub(hub, GetUserID());
+    //     Command.SetSignalRHub(hub, secureHubURI, GetUserID(), Toast);
+    //     SetSignalRHub(hub, GetUserID());
 
-        //Toast?.Success($"HubConnection {secureHubURI} ");
+    //     //Toast?.Success($"HubConnection {secureHubURI} ");
 
-        return hub;
-    }
+    //     return hub;
+    // }
 
-    public void DisconnectDrawingSyncHub()
-    {
-        if (Command.HasHub())
-            Command.StopHub();
+    // public void DisconnectDrawingSyncHub()
+    // {
+    //     if (Command.HasHub())
+    //         Command.StopHub();
 
-        // Command.SetSignalRHub(hub, GetUserID(), Toast);
-        // SetSignalRHub(hub, GetUserID());
+    //     // Command.SetSignalRHub(hub, GetUserID(), Toast);
+    //     // SetSignalRHub(hub, GetUserID());
 
-    }
+    // }
 
-    public bool SetSignalRHub(HubConnection hub, string panid)
-    {
-        ActiveWorkbook.SetSignalRHub(hub, panid);
+    // public bool SetSignalRHub(HubConnection hub, string panid)
+    // {
+    //     ActiveWorkbook.SetSignalRHub(hub, panid);
 
-        hub.Closed += async (error) =>
-       {
-           var rand = new Random();
-           await Task.Delay(rand.Next(0, 5) * 1000);
-           await hub.StartAsync();
-       };
+    //     hub.Closed += async (error) =>
+    //    {
+    //        var rand = new Random();
+    //        await Task.Delay(rand.Next(0, 5) * 1000);
+    //        await hub.StartAsync();
+    //    };
 
-        hub.Reconnecting += async (error) =>
-        {
-            var rand = new Random();
-            await Task.Delay(rand.Next(0, 5) * 1000);
-        };
+    //     hub.Reconnecting += async (error) =>
+    //     {
+    //         var rand = new Random();
+    //         await Task.Delay(rand.Next(0, 5) * 1000);
+    //     };
 
-        hub.Reconnected += async (error) =>
-        {
-            var rand = new Random();
-            await Task.Delay(rand.Next(0, 5) * 1000);
-        };
-        return true;
-    }
+    //     hub.Reconnected += async (error) =>
+    //     {
+    //         var rand = new Random();
+    //         await Task.Delay(rand.Next(0, 5) * 1000);
+    //     };
+    //     return true;
+    // }
 
     public List<IFoMenu> CollectMenus(List<IFoMenu> list)
     {

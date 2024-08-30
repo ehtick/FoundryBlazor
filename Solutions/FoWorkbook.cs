@@ -3,7 +3,7 @@ using BlazorComponentBus;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Shared;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.SignalR.Client;
+
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -21,7 +21,7 @@ public interface IWorkbook
     List<IFoMenu> CollectMenus(List<IFoMenu> list);
     void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav);
     Dictionary<string, Action> DefaultMenu();
-    bool SetSignalRHub(HubConnection hub, string panid);
+    //bool SetSignalRHub(HubConnection hub, string panid);
     void PreRender(int tick);
     Task RefreshRender(int tick);
     void PostRender(int tick);
@@ -122,10 +122,10 @@ public class FoWorkbook : FoComponent, IWorkbook
     {
     }
 
-    public virtual bool SetSignalRHub(HubConnection hub, string panid)
-    {
-        return false;
-    }
+    // public virtual bool SetSignalRHub(HubConnection hub, string panid)
+    // {
+    //     return false;
+    // }
     public virtual void PreRender(int tick)
     {
     }

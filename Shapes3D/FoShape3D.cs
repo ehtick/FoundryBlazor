@@ -560,7 +560,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         //LoadingURL = Symbol.Replace("http:", "https:");
         //await Task.CompletedTask;
 
-        $"Shape PRERENDER {Name}".WriteWarning();
+        $"Shape PRERENDER {Name} => {GetTreeNodeTitle()}".WriteWarning();
 
         LoadingURL = Url;
         var result = GeomType switch
