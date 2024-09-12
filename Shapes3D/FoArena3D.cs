@@ -15,7 +15,7 @@ namespace FoundryBlazor.Shape;
 
 public interface IArena: ITreeNode
 {
-    void SetSceneAndViewer(Scene scene, Viewer viewer);
+    void SetScene(Scene scene);
     Task RenderArena(Scene scene, int tick, double fps);
     Task ClearArena();
     Task UpdateArena();
@@ -33,7 +33,6 @@ public interface IArena: ITreeNode
     List<FoStage3D> GetAllStages();
     FoStage3D CurrentStage();
     Scene CurrentScene();
-    Viewer CurrentViewer();
 
     //FoWorld3D StressTest3DModelFromFile(string folder, string filename, string baseURL, int count);
     //FoWorld3D Load3DModelFromFile(UDTO_Body spec, string folder, string filename, string baseURL);
@@ -43,7 +42,7 @@ public interface IArena: ITreeNode
 }
 public class FoArena3D : FoGlyph3D, IArena
 {
-    public Viewer? Viewer3D { get; set; }
+    //public Viewer? Viewer3D { get; set; }
     public Scene? Scene { get; set; }
     private IStageManagement StageManager { get; set; }
     //private int TrueCanvasWidth = 0;
@@ -64,13 +63,13 @@ public class FoArena3D : FoGlyph3D, IArena
     public FoStage3D SetCurrentStage(FoStage3D stage)
     {
         StageManager.SetCurrentStage(stage);
-        stage.InitScene(CurrentScene(), Viewer3D!);
+        stage.InitScene(CurrentScene());
         //PanZoomService.ReadFromPage(page);
         return stage;
     }
     public FoStage3D CurrentStage()
     {
-        var stage = StageManager.EstablishStage(CurrentScene(), Viewer3D!);
+        var stage = StageManager.EstablishStage(CurrentScene());
         return stage;
     }
     public IStageManagement Stages()
@@ -120,40 +119,32 @@ public class FoArena3D : FoGlyph3D, IArena
 
     public async Task ClearArena()
     {
-        if (Viewer3D == null) return;
 
         //"ClearArena".WriteInfo();
-        await Viewer3D.ClearSceneAsync();
+        await CurrentScene().ClearSceneAsync();
         await UpdateArena();
     }
 
     public async Task UpdateArena()
     {
-        if (Viewer3D == null) 
-            return;
-
         //"UpdateArena".WriteInfo();
-        await Viewer3D.UpdateScene();
+        await CurrentScene().UpdateScene();
     }
 
-    public void SetSceneAndViewer(Scene scene, Viewer viewer)
+    public void SetScene(Scene scene)
     {
-        Viewer3D = viewer;
         Scene = scene;
         $"SetSceneAndViewer {Name} {scene.Name}".WriteSuccess();
     }
 
-    public Viewer CurrentViewer()
-    {
-        return Viewer3D!;
-    }
+
     public Scene CurrentScene()
     {
         return Scene!;
     }
     public async Task<bool> PreRender(FoGlyph3D glyph)
     {
-        return await glyph.PreRender(this, Viewer3D!);
+        return await glyph.PreRender(this);
     }
 
     public virtual void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
@@ -390,13 +381,13 @@ public class FoArena3D : FoGlyph3D, IArena
 
         foreach (var keyValuePair in bodyDict)
         {
-            await FoShape3D.PreRenderClones(keyValuePair.Value, this, Viewer3D!, Import3DFormats.Gltf);
+            await FoShape3D.PreRenderClones(keyValuePair.Value, this,  Import3DFormats.Gltf);
         }
 
         foreach (var body in otherBodies)
         {
             //$"PreRenderPlatform Body {body.Name}".WriteInfo();
-            await body.PreRender(this, Viewer3D!);
+            await body.PreRender(this);
         }
 
     }

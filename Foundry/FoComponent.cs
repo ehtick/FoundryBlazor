@@ -137,7 +137,10 @@ public class FoComponent : FoBase, IFoComponent
     public virtual T Remove<T>(T value) where T : FoBase
     {
         var target = GetSlot<T>();
-        target?.Remove(value);
+        if (target == null)
+            return value;
+
+        target.Remove(value);
         return value;
     }
 

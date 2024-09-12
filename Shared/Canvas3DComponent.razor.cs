@@ -22,7 +22,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
     private ViewerSettings? Settings { get; set; }
     private Scene? ActiveScene { get; set; }
 
-
+    [Inject] private IJSRuntime? JSRuntime { get; set; }
     [Inject] public IWorkspace? Workspace { get; set; }
     [Inject] private ComponentBus? PubSub { get; set; }
 
@@ -65,7 +65,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
 
     public Scene GetActiveScene()
     {
-        ActiveScene ??= new Scene() 
+        ActiveScene ??= new Scene(JSRuntime!) 
         { 
             //SRS hack should undo
             // Width = CanvasWidth, 
@@ -97,7 +97,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
         if (firstRender)
         {
             var arena = Workspace?.GetArena();
-            arena?.SetSceneAndViewer(GetActiveScene(), ThreeJSViewer3D);
+            arena?.SetScene(GetActiveScene());
 
             PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
             ThreeJSViewer3D.ObjectLoaded += OnThreeJSObjectLoaded;
@@ -118,7 +118,8 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
 
         Task.Run(async () =>
         {
-            await ThreeJSViewer3D.UpdateScene();
+            if ( ActiveScene != null )
+                await ActiveScene.UpdateScene();
             //$"after ThreeJSView3D.UpdateScene() {e.note}".WriteInfo();
         });
     }
@@ -133,6 +134,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
     {
         if (ActiveScene == null) 
             return;
+
         tick++;
 
         $"Canvas3D RenderFrame {tick} {fps}".WriteInfo();
@@ -162,7 +164,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
         if (stage.IsDirty)
         {
             stage.IsDirty = false;
-            await ThreeJSViewer3D.UpdateScene();
+            await ActiveScene.UpdateScene();
             //$"RenderFrame stage.IsDirty  so... ThreeJSView3D.UpdateScene()  {tick} {stage.Name}".WriteSuccess();
         }
     }

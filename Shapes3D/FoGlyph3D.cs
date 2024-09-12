@@ -155,7 +155,7 @@ public class FoGlyph3D : FoComponent
         return result;
     }
 
-    public virtual async Task<bool> PreRender(FoArena3D arena, Viewer viewer, bool deep = true)
+    public virtual async Task<bool> PreRender(FoArena3D arena, bool deep = true)
     {
         await Task.CompletedTask;
         $"NO Prerender {Name}".WriteWarning();
@@ -168,7 +168,7 @@ public class FoGlyph3D : FoComponent
     {
         return false;
     }
-    public virtual async Task<bool> RemoveFromRender(Scene ctx, Viewer viewer, bool deep = true)
+    public virtual async Task<bool> RemoveFromRender(Scene ctx, bool deep = true)
     {
         await Task.CompletedTask;
         return false;

@@ -414,14 +414,15 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
 
 
-    private async Task<bool> PreRenderImport(FoArena3D arena, Viewer viewer, Import3DFormats format)
+    private async Task<bool> PreRenderImport(FoArena3D arena, Import3DFormats format)
     {
         var settings = AsImportSettings(arena, format);
 
         if (string.IsNullOrEmpty(LoadingURL)) return false;
         $"PreRenderImport symbol [{LoadingURL}] ".WriteInfo(1);
 
-        var uuid = await viewer.Request3DModel(settings);
+        var scene = arena.Scene!;
+        var uuid = await scene.Request3DModel(settings);
         arena.Add<FoShape3D>(uuid.ToString(), this);
         return true;
     }
@@ -460,7 +461,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return setting;
     }
 
-    public static async Task<bool> PreRenderClones(List<FoShape3D> bodies, FoArena3D arena, Viewer viewer, Import3DFormats format)
+    public static async Task<bool> PreRenderClones(List<FoShape3D> bodies, FoArena3D arena, Import3DFormats format)
     {
         var settings = new List<ImportSettings>();
 
@@ -485,13 +486,14 @@ public class FoShape3D : FoGlyph3D, IShape3D
             {
                 sourceBody.ShapeObject3D = object3D;
                 if (settings.Count > 0)
-                    await viewer.Clone3DModel(object3D.Uuid, settings);
+                    await scene.Clone3DModel(object3D.Uuid, settings);
             }
             else
                 "Unexpected empty object3D".WriteError(1);
         };
 
-        await viewer.Request3DModel(source);
+        var scene = arena.Scene!;
+        await scene.Request3DModel(source);
         return true;
     }
 
@@ -551,7 +553,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return Rotation;
     }
 
-    public override async Task<bool> PreRender(FoArena3D arena, Viewer viewer, bool deep = true)
+    public override async Task<bool> PreRender(FoArena3D arena, bool deep = true)
     {
         if ( ShapeMesh != null || ShapeObject3D != null)
             return true;
@@ -565,11 +567,11 @@ public class FoShape3D : FoGlyph3D, IShape3D
         LoadingURL = Url;
         var result = GeomType switch
         {
-            "Collada" => await PreRenderImport(arena, viewer, Import3DFormats.Collada),
-            "Fbx" => await PreRenderImport(arena, viewer, Import3DFormats.Fbx),
-            "Obj" => await PreRenderImport(arena, viewer, Import3DFormats.Obj),
-            "Stl" => await PreRenderImport(arena, viewer, Import3DFormats.Stl),
-            "Glb" => await PreRenderImport(arena, viewer, Import3DFormats.Gltf),
+            "Collada" => await PreRenderImport(arena, Import3DFormats.Collada),
+            "Fbx" => await PreRenderImport(arena, Import3DFormats.Fbx),
+            "Obj" => await PreRenderImport(arena, Import3DFormats.Obj),
+            "Stl" => await PreRenderImport(arena, Import3DFormats.Stl),
+            "Glb" => await PreRenderImport(arena, Import3DFormats.Gltf),
             _ => false
         };
 
@@ -615,16 +617,19 @@ public class FoShape3D : FoGlyph3D, IShape3D
             ShapeMesh = null;
         }
     }
-    public override async Task<bool> RemoveFromRender(Scene ctx, Viewer viewer, bool deep = true)
+    public override async Task<bool> RemoveFromRender(Scene ctx, bool deep = true)
     {
-        if (ShapeMesh != null && ctx != null)
+        if (ctx == null)
+            return false;
+
+        if (ShapeMesh != null)
         {
             ctx.Remove(ShapeMesh);
             ShapeMesh = null;
         }
-        if (ShapeObject3D != null && viewer != null)
+        if (ShapeObject3D != null)
         {
-            await viewer.RemoveByUuidAsync(ShapeObject3D.Uuid);
+            await ctx.RemoveByUuidAsync(ShapeObject3D.Uuid);
             ShapeObject3D = null;
         }
         return true;

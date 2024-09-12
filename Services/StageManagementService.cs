@@ -8,7 +8,7 @@ namespace FoundryBlazor.Shape;
 public interface IStageManagement
 {
     FoStage3D? FindStage(string name);
-    FoStage3D EstablishStage(Scene scene, Viewer viewer, string name="Stage-1");
+    FoStage3D EstablishStage(Scene scene, string name="Stage-1");
     FoStage3D SetCurrentStage(FoStage3D page);
     FoStage3D AddStage(FoStage3D page);
 
@@ -109,7 +109,7 @@ public class StageManagementService : FoComponent, IStageManagement
         return found!;
     }
 
-    public FoStage3D EstablishStage(Scene scene, Viewer viewer, string name="Stage-1")
+    public FoStage3D EstablishStage(Scene scene, string name="Stage-1")
     {
         if (_stage == null)
         {
@@ -117,7 +117,7 @@ public class StageManagementService : FoComponent, IStageManagement
             if (found == null)
             {
                 found = new FoStage3D(name,10,10,10,"Red");
-                found.InitScene(scene,viewer);
+                found.InitScene(scene);
                 AddStage(found);
             }
             return SetCurrentStage(found);

@@ -30,7 +30,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
 
     private Scene? CurrentScene { get; set; }
-    private Viewer? CurrentViewer { get; set; }
+    //private Viewer? CurrentViewer { get; set; }
     private Mesh? StageMesh { get; set; }
 
 
@@ -57,7 +57,7 @@ public class FoStage3D : FoGlyph3D, IStage
     }
 
 
-    public Scene InitScene(Scene scene, Viewer viewer)
+    public Scene InitScene(Scene scene)
     {
         if ( CurrentScene == null ) 
         {
@@ -69,7 +69,6 @@ public class FoStage3D : FoGlyph3D, IStage
         }
 
         CurrentScene = scene;
-        CurrentViewer = viewer;
 
         $"InitScene {scene.Name}".WriteSuccess();
         return CurrentScene;
