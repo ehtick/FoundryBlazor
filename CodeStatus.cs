@@ -44,13 +44,7 @@ public static class FoundryBlazorExtensions
         services.AddScoped<IStageManagement, StageManagementService>();
         services.AddScoped<IWorkspace, FoWorkspace>();
 
-        // services.AddScoped<IMentorPlayground, MentorPlayground>();
 
-        // services.AddScoped<IMentorModelManager, MentorModelManager>();
-        // services.AddScoped<IMentorDiagramManager, MentorDiagramManager>();
-        // services.AddScoped<IMentor2DDrawingManager, Mentor2DDrawingManager>();
-        // services.AddScoped<IMentor3DGeometryManager, Mentor3DGeometryManager>();
-        // services.AddScoped<IMentorServices, MentorServices>();
         services.AddScoped<IFoundryService, FoundryService>();
         services.AddScoped<IWorldManager, WorldManager>();
         services.AddScoped<IUnitSystem, UnitSystem>();
