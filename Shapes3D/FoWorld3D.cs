@@ -32,7 +32,7 @@ public interface IWorld3D: ITreeNode
     public IWorld3D RemoveDuplicates();
     public IWorld3D ClearAll();
     void AddAction(string name, string color, Action action);
-
+    bool PublishToStage(FoStage3D stage);
 }
 
 public class FoWorld3D : FoGlyph3D, IWorld3D
