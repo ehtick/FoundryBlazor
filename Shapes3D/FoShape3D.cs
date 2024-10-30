@@ -419,7 +419,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         var settings = AsImportSettings(arena, format);
 
         if (string.IsNullOrEmpty(LoadingURL)) return false;
-        $"PreRenderImport symbol [{LoadingURL}] ".WriteInfo(1);
+        $"PreRenderImport url [{LoadingURL}] ".WriteInfo(1);
 
         var scene = arena.Scene!;
         var uuid = await scene.Request3DModel(settings);
@@ -562,9 +562,9 @@ public class FoShape3D : FoGlyph3D, IShape3D
         //LoadingURL = Symbol.Replace("http:", "https:");
         //await Task.CompletedTask;
 
-        $"Shape PRERENDER {Name} => {GetTreeNodeTitle()}".WriteWarning();
-
         LoadingURL = Url;
+        $"Shape PRERENDER {Name} => {GetTreeNodeTitle()} {LoadingURL}".WriteWarning();
+
         var result = GeomType switch
         {
             "Collada" => await PreRenderImport(arena, Import3DFormats.Collada),
