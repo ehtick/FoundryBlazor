@@ -57,25 +57,6 @@
                 }
             }
 
-
- 
-            @* 
-            @if (item is KnComponent comp)
-            {
-                <button class="btn badge" @onclick="() => ComputeItem(item, comp)">compute</button>
-            }
-            @if (item is ICreatable create)
-            {
-                <button class="btn badge" @onclick="() => CreateItem(item, create)">create</button>
-            }
-            @if (item is KnModel model)
-            {
-                <button class="btn badge" @onclick="() => Render3DItem(item, model, true)">3D</button>
-                <button class="btn badge" @onclick="() => Render2DItem(item, model, true)">2D</button>
-                <button class="btn badge" @onclick="() => RenderDiagram(item, model, true)">Diagram</button>
-            } 
-            *@
-
         </li>
 
         @if (item.HasChildren() && !item.IsCollapsed())

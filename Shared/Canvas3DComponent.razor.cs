@@ -1,10 +1,8 @@
 using BlazorComponentBus;
 using BlazorThreeJS.Events;
-using BlazorThreeJS.Scenes;
-using BlazorThreeJS.Settings;
 using BlazorThreeJS.Viewers;
+using BlazorThreeJS.Settings;
 
- 
 using FoundryBlazor.PubSub;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
@@ -15,12 +13,9 @@ using System.Text;
 
 namespace FoundryBlazor.Shared;
 
-public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposable
+public class Canvas3DComponentBase : ComponentBase, IDisposable
 {
-
-    public Viewer ThreeJSViewer3D = null!;
-    private ViewerSettings? Settings { get; set; }
-    private Scene? ActiveScene { get; set; }
+    public ViewerThreeD? ViewerReference;
 
     [Inject] private IJSRuntime? JSRuntime { get; set; }
     [Inject] public IWorkspace? Workspace { get; set; }
@@ -29,25 +24,13 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
     [Parameter] public string CanvasStyle { get; set; } = "width:max-content; border:1px solid black;cursor:default";
     [Parameter] public int CanvasWidth { get; set; } = 2500;
     [Parameter] public int CanvasHeight { get; set; } = 4000;
+
+    [Parameter] public ViewerSettings? Settings3D { get; set; }
+    [Parameter] public Scene? Scene3D { get; set; }
+
     private int tick = 0;
 
 
-    public ViewerSettings GetSettings()
-    {
-        Settings ??= new()
-        {
-            CanSelect = true,// default is false
-            SelectedColor = "black",
-            Width = CanvasWidth,
-            Height = CanvasHeight,
-            WebGLRendererSettings = new WebGLRendererSettings
-            {
-                Antialias = false // if you need poor quality for some reasons
-            }
-        };
-
-        return Settings;
-    }
 
     public string GetCanvasStyle()
     {
@@ -63,32 +46,18 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
         return style;
     }
 
-    public Scene GetActiveScene()
-    {
-        ActiveScene ??= new Scene(JSRuntime!) 
-        { 
-            //SRS hack should undo
-            // Width = CanvasWidth, 
-            // Height = CanvasHeight 
-        };
-        return ActiveScene;
-    }
 
     public void Dispose()
     {
         "Canvas3DComponentBase Dispose".WriteInfo();
-        ActiveScene = null;
-        Settings = null;
-         
-        ThreeJSViewer3D.ObjectLoaded -= OnThreeJSObjectLoaded;
+
         PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
         GC.SuppressFinalize(this);
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        "Canvas3DComponentBase DisposeAsync".WriteInfo();
-        await ValueTask.CompletedTask;
+    public Scene GetActiveScene() 
+    { 
+        return ViewerReference!.ActiveScene;
     }
 
 
@@ -100,16 +69,11 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
             arena?.SetScene(GetActiveScene());
 
             PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
-            ThreeJSViewer3D.ObjectLoaded += OnThreeJSObjectLoaded;
+
         }
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async Task OnThreeJSObjectLoaded(Object3DArgs e)
-    {
-        $"OnThreeJSObjectLoaded Returned  {e.UUID}".WriteInfo();
-        await Task.CompletedTask;
-    }
 
     private void OnRefreshUIEvent(RefreshUIEvent e)
     {
@@ -118,8 +82,8 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
 
         Task.Run(async () =>
         {
-            if ( ActiveScene != null )
-                await ActiveScene.UpdateScene();
+            if ( GetActiveScene() != null )
+                await GetActiveScene().UpdateScene();
             //$"after ThreeJSView3D.UpdateScene() {e.note}".WriteInfo();
         });
     }
@@ -132,7 +96,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
 
     public async Task RenderFrameOBSOLITE(double fps)
     {
-        if (ActiveScene == null) 
+        if (GetActiveScene() == null) 
             return;
 
         tick++;
@@ -153,7 +117,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
         //if (drawing.SetCurrentlyRendering(true)) return;
 
 
-        await arena.RenderArena(ActiveScene, tick, fps);
+        await arena.RenderArena(GetActiveScene(), tick, fps);
         //Workspace?.RenderWatermark(Ctx, tick);
 
 
@@ -164,7 +128,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable, IAsyncDisposabl
         if (stage.IsDirty)
         {
             stage.IsDirty = false;
-            await ActiveScene.UpdateScene();
+            await GetActiveScene().UpdateScene();
             //$"RenderFrame stage.IsDirty  so... ThreeJSView3D.UpdateScene()  {tick} {stage.Name}".WriteSuccess();
         }
     }

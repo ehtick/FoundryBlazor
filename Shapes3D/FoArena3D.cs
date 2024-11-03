@@ -1,7 +1,6 @@
 using BlazorComponentBus;
 using BlazorThreeJS.Enums;
 using BlazorThreeJS.Maths;
-using BlazorThreeJS.Scenes;
 using BlazorThreeJS.Viewers;
 using FoundryBlazor.PubSub;
 using FoundryBlazor.Shared;

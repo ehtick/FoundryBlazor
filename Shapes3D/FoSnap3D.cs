@@ -5,9 +5,8 @@ using BlazorThreeJS.Geometires;
 using BlazorThreeJS.Materials;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Objects;
-using BlazorThreeJS.Scenes;
-using BlazorThreeJS.Settings;
 using BlazorThreeJS.Viewers;
+using BlazorThreeJS.Settings;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
 

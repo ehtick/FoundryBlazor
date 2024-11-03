@@ -1,5 +1,5 @@
 using BlazorThreeJS.Maths;
-using BlazorThreeJS.Scenes;
+using BlazorThreeJS.Viewers;
 using BlazorThreeJS.Menus;
 using FoundryBlazor.Extensions;
 using BlazorThreeJS.Geometires;

@@ -3,7 +3,6 @@ using BlazorThreeJS.Lights;
 using BlazorThreeJS.Materials;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Objects;
-using BlazorThreeJS.Scenes;
 using BlazorThreeJS.Viewers;
 using FoundryRulesAndUnits;
 using FoundryRulesAndUnits.Extensions;

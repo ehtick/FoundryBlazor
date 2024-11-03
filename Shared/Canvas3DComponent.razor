@@ -3,5 +3,5 @@
 @inherits Canvas3DComponentBase
 
 <div id="worldHolder" style="@GetCanvasStyle()" Width="@CanvasWidth" Height="@CanvasHeight">
-    <Viewer @ref="ThreeJSViewer3D" ViewerSettings=@GetSettings() ActiveScene=@GetActiveScene() />
+    <ViewerThreeD @ref="ViewerReference" ViewerSettings=@Settings3D ActiveScene=@Scene3D  CanvasWidth="@CanvasWidth" CanvasHeight="@CanvasHeight"/>
 </div>

@@ -4,13 +4,16 @@ using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
 using FoundryBlazor.Solutions;
 using FoundryBlazor.Shape;
+using BlazorThreeJS.Viewers;
+
+
 
 namespace FoundryBlazor.Shared;
 
 public partial class ShapeTreeBase : ComponentBase
 {
 
-    [Inject] private ComponentBus? PubSub { get; set; }
+    //[Inject] private ComponentBus? PubSub { get; set; }
     [Inject] private IFoundryService? Service { get; set; }
 
     public List<ITreeNode> AllNodes = new();
@@ -35,12 +38,16 @@ public partial class ShapeTreeBase : ComponentBase
 
             AllNodes.Add(Service.Drawing());
             AllNodes.Add(Service.Arena());
+            //var scene = Service.Arena().CurrentScene();
 
             if ( _addScene )
             {
-                var scene = Service.Arena().CurrentScene();
-                var folder = new FoSceneFolder(scene);
+                var folder = new FoFolder("Scenes");
                 AllNodes.Add(folder);
+                foreach (var item in Scene.GetAllScenes())
+                {
+                    folder.AddTreeNode(item);
+                }
             }
 
             
