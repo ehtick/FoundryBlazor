@@ -104,10 +104,8 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public FoShape3D CreateGlb(string url, double width, double height, double depth)
     {
-        GeomType = "Glb";
+        CreateGlb(url);
         BoundingBox = new Vector3(width, height, depth);
-        Url = url;
-        $"CreateGlb url [{Url}] ".WriteSuccess();
         return this;
     }
     public FoShape3D CreateGlb(string url)

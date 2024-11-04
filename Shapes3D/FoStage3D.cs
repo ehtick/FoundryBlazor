@@ -58,6 +58,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
     public Scene InitScene(Scene scene)
     {
+
         if ( CurrentScene == null ) 
         {
             scene.Add(new AmbientLight());
