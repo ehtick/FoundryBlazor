@@ -44,7 +44,10 @@ public partial class ShapeTreeBase : ComponentBase
             {
                 var folder = new FoFolder("Scenes");
                 AllNodes.Add(folder);
-                foreach (var item in Scene.GetAllScenes())
+                var list = Scene.GetAllScenes();
+                $"{list.Count} Scenes".WriteSuccess();
+
+                foreach (var item in list)
                 {
                     folder.AddTreeNode(item);
                 }

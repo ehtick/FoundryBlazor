@@ -65,8 +65,9 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
     {
         if (firstRender)
         {
+            var scene = GetActiveScene();
             var arena = Workspace?.GetArena();
-            arena?.SetScene(GetActiveScene());
+            arena?.SetScene(scene);
 
             PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
 

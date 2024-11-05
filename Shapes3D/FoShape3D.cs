@@ -418,7 +418,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         if (string.IsNullOrEmpty(LoadingURL)) return false;
         $"PreRenderImport url [{LoadingURL}] ".WriteInfo(1);
 
-        var scene = arena.Scene!;
+        var scene = arena.CurrentScene();
         var uuid = await scene.Request3DModel(settings);
         arena.Add<FoShape3D>(uuid.ToString(), this);
         return true;
