@@ -15,7 +15,7 @@ namespace FoundryBlazor.Shape;
 public interface IArena: ITreeNode
 {
     void SetScene(Scene scene);
-    Task RenderArena(Scene scene, int tick, double fps);
+    //Task RenderArena(Scene scene, int tick, double fps);
     Task ClearArena();
     Task UpdateArena();
     void SetDoCreate(Action<CanvasMouseArgs> action);
@@ -41,12 +41,9 @@ public interface IArena: ITreeNode
 }
 public class FoArena3D : FoGlyph3D, IArena
 {
-    //public Viewer? Viewer3D { get; set; }
+
     public Scene? Scene { get; set; }
     private IStageManagement StageManager { get; set; }
-    //private int TrueCanvasWidth = 0;
-    //private int TrueCanvasHeight = 0;
-
     public ComponentBus PubSub { get; set; }
 
     public Action<CanvasMouseArgs>? DoCreate { get; set; }
@@ -62,14 +59,14 @@ public class FoArena3D : FoGlyph3D, IArena
     public FoStage3D SetCurrentStage(FoStage3D stage)
     {
         StageManager.SetCurrentStage(stage);
-        stage.InitScene(CurrentScene());
+        //stage.InitScene(CurrentScene());
         //PanZoomService.ReadFromPage(page);
         return stage;
     }
     public FoStage3D CurrentStage()
     {
-        var scene = CurrentScene();
-        var stage = StageManager.EstablishStage(scene);
+        //var scene = CurrentScene();
+        var stage = StageManager.EstablishStage();
         return stage;
     }
     public IStageManagement Stages()
@@ -98,13 +95,13 @@ public class FoArena3D : FoGlyph3D, IArena
     //     TrueCanvasHeight = height;
     // }
 
-    public async Task RenderArena(Scene scene, int tick, double fps)
-    {
-        await StageManager.RenderDetailed(scene, tick, fps);
+    // public async Task RenderArena(Scene scene, int tick, double fps)
+    // {
+    //     await StageManager.RenderDetailed(scene, tick, fps);
 
-        //if the stage is dirty call to update
-        //$"Arean Render Scene {tick}".WriteInfo();
-    }
+    //     //if the stage is dirty call to update
+    //     //$"Arean Render Scene {tick}".WriteInfo();
+    // }
 
     public V AddShape<V>(V shape) where V : FoGlyph3D
     {

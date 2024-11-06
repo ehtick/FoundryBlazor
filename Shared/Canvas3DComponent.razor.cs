@@ -17,7 +17,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
 {
     public ViewerThreeD? ViewerReference;
 
-    [Inject] private IJSRuntime? JSRuntime { get; set; }
+
     [Inject] public IWorkspace? Workspace { get; set; }
     [Inject] private ComponentBus? PubSub { get; set; }
 
@@ -27,8 +27,8 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
 
     [Parameter] public ViewerSettings? Settings3D { get; set; }
     [Parameter] public Scene? Scene3D { get; set; }
-
-    private int tick = 0;
+    [Parameter] public string? SceneName { get; set; }
+    //private int tick = 0;
 
 
 
@@ -90,49 +90,46 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
     }
 
 
-    public FoPage2D GetCurrentPage()
-    {
-        return Workspace!.CurrentPage();
-    }
-
-    public async Task RenderFrameOBSOLITE(double fps)
-    {
-        if (GetActiveScene() == null) 
-            return;
-
-        tick++;
-
-        $"Canvas3D RenderFrame {tick} {fps}".WriteInfo();
-
-        Workspace?.PreRender(tick);
-
-        var arena = Workspace?.GetArena();
-        if (arena == null) return;
-
-        var stage = arena.CurrentStage();
-        if (stage == null) return;
-
-        // $"RenderFrame {tick} {stage.Name} {stage.IsDirty}".WriteError();
-
-        //if you are already rendering then skip it this cycle
-        //if (drawing.SetCurrentlyRendering(true)) return;
 
 
-        await arena.RenderArena(GetActiveScene(), tick, fps);
-        //Workspace?.RenderWatermark(Ctx, tick);
+    // public async Task RenderFrameOBSOLITE(double fps)
+    // {
+    //     if (GetActiveScene() == null) 
+    //         return;
+
+    //     tick++;
+
+    //     $"Canvas3D RenderFrame {tick} {fps}".WriteInfo();
+
+    //     Workspace?.PreRender(tick);
+
+    //     var arena = Workspace?.GetArena();
+    //     if (arena == null) return;
+
+    //     var stage = arena.CurrentStage();
+    //     if (stage == null) return;
+
+    //     // $"RenderFrame {tick} {stage.Name} {stage.IsDirty}".WriteError();
+
+    //     //if you are already rendering then skip it this cycle
+    //     //if (drawing.SetCurrentlyRendering(true)) return;
 
 
-        //drawing.SetCurrentlyRendering(false);
+    //     await arena.RenderArena(GetActiveScene(), tick, fps);
+    //     //Workspace?.RenderWatermark(Ctx, tick);
 
-        //Workspace?.PostRender(tick);
 
-        if (stage.IsDirty)
-        {
-            stage.IsDirty = false;
-            await GetActiveScene().UpdateScene();
-            //$"RenderFrame stage.IsDirty  so... ThreeJSView3D.UpdateScene()  {tick} {stage.Name}".WriteSuccess();
-        }
-    }
+    //     //drawing.SetCurrentlyRendering(false);
+
+    //     //Workspace?.PostRender(tick);
+
+    //     if (stage.IsDirty)
+    //     {
+    //         stage.IsDirty = false;
+    //         await GetActiveScene().UpdateScene();
+    //         //$"RenderFrame stage.IsDirty  so... ThreeJSView3D.UpdateScene()  {tick} {stage.Name}".WriteSuccess();
+    //     }
+    // }
 
 
 }

@@ -7,7 +7,7 @@ namespace FoundryBlazor.Shape;
 public interface IStageManagement
 {
     FoStage3D? FindStage(string name);
-    FoStage3D EstablishStage(Scene scene, string name="Stage-1");
+    FoStage3D EstablishStage(string name="Stage-1");
     FoStage3D SetCurrentStage(FoStage3D page);
     FoStage3D AddStage(FoStage3D page);
 
@@ -17,7 +17,7 @@ public interface IStageManagement
     int StageCount();
     List<FoStage3D> GetAllStages();
 
-    Task RenderDetailed(Scene scene, int tick, double fps);
+    //Task RenderDetailed(Scene scene, int tick, double fps);
 
     //T Add<T>(T value) where T : FoGlyph3D;
     //T Duplicate<T>(T value) where T : FoGlyph3D;
@@ -71,10 +71,10 @@ public class StageManagementService : FoComponent, IStageManagement
         return Members<FoStage3D>().Count;
     }
 
-    public async Task RenderDetailed(Scene scene, int tick, double fps)
-    {
-        await ActiveStage.RenderDetailed(scene, tick, fps);
-    }
+    // public async Task RenderDetailed(Scene scene, int tick, double fps)
+    // {
+    //     await ActiveStage.RenderDetailed(scene, tick, fps);
+    // }
 
 
 
@@ -108,7 +108,7 @@ public class StageManagementService : FoComponent, IStageManagement
         return found!;
     }
 
-    public FoStage3D EstablishStage(Scene scene, string name="Stage-1")
+    public FoStage3D EstablishStage(string name="Stage-1")
     {
         if (_stage == null)
         {
@@ -116,7 +116,6 @@ public class StageManagementService : FoComponent, IStageManagement
             if (found == null)
             {
                 found = new FoStage3D(name,10,10,10,"Red");
-                found.InitScene(scene);
                 AddStage(found);
             }
             return SetCurrentStage(found);
