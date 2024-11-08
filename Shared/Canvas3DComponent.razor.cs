@@ -27,7 +27,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
 
     [Parameter] public ViewerSettings? Settings3D { get; set; }
     [Parameter] public Scene? Scene3D { get; set; }
-    [Parameter] public string? SceneName { get; set; }
+    [Parameter,EditorRequired] public string? SceneName { get; set; }
     //private int tick = 0;
 
 
@@ -46,11 +46,24 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
         return style;
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            "Canvas3DComponentBase DisposeAsync".WriteInfo();
+            //await DoStop();
+            //await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
+            await ValueTask.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            $"Canvas3DComponentBase DisposeAsync Exception {ex.Message}".WriteError();
+        }
+    }
 
     public void Dispose()
     {
         "Canvas3DComponentBase Dispose".WriteInfo();
-
         PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
         GC.SuppressFinalize(this);
     }
@@ -59,15 +72,22 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
     { 
         return ViewerReference!.ActiveScene;
     }
-
+    public IArena GetActiveArena() 
+    { 
+        return Workspace?.GetArena()!;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             var scene = GetActiveScene();
-            var arena = Workspace?.GetArena();
-            arena?.SetScene(scene);
+            scene.SetAfterUpdateAction((s,j)=>
+            {
+                PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("Canvas3DComponentBase"));
+            });
+
+            GetActiveArena().SetScene(scene);
 
             PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
 
@@ -83,8 +103,9 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
 
         Task.Run(async () =>
         {
-            if ( GetActiveScene() != null )
-                await GetActiveScene().UpdateScene();
+            var arena = GetActiveArena();
+            if ( arena != null )
+                await arena.UpdateArena();
             //$"after ThreeJSView3D.UpdateScene() {e.note}".WriteInfo();
         });
     }

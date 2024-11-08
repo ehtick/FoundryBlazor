@@ -32,7 +32,15 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
 
     public string GetCanvasStyle()
     {
-        var style = new StringBuilder(CanvasStyle).Append("; ").Append("width:").Append(CanvasWidth).Append("px; ").Append("height:").Append(CanvasHeight).Append("px; ").ToString();
+        var style = new StringBuilder(CanvasStyle)
+            .Append("; ")
+            .Append("width:")
+            .Append(CanvasWidth)
+            .Append("px; ")
+            .Append("height:")
+            .Append(CanvasHeight)
+            .Append("px; ")
+            .ToString();
         return style;
     }
     
@@ -77,7 +85,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
 
     public void Dispose()
     {
-         "Canvas2DComponentBase Dispose".WriteInfo();
+        "Canvas2DComponentBase Dispose".WriteInfo();
         PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
         PubSub!.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
         GC.SuppressFinalize(this);

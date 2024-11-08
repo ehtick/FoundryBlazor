@@ -10,7 +10,7 @@ public interface IPageManagement : IRender
 {
     List<FoGlyph2D> FindShapes(string GlyphId);
     List<FoGlyph2D> ExtractShapes(string GlyphId);
-
+    FoPage2D EstablishPage<T>(string name="Page-1") where T : FoPage2D;
     FoPage2D CurrentPage();
     FoPage2D SetCurrentPage(FoPage2D page);
     FoPage2D AddPage(FoPage2D page);
@@ -200,18 +200,28 @@ public class PageManagementService : FoComponent, IPageManagement
 
     }
 
+    public FoPage2D EstablishPage<T>(string name="Page-1") where T : FoPage2D
+    {
+        if (_page == null)
+        {
+            var found = Members<FoPage2D>().Where(page => page.GetName().Matches(name)).FirstOrDefault();
+            if (found == null)
+            {
+                found = Activator.CreateInstance(typeof(T), name, 300, 200, "RED") as FoPage2D;
+                AddPage(found!);
+            }
+            SetCurrentPage(found!);
+        }
+
+        return ActivePage;
+    }
+
     public FoPage2D CurrentPage()
     {
         if (_page == null)
         {
-            var found = Members<FoPage2D>().Where(page => page.IsActive).FirstOrDefault();
-            if (found == null)
-            {
-                found = new FoPage2D("Page-1", 300, 200, "RED");
-                $"CurrentPage CREATING new page {found.Key}".WriteNote();
-                AddPage(found);
-            }
-            return SetCurrentPage(found);
+            var found = EstablishPage<FoPage2D>();
+            SetCurrentPage(found);
         }
 
         return ActivePage;

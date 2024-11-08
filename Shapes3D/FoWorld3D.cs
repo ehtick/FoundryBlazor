@@ -49,10 +49,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         GetSlot<FoPathway3D>();
     }
 
-    public string GetName()
-    {
-        return Key;
-    }
+
 
 
 

@@ -66,7 +66,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override string GetTreeNodeTitle()
     {
-        var HasMesh = ShapeMesh != null ? "Mesh" : "No Mesh";
+        var HasMesh = ShapeMesh != null ? "Mesh" : "NoMesh";
         return $"{Key} {GetType().Name}  {GeomType}  {HasMesh}";
     }
 
@@ -164,11 +164,6 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
        
 
-                // "Dodecahedron" => Dodecahedron(),
-                // "Icosahedron" => Icosahedron(),
-                // "Octahedron" => Octahedron(),
-                // "Tetrahedron" => Tetrahedron(),
-
     public Mesh Box()
     {
         if (ShapeMesh != null) return ShapeMesh;
@@ -176,6 +171,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         var box = BoundingBox ?? new Vector3(1, 1, 1);
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new BoxGeometry(box.X, box.Y, box.Z),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -194,6 +190,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         var box = BoundingBox ?? new Vector3(1, 1, 1);
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new BoxGeometry(box.X, box.Y, box.Z),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -211,6 +208,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         var box = BoundingBox ?? new Vector3(1, 1, 1);
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new CylinderGeometry(radiusTop: box.X / 2, radiusBottom: box.X / 2, height: box.Y),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -229,6 +227,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new SphereGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -246,6 +245,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new TubeGeometry(radius: Radius, path: Path!, 8, 10),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -262,6 +262,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new CircleGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -279,6 +280,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new CapsuleGeometry(radius: box.X / 2, box.Y),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -296,6 +298,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new ConeGeometry(radius: box.X / 2, height: box.Y),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -313,6 +316,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new DodecahedronGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -330,6 +334,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new IcosahedronGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -348,6 +353,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new OctahedronGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -365,6 +371,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new TetrahedronGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -382,6 +389,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new PlaneGeometry(width: box.X, height: box.Y),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -399,6 +407,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         ShapeMesh = new Mesh
         {
+            Name = Key,
             Geometry = new RingGeometry(innerRadius: box.X / 2, outerRadius: box.Y / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -502,6 +511,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
     {
         var result = new MeshStandardMaterial()
         {
+            Name = Key,
             Color = this.Color,
             Wireframe = true
         };
@@ -515,6 +525,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         var result = new MeshStandardMaterial()
         {
+            Name = Key,
             Color = this.Color,
             //Wireframe = true
         };

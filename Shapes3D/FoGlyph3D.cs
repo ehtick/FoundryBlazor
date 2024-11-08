@@ -100,7 +100,10 @@ public class FoGlyph3D : FoComponent
 
     public Action<FoGlyph3D, int>? ContextLink;
 
-
+    public string GetName()
+    {
+        return Key;
+    }
 
     public virtual MeshStandardMaterial GetMaterial()
     {
@@ -163,13 +166,14 @@ public class FoGlyph3D : FoComponent
 
 
 
-    public virtual bool Render(Scene ctx, int tick, double fps, bool deep = true)
+    public virtual bool Render(Scene scene, int tick, double fps, bool deep = true)
     {
+        scene.ForceSceneRefresh();
         return false;
     }
-    public virtual async Task<bool> RemoveFromRender(Scene ctx, bool deep = true)
+    public virtual async Task<bool> RemoveFromRender(Scene scene, bool deep = true)
     {
-        await Task.CompletedTask;
+        await scene.ClearScene();
         return false;
     }
     public virtual bool OnModelLoadComplete(Guid PromiseGuid)

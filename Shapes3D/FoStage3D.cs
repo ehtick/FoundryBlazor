@@ -1,10 +1,4 @@
-using BlazorThreeJS.Geometires;
-using BlazorThreeJS.Lights;
-using BlazorThreeJS.Materials;
-using BlazorThreeJS.Maths;
-using BlazorThreeJS.Objects;
 using BlazorThreeJS.Viewers;
-using FoundryRulesAndUnits;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
 
@@ -26,11 +20,6 @@ public class FoStage3D : FoGlyph3D, IStage
     public double StageWidth { get; set; } = 30.0;  //meters
     public double StageHeight { get; set; } = 30.0;  //meters
     public double StageDepth { get; set; } = 30.0;  //meters
-
-
-    // private Scene? CurrentScene { get; set; }
-
-    // private Mesh? StageMesh { get; set; }
 
 
 
@@ -119,7 +108,7 @@ public class FoStage3D : FoGlyph3D, IStage
         if (value is IShape3D)
         {
             Shapes3D.Add(value);
-            $"IShape3D Added {value.Key}".WriteSuccess();
+            //$"IShape3D Added {value.Key}".WriteSuccess();
         }
         else if (value is IPipe3D)
         {
@@ -146,7 +135,7 @@ public class FoStage3D : FoGlyph3D, IStage
         if (value is IShape3D)
         {
             Shapes3D.Remove(value);
-            $"IShape3D Added {value.Key}".WriteSuccess();
+            //$"IShape3D Added {value.Key}".WriteSuccess();
         }
         else if (value is IPipe3D)
         {
@@ -163,12 +152,23 @@ public class FoStage3D : FoGlyph3D, IStage
     {
         Shapes3D?.ForEach(async shape => await arena.PreRender(shape));
     }
-    public async Task RenderDetailed(Scene scene, int tick, double fps)
+
+    public async Task RenderToScene(Scene scene, int tick=0, double fps=0.0)
     {
+        if ( IsDirty == false) 
+        {
+            $"FoStage3D RenderToScene IsDirty == false".WriteInfo();
+            return;
+        }
+
+        $"FoStage3D RenderToScene IsDirty == true".WriteSuccess();
+
         IsDirty = false;
         Shapes3D?.ForEach(shape => shape.Render(scene, tick, fps));
         Pipes3D?.ForEach(shape => shape.Render(scene, tick, fps));
-        await Task.CompletedTask;
+        await scene.UpdateScene(true);
+
+        
     }
 
 

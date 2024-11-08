@@ -9,6 +9,7 @@ using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Radzen.Blazor;
 
 namespace FoundryBlazor.Shape;
 
@@ -66,7 +67,7 @@ public class FoArena3D : FoGlyph3D, IArena
     public FoStage3D CurrentStage()
     {
         //var scene = CurrentScene();
-        var stage = StageManager.EstablishStage();
+        var stage = StageManager.EstablishStage<FoStage3D>();
         return stage;
     }
     public IStageManagement Stages()
@@ -105,7 +106,7 @@ public class FoArena3D : FoGlyph3D, IArena
 
     public V AddShape<V>(V shape) where V : FoGlyph3D
     {
-        CurrentStage();
+        //CurrentStage();
         return StageManager.AddShape<V>(shape);
     }
 
@@ -117,21 +118,29 @@ public class FoArena3D : FoGlyph3D, IArena
     public async Task ClearArena()
     {
 
-        //"ClearArena".WriteInfo();
-        await CurrentScene().ClearSceneAsync();
-        await UpdateArena();
+        "ClearArena".WriteInfo();
+        var stage = CurrentStage();
+        stage.ClearAll();
+        var scene = CurrentScene();
+        await scene.ClearScene();
     }
 
     public async Task UpdateArena()
     {
-        //"UpdateArena".WriteInfo();
-        await CurrentScene().UpdateScene();
+        "UpdateArena".WriteInfo();
+        var stage = CurrentStage();
+        var scene = CurrentScene();
+        await stage.RenderToScene(scene);
     }
 
     public void SetScene(Scene scene)
     {
+        if ( Scene == scene || scene == null)
+            return;
+
+        var lastName = Scene?.Name ?? "None";
         Scene = scene;
-        $"SetSceneAndViewer {Name} {scene.Name}".WriteSuccess();
+        $"SetSceneAndViewer {Name} was {lastName} is now: {scene.Title}".WriteSuccess();
     }
 
 

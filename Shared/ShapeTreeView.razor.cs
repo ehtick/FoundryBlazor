@@ -5,21 +5,22 @@ using FoundryRulesAndUnits.Models;
 using FoundryBlazor.Solutions;
 using FoundryBlazor.Shape;
 using BlazorThreeJS.Viewers;
+using FoundryBlazor.PubSub;
 
 
 
 namespace FoundryBlazor.Shared;
 
-public partial class ShapeTreeBase : ComponentBase
+public partial class ShapeTreeBase : ComponentBase, IDisposable
 {
 
-    //[Inject] private ComponentBus? PubSub { get; set; }
+    [Inject] private ComponentBus? PubSub { get; set; }
     [Inject] private IFoundryService? Service { get; set; }
 
     public List<ITreeNode> AllNodes = new();
 
-    private bool _addScene = false;
-    private bool _addWorld = false;
+    private bool _includedScenes = true;
+    private bool _includeWorlds = true;
 
     public IEnumerable<ITreeNode> GetAllNodes()
     {
@@ -29,7 +30,7 @@ public partial class ShapeTreeBase : ComponentBase
 
             AllNodes.Clear();
 
-            if ( _addWorld && worlds.Count > 0)
+            if ( _includeWorlds && worlds.Count > 0)
             {
                 var folder = new FoFolder("Worlds");
                 AllNodes.Add(folder);
@@ -40,7 +41,7 @@ public partial class ShapeTreeBase : ComponentBase
             AllNodes.Add(Service.Arena());
             //var scene = Service.Arena().CurrentScene();
 
-            if ( _addScene )
+            if ( _includedScenes )
             {
                 var folder = new FoFolder("Scenes");
                 AllNodes.Add(folder);
@@ -61,15 +62,15 @@ public partial class ShapeTreeBase : ComponentBase
 
     protected void AddScene()
     {
-        _addScene = !_addScene;
+        _includedScenes = !_includedScenes;
         Refresh();
     }
 
     protected void AddWorld()
     {
-        _addWorld = !_addWorld;
+        _includeWorlds = !_includeWorlds;
         var worlds = Service!.WorldManager().AllWorlds();
-        if ( _addWorld && worlds.Count == 0)
+        if ( _includeWorlds && worlds.Count == 0)
         {
             Service.WorldManager().EstablishWorld("World 616");
         }
@@ -81,6 +82,10 @@ public partial class ShapeTreeBase : ComponentBase
 
 //https://learn.microsoft.com/en-us/semantic-kernel/overview/
 
+    public void OnRefresh()
+    {
+        PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("ShapeTree"));
+    }
 
     protected void Refresh()
     {
@@ -99,14 +104,21 @@ public partial class ShapeTreeBase : ComponentBase
         if (firstRender)
         {
             Refresh();
-            //PubSub!.SubscribeTo<RefreshRenderMessage>(OnRenderRefresh);
-
-       
+            PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
         }
 
         await base.OnAfterRenderAsync(firstRender);
     }
 
-
-
+    private void OnRefreshUIEvent(RefreshUIEvent e)
+    {
+        Refresh();
+        InvokeAsync(StateHasChanged);
+    }
+    public void Dispose()
+    {
+        "Canvas2DComponentBase Dispose".WriteInfo();
+        PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
+        GC.SuppressFinalize(this);
+    }
 }
