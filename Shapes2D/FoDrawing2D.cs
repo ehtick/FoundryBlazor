@@ -52,6 +52,7 @@ public interface IDrawing : IRender, ITreeNode
 
     V AddShape<V>(V shape) where V : FoGlyph2D;
     V RemoveShape<V>(V shape) where V : FoGlyph2D;
+    T EstablishPage<T>(string title) where T : FoPage2D;
     FoPage2D CurrentPage();
     IPageManagement Pages();
     IToolManagement Tools();
@@ -335,6 +336,12 @@ public class FoDrawing2D : FoGlyph2D, IDrawing
 
         await ctx.SetStrokeStyleAsync("Black");
         await ctx.StrokeRectAsync(0, 0, TrueCanvasWidth, TrueCanvasHeight);
+    }
+
+    public T EstablishPage<T>(string title) where T : FoPage2D
+    {
+        var found = PageManager.EstablishPage<T>(title);
+        return (T)found;
     }
 
     public FoPage2D SetCurrentPage(FoPage2D page)

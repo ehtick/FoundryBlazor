@@ -60,22 +60,22 @@ public partial class ShapeTreeBase : ComponentBase, IDisposable
         return AllNodes;
     }
 
-    protected void AddScene()
-    {
-        _includedScenes = !_includedScenes;
-        Refresh();
-    }
+    // protected void AddScene()
+    // {
+    //     _includedScenes = !_includedScenes;
+    //     Refresh();
+    // }
 
-    protected void AddWorld()
-    {
-        _includeWorlds = !_includeWorlds;
-        var worlds = Service!.WorldManager().AllWorlds();
-        if ( _includeWorlds && worlds.Count == 0)
-        {
-            Service.WorldManager().EstablishWorld("World 616");
-        }
-        Refresh();
-    }
+    // protected void AddWorld()
+    // {
+    //     _includeWorlds = !_includeWorlds;
+    //     var worlds = Service!.WorldManager().AllWorlds();
+    //     if ( _includeWorlds && worlds.Count == 0)
+    //     {
+    //         Service.WorldManager().EstablishWorld("World 616");
+    //     }
+    //     Refresh();
+    // }
 
 
 
@@ -95,6 +95,7 @@ public partial class ShapeTreeBase : ComponentBase, IDisposable
         Task.Run(() => {
             Thread.Sleep(200);
             //KnBase.RefreshTree = true;
+            $"ShapeTreeBase Refresh".WriteInfo();
             InvokeAsync(StateHasChanged);
         });
     }
@@ -113,8 +114,8 @@ public partial class ShapeTreeBase : ComponentBase, IDisposable
     private void OnRefreshUIEvent(RefreshUIEvent e)
     {
         Refresh();
-        InvokeAsync(StateHasChanged);
     }
+    
     public void Dispose()
     {
         "Canvas2DComponentBase Dispose".WriteInfo();

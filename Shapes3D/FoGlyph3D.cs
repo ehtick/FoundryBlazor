@@ -1,9 +1,11 @@
+using BlazorThreeJS.Core;
 using BlazorThreeJS.Materials;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
+using System.Text.Json.Serialization;
 
 
 namespace FoundryBlazor.Shape;
@@ -13,8 +15,9 @@ public class FoGlyph3D : FoComponent
     public string GlyphId { get; set; } = "";
     public float Opacity { get; set; } = 1.0F;
     public string Color { get; set; } = "Green";
-    public string Address { get; set; } = "";
+    //public string Address { get; set; } = "";
 
+    protected Object3D? _value3D;
 
     protected double width = 0;
     public double Width { get { return this.width; } set { this.width = AssignDouble(value, width); } }
@@ -28,8 +31,9 @@ public class FoGlyph3D : FoComponent
         set { this.StatusBits.IsVisible = value; }
     }
 
+    [JsonIgnore]
+    public Action<FoGlyph3D>? OnDelete { get; set; }
 
-    public Action<Scene, FoGlyph3D>? ShapeDraw;
     public List<TreeNodeAction> DefaultActions = [];
     public void AddAction(string name, string color, Action action)
     {
@@ -40,9 +44,34 @@ public class FoGlyph3D : FoComponent
     {
         var result = new List<TreeNodeAction>();
         result.AddRange(DefaultActions);
+        
+        if ( OnDelete != null )
+            result.AddAction("Delete", "btn-danger", () =>
+            {
+                Delete();
+            });
+
         return result;
     }
-    
+
+    public virtual void Delete()
+    {
+        $"Deleting {GetTreeNodeTitle()}".WriteWarning();
+        OnDelete?.Invoke(this);
+    }
+
+
+    public Object3D? Value3D()
+    {
+        return _value3D;
+    }
+
+    public Object3D SetValue3D(Object3D value)
+    {
+        _value3D = value;
+        return _value3D;
+    }
+
     public FoGlyph3D() : base("")
     {
     }
@@ -119,14 +148,14 @@ public class FoGlyph3D : FoComponent
         return false;
     }
 
-    public virtual async Task Draw(Scene ctx, int tick)
-    {
-        //await ctx.SaveAsync();
-        ShapeDraw?.Invoke(ctx, this);
-        //await ctx.RestoreAsync();
-        //await DrawPin(ctx);
-        await Task.CompletedTask;
-    }
+    //public virtual async Task Draw(Scene ctx, int tick)
+    //{
+    //    //await ctx.SaveAsync();
+    //    ShapeDraw?.Invoke(ctx, this);
+    //    //await ctx.RestoreAsync();
+    //    //await DrawPin(ctx);
+    //    await Task.CompletedTask;
+    //}
 
     public FoGlyph3D MoveTo(int x, int y, int z)
     {

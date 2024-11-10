@@ -44,7 +44,7 @@ public class FoMenu3D : FoPanel3D, IFoMenu
         return this;
     }
 
-    public bool DrawMenu3D(Scene ctx)
+    public bool DrawMenu3D(Scene scene)
     {
         var buttons = Buttons().Select((item) =>
         {
@@ -66,7 +66,7 @@ public class FoMenu3D : FoPanel3D, IFoMenu
             Position = Position ?? new Vector3(0, 0, 0),
         };
 
-        ctx.Add(menu);
+        scene.AddChild(menu);
         return true;
     }
 

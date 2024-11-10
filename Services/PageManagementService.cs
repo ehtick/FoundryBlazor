@@ -10,7 +10,7 @@ public interface IPageManagement : IRender
 {
     List<FoGlyph2D> FindShapes(string GlyphId);
     List<FoGlyph2D> ExtractShapes(string GlyphId);
-    FoPage2D EstablishPage<T>(string name="Page-1") where T : FoPage2D;
+    T EstablishPage<T>(string name="Page-1") where T : FoPage2D;
     FoPage2D CurrentPage();
     FoPage2D SetCurrentPage(FoPage2D page);
     FoPage2D AddPage(FoPage2D page);
@@ -196,13 +196,14 @@ public class PageManagementService : FoComponent, IPageManagement
     public T AddShape<T>(T value) where T : FoGlyph2D
     {
         var found = ActivePage.AddShape(value);
+
         return found!;
 
     }
 
-    public FoPage2D EstablishPage<T>(string name="Page-1") where T : FoPage2D
+    public T EstablishPage<T>(string name="Page-1") where T : FoPage2D
     {
-        if (_page == null)
+        if (_page == null || !_page.GetName().Matches(name))
         {
             var found = Members<FoPage2D>().Where(page => page.GetName().Matches(name)).FirstOrDefault();
             if (found == null)
@@ -213,7 +214,7 @@ public class PageManagementService : FoComponent, IPageManagement
             SetCurrentPage(found!);
         }
 
-        return ActivePage;
+        return (T)ActivePage;
     }
 
     public FoPage2D CurrentPage()

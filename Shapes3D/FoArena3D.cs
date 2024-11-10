@@ -7,6 +7,7 @@ using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
+using FoundryRulesAndUnits.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen.Blazor;
@@ -29,6 +30,7 @@ public interface IArena: ITreeNode
     V AddShape<V>(V shape) where V : FoGlyph3D;
     V RemoveShape<V>(V shape) where V : FoGlyph3D;
 
+T   EstablishStage<T>(string name) where T : FoStage3D;
     IStageManagement Stages();
     List<FoStage3D> GetAllStages();
     FoStage3D CurrentStage();
@@ -36,8 +38,8 @@ public interface IArena: ITreeNode
 
     //FoWorld3D StressTest3DModelFromFile(string folder, string filename, string baseURL, int count);
     //FoWorld3D Load3DModelFromFile(UDTO_Body spec, string folder, string filename, string baseURL);
-    void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav);
     //void SetCanvasSizeInPixels(int width, int height);
+    void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav);
 
 }
 public class FoArena3D : FoGlyph3D, IArena
@@ -64,10 +66,19 @@ public class FoArena3D : FoGlyph3D, IArena
         //PanZoomService.ReadFromPage(page);
         return stage;
     }
+    public T EstablishStage<T>(string name) where T : FoStage3D
+    {
+        var stage = StageManager.EstablishStage<T>(name, this) as T;
+        return (T)stage;
+    }
+
     public FoStage3D CurrentStage()
     {
-        //var scene = CurrentScene();
-        var stage = StageManager.EstablishStage<FoStage3D>();
+        var stage = StageManager.GetCurrentStage();
+        if ( stage == null)
+            StageManager.EstablishStage<FoStage3D>("Stage-1", this);
+
+        stage = StageManager.GetCurrentStage()!;
         return stage;
     }
     public IStageManagement Stages()
@@ -106,13 +117,33 @@ public class FoArena3D : FoGlyph3D, IArena
 
     public V AddShape<V>(V shape) where V : FoGlyph3D
     {
-        //CurrentStage();
+        var stage = CurrentStage();
+        var scene = CurrentScene();
+
+        shape.OnDelete = (FoGlyph3D item) =>
+        {
+            var mesh = item.Value3D();
+            if ( mesh != null)
+                scene.RemoveChild(mesh);
+
+            stage.RemoveShape<FoGlyph3D>(item);
+            PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
+
+        };
         return StageManager.AddShape<V>(shape);
     }
 
     public V RemoveShape<V>(V shape) where V : FoGlyph3D
-    {
-        return StageManager.RemoveShape<V>(shape);
+    {    
+        var scene = CurrentScene();
+        var mesh = shape.Value3D();
+        if ( mesh != null)
+            scene.RemoveChild(mesh);
+
+
+        var result = StageManager.RemoveShape<V>(shape);
+        PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
+        return result;
     }
 
     public async Task ClearArena()
@@ -120,7 +151,8 @@ public class FoArena3D : FoGlyph3D, IArena
 
         "ClearArena".WriteInfo();
         var stage = CurrentStage();
-        stage.ClearAll();
+        stage.ClearStage();
+
         var scene = CurrentScene();
         await scene.ClearScene();
     }
@@ -179,7 +211,21 @@ public class FoArena3D : FoGlyph3D, IArena
         }
     }
 
+    public override IEnumerable<TreeNodeAction> GetTreeNodeActions()
+    {
+        var result = base.GetTreeNodeActions().ToList();
+        result.AddAction("Clear", "btn-danger", () =>
+        {
+            Task.Run(async () => await ClearArena());
+        });
 
+        result.AddAction("Update", "btn-success", () =>
+        {
+           Task.Run(async () => await UpdateArena());
+        });
+        
+        return result;
+    }
 
     //public FoWorld3D StressTest3DModelFromFile(string folder, string filename, string baseURL, int count)
     //{
@@ -367,13 +413,6 @@ public class FoArena3D : FoGlyph3D, IArena
 
    
 
-    // public async Task<bool> RemoveShapeFromScene(FoShape3D shape)
-    // {
-    //     if ( Scene == null)
-    //         return false;
-
-    //     return await shape.RemoveFromRender(CurrentScene(), CurrentViewer());
-    // }
 
 
     public async Task PreRenderGLBClones(List<FoShape3D> shapes)

@@ -112,31 +112,31 @@ public class FoPanel3D : FoGlyph3D, IShape3D
 
 
 
-    public override bool Render(Scene ctx, int tick, double fps, bool deep = true)
+    public override bool Render(Scene scene, int tick, double fps, bool deep = true)
     {
         //$"RenderPanel {Name} {Position?.X} {Position?.Y}  {Position?.Z}".WriteNote();
 
         if (IsVisible)
         {
             TextPanel = EstablishPanel3D();
-            ctx.Add(TextPanel);
+            scene.AddChild(TextPanel);
         }
         else
         {
             if (TextPanel != null)
-                ctx.Remove(TextPanel);
+                scene.RemoveChild(TextPanel);
             TextPanel = null;
         }
 
         if (HasPanels())
         {
             PanelGroup = EstablishGroup3D();
-            ctx.Add(PanelGroup);
+            scene.AddChild(PanelGroup);
         }
         else
         {
             if (PanelGroup != null)
-                ctx.Remove(PanelGroup);
+                scene.RemoveChild(PanelGroup);
             PanelGroup = null;
         }
         return true;

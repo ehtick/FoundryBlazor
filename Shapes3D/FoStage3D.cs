@@ -6,7 +6,7 @@ namespace FoundryBlazor.Shape;
 
 public interface IStage
 {
-    FoStage3D ClearAll();
+    FoStage3D ClearStage();
     V AddShape<V>(V shape) where V : FoGlyph3D;
     T RemoveShape<T>(T value) where T : FoGlyph3D;
 }
@@ -46,7 +46,27 @@ public class FoStage3D : FoGlyph3D, IStage
 
 
 
+    public override IEnumerable<TreeNodeAction> GetTreeNodeActions()
+    {
+        var result = base.GetTreeNodeActions().ToList();
+        result.AddAction("Clear", "btn-danger", () =>
+        {
+            ClearStage();
+         });
 
+        result.AddAction("Render", "btn-success", () =>
+        {
+            var stage = this;
+            var arena = GetParentOfType<FoArena3D>() ;
+            if ( arena == null) return;
+            IsDirty = true;
+
+            PreRender(arena);
+            var scene = arena.CurrentScene();
+            Task.Run(async () => await stage.RenderToScene(scene, 0, 0));
+        });
+        return result;
+    }
 
 
     public override IEnumerable<ITreeNode> GetTreeChildren()
@@ -63,8 +83,9 @@ public class FoStage3D : FoGlyph3D, IStage
         return list;
     }
     
-    public FoStage3D ClearAll()
+    public FoStage3D ClearStage()
     {
+       IsDirty = true;
        Shapes3D.Clear();
        Pipes3D.Clear();
        return this;
@@ -144,12 +165,15 @@ public class FoStage3D : FoGlyph3D, IStage
         }
 
         //do we need to remove mesh from scene
+        //var uuid = value.GetGlyphId();
+
 
         return value;
     }
 
     public void PreRender(IArena arena)
     {
+
         Shapes3D?.ForEach(async shape => await arena.PreRender(shape));
     }
 

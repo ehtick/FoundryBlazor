@@ -9,6 +9,7 @@ using BlazorThreeJS.Viewers;
 using BlazorThreeJS.Settings;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
+using static System.Formats.Asn1.AsnWriter;
 
 
 namespace FoundryBlazor.Shape;
@@ -31,8 +32,8 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public List<FoPanel3D>? TextPanels { get; set; }
     public Action<ImportSettings> UserHit { get; set; } = (ImportSettings model3D) => { };
 
-    private Mesh? ShapeMesh { get; set; }
-    private Object3D? ShapeObject3D { get; set; }
+    //private Object3D? ShapeMesh { get; set; }
+    //private Object3D? ShapeObject3D { get; set; }
 
     public FoShape3D() : base()
     {
@@ -49,15 +50,9 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public override bool UpdateMeshPosition(double xLoc, double yLoc, double zLoc)
     {
         //"Update mesh position".WriteSuccess();
-        if (ShapeMesh != null)
+        if (_value3D != null)
         {
-            ShapeMesh.Position.Set(xLoc, yLoc, zLoc);
-            return true;
-        }
-        else if (ShapeObject3D != null)
-        {
-            //$"ShapeObject3D Update mesh position {xLoc}, {yLoc}, {zLoc}".WriteSuccess();
-            ShapeObject3D.Position.Set(xLoc, yLoc, zLoc);
+            _value3D.Position.Set(xLoc, yLoc, zLoc);
             return true;
         }
 
@@ -66,8 +61,9 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override string GetTreeNodeTitle()
     {
-        var HasMesh = ShapeMesh != null ? "Mesh" : "NoMesh";
-        return $"{Key} {GetType().Name}  {GeomType}  {HasMesh}";
+
+        var HasMesh = _value3D != null ? "Ok" : "No Value3D";
+        return $"{GeomType}: {Key} {GetType().Name} {HasMesh} => ";
     }
 
 
@@ -92,6 +88,56 @@ public class FoShape3D : FoGlyph3D, IShape3D
         Key = name;
         return this;
     }
+
+    //CreateDodecahedron
+    public FoShape3D CreateDodecahedron(string name, double width, double height, double depth)
+    {
+        GeomType = "Dodecahedron";
+        BoundingBox = new Vector3(width, height, depth);
+        Key = name;
+        return this;
+    }
+    //CreateIcosahedron
+    public FoShape3D CreateIcosahedron(string name, double width, double height, double depth)
+    {
+        GeomType = "Icosahedron";
+        BoundingBox = new Vector3(width, height, depth);
+        Key = name;
+        return this;
+    }
+    //CreateOctahedron
+    public FoShape3D CreateOctahedron(string name, double width, double height, double depth)
+    {
+        GeomType = "Octahedron";
+        BoundingBox = new Vector3(width, height, depth);
+        Key = name;
+        return this;
+    }
+    //CreateTorus
+    public FoShape3D CreateTetrahedron(string name, double width, double height, double depth)
+    {
+        GeomType = "Tetrahedron";
+        BoundingBox = new Vector3(width, height, depth);
+        Key = name;
+        return this;
+    }
+    //CreateTorusKnot
+    public FoShape3D CreateTorusKnot(string name, double width, double height, double depth)
+    {
+        GeomType = "TorusKnot";
+        BoundingBox = new Vector3(width, height, depth);
+        Key = name;
+        return this;
+    }
+    //CreateTorus 
+    public FoShape3D CreateTorus(string name, double width, double height, double depth)
+    {
+        GeomType = "Torus";
+        BoundingBox = new Vector3(width, height, depth);
+        Key = name;
+        return this;
+    }
+
     public FoShape3D CreateTube(string name, double radius, List<Vector3> path)
     {
         GeomType = "Tube";
@@ -164,33 +210,36 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
        
 
-    public Mesh Box()
+    public Object3D Box()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
 
         var box = BoundingBox ?? new Vector3(1, 1, 1);
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new BoxGeometry(box.X, box.Y, box.Z),
             Position = GetPosition(),
             Pivot = GetPivot(),
             Scale = GetScale(),
             Rotation = GetRotation(),
-            Material = GetMaterial()
+            Material = GetMaterial(),
+
         };
 
-        return ShapeMesh;
+        return _value3D;
     }
 
-    public Mesh Boundary()
+    public Object3D Boundary()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
 
         var box = BoundingBox ?? new Vector3(1, 1, 1);
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new BoxGeometry(box.X, box.Y, box.Z),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -198,17 +247,18 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetWireframe()
         };
-        return ShapeMesh;
+        return _value3D;
     }
 
-    private Mesh Cylinder()
+    private Object3D Cylinder()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
 
         var box = BoundingBox ?? new Vector3(1, 1, 1);
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new CylinderGeometry(radiusTop: box.X / 2, radiusBottom: box.X / 2, height: box.Y),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -216,18 +266,19 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
 
-    private Mesh Sphere()
+    private Object3D Sphere()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
 
         var box = BoundingBox ?? new Vector3(1, 1, 1);
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new SphereGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -235,17 +286,18 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
 
-    private Mesh Tube()
+    private Object3D Tube()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
 
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new TubeGeometry(radius: Radius, path: Path!, 8, 10),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -253,16 +305,17 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
-    private Mesh Circle()
+    private Object3D Circle()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
         var box = BoundingBox ?? new Vector3(1, 1, 1);
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new CircleGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -270,17 +323,18 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
 
-    private Mesh Capsule()
+    private Object3D Capsule()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
         var box = BoundingBox ?? new Vector3(1, 1, 1);
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new CapsuleGeometry(radius: box.X / 2, box.Y),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -288,17 +342,18 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
 
-    private Mesh Cone()
+    private Object3D Cone()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
         var box = BoundingBox ?? new Vector3(1, 1, 1);
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new ConeGeometry(radius: box.X / 2, height: box.Y),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -306,17 +361,18 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
 
-    private Mesh Dodecahedron()
+    private Object3D Dodecahedron()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
         var box = BoundingBox ?? new Vector3(1, 1, 1);
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new DodecahedronGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -324,17 +380,18 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
 
-    private Mesh Icosahedron()
+    private Object3D Icosahedron()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
         var box = BoundingBox ?? new Vector3(1, 1, 1);
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new IcosahedronGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -342,18 +399,19 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
 
-    private Mesh Octahedron()
+    private Object3D Octahedron()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
 
         var box = BoundingBox ?? new Vector3(1, 1, 1);
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new OctahedronGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -361,17 +419,18 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
-    private Mesh Tetrahedron()
+    private Object3D Tetrahedron()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
 
         var box = BoundingBox ?? new Vector3(1, 1, 1);
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new TetrahedronGeometry(radius: box.X / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -379,17 +438,18 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
-    private Mesh Plane()
+    private Object3D Plane()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
 
         var box = BoundingBox ?? new Vector3(1, 1, 1);
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new PlaneGeometry(width: box.X, height: box.Y),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -397,17 +457,18 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
 
-    private Mesh Ring()
+    private Object3D Ring()
     {
-        if (ShapeMesh != null) return ShapeMesh;
+        if (_value3D != null) return _value3D;
         var box = BoundingBox ?? new Vector3(1, 1, 1);
 
-        ShapeMesh = new Mesh
+        _value3D = new Mesh
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Geometry = new RingGeometry(innerRadius: box.X / 2, outerRadius: box.Y / 2),
             Position = GetPosition(),
             Pivot = GetPivot(),
@@ -415,7 +476,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Rotation = GetRotation(),
             Material = GetMaterial()
         };
-        return ShapeMesh;
+        return _value3D;
     }
 
 
@@ -429,23 +490,26 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         var scene = arena.CurrentScene();
         var uuid = await scene.Request3DModel(settings);
-        arena.Add<FoShape3D>(uuid.ToString(), this);
+        arena.Add<FoShape3D>(uuid, this);
         return true;
     }
 
     public ImportSettings AsImportSettings(FoArena3D arena, Import3DFormats format)
     {
         LoadingURL = Url;
+        var scene = arena.CurrentScene();
 
         var setting = new ImportSettings
         {
-            Uuid = Guid.NewGuid(),
+            Uuid = GetGlyphId(),
+
             Format = format,
             FileURL = LoadingURL,
             Position = GetPosition(),
             Rotation = GetRotation(),
             Pivot = GetPivot(),
             Scale = GetScale(),
+
             OnClick = async (ImportSettings self) =>
             {
                 self.Increment();
@@ -454,16 +518,19 @@ public class FoShape3D : FoGlyph3D, IShape3D
                 await arena.UpdateArena();
                 //$"FoundryBlazor OnClick handler UpdateArena called".WriteInfo();
             },
-            OnComplete = (Scene scene, Object3D object3D) =>
+
+            OnComplete = () =>
             {
-                $"OnComplete for object3D.Uuid={object3D.Uuid}, body.LoadingURL={LoadingURL}, position.x={Position?.X}".WriteInfo();
-                if (object3D != null)
-                    ShapeObject3D = object3D;
-                else
-                    "Unexpected empty object3D".WriteError(1);
+                _value3D = new Group3D()
+                {
+                    Name = GetName(),
+                    Uuid = GetGlyphId(),
+                };
+                scene.AddChild(_value3D);
+                $"OnComplete for object3D.Uuid={_value3D.Uuid}, body.LoadingURL={LoadingURL}, position.x={Position?.X}".WriteInfo();
             }
         };
-        GlyphId = setting.Uuid.ToString();
+
         return setting;
     }
 
@@ -486,17 +553,17 @@ public class FoShape3D : FoGlyph3D, IShape3D
         var sourceBody = bodies.ElementAt(0);
         bodies.RemoveAt(0);
 
-        source.OnComplete = async (Scene scene, Object3D object3D) =>
-        {
-            if (object3D != null)
-            {
-                sourceBody.ShapeObject3D = object3D;
-                if (settings.Count > 0)
-                    await scene.Clone3DModel(object3D.Uuid, settings);
-            }
-            else
-                "Unexpected empty object3D".WriteError(1);
-        };
+        // source.OnComplete = async () =>
+        // {
+        //     if (object3D != null)
+        //     {
+        //         sourceBody.ShapeObject3D = object3D;
+        //         if (settings.Count > 0)
+        //             await scene.Clone3DModel(object3D.Uuid!, settings);
+        //     }
+        //     else
+        //         "Unexpected empty object3D".WriteError(1);
+        // };
 
         var scene = arena.Scene!;
         await scene.Request3DModel(source);
@@ -512,6 +579,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         var result = new MeshStandardMaterial()
         {
             Name = Key,
+            Uuid = GetGlyphId(),
             Color = this.Color,
             Wireframe = true
         };
@@ -523,12 +591,8 @@ public class FoShape3D : FoGlyph3D, IShape3D
         if (!string.IsNullOrEmpty(Url))
             return base.GetMaterial();
 
-        var result = new MeshStandardMaterial()
-        {
-            Name = Key,
-            Color = this.Color,
-            //Wireframe = true
-        };
+        var result = GetWireframe();
+        result.Wireframe = false;
         return result;
     }
 
@@ -563,7 +627,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override async Task<bool> PreRender(FoArena3D arena, bool deep = true)
     {
-        if ( ShapeMesh != null || ShapeObject3D != null)
+        if ( _value3D != null)
             return true;
             
         //is symbol ends with ....
@@ -588,11 +652,11 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         return result;
     }
-    public void RenderPrimitives(Scene ctx)
+    public void RenderPrimitives(Scene scene)
     {
-        if (ShapeMesh == null && IsVisible)
+        if (_value3D == null && IsVisible)
         {
-            ShapeMesh = GeomType switch
+            _value3D = GeomType switch
             {
                 "Box" => Box(),
                 "Boundary" => Boundary(),
@@ -611,35 +675,29 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
                 _ => null
             };
-
-            if (ShapeMesh != null)
-            {
-                 ctx.Add(ShapeMesh);
-            }
         };
 
-        //delete mesh if you are invisible
-        if (ShapeMesh != null && !IsVisible)
+        if (_value3D != null)
         {
-            ctx.Remove(ShapeMesh);
-            ShapeMesh = null;
+            scene.AddChild(_value3D);
+
+        }
+
+        //delete mesh if you are invisible
+        if (_value3D != null && !IsVisible)
+        {
+            scene.RemoveChild(_value3D);
+            _value3D = null!;
         }
     }
-    public override async Task<bool> RemoveFromRender(Scene ctx, bool deep = true)
+    public override async Task<bool> RemoveFromRender(Scene scene, bool deep = true)
     {
-        if (ctx == null)
-            return false;
-
-        if (ShapeMesh != null)
+        if (_value3D != null)
         {
-            ctx.Remove(ShapeMesh);
-            ShapeMesh = null;
+            scene.RemoveChild(_value3D);
         }
-        if (ShapeObject3D != null)
-        {
-            await ctx.RemoveByUuidAsync(ShapeObject3D.Uuid);
-            ShapeObject3D = null;
-        }
+        _value3D = null!;
+        await Task.CompletedTask;
         return true;
     }
 
@@ -718,11 +776,11 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return true;
     }
 
-    public override bool Render(Scene ctx, int tick, double fps, bool deep = true)
+    public override bool Render(Scene scene, int tick, double fps, bool deep = true)
     {
-        RenderPrimitives(ctx);
+        RenderPrimitives(scene);
 
-        SetupHitTest(ctx, tick, fps, deep);
+        SetupHitTest(scene, tick, fps, deep);
         return true;
     }
 

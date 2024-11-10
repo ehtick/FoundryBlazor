@@ -7,18 +7,19 @@ namespace FoundryBlazor.Shape;
 public interface IStageManagement
 {
     FoStage3D? FindStage(string name);
-    FoStage3D EstablishStage<T>(string name="Stage-1") where T : FoStage3D;
-    FoStage3D CurrentStage();
+    T EstablishStage<T>(string name, FoComponent parent) where T : FoStage3D;
+    FoStage3D? GetCurrentStage();
     FoStage3D SetCurrentStage(FoStage3D page);
     FoStage3D AddStage(FoStage3D page);
 
     V AddShape<V>(V shape) where V : FoGlyph3D;
     V RemoveShape<V>(V shape) where V : FoGlyph3D;
+
     void ClearAll();
     int StageCount();
     List<FoStage3D> GetAllStages();
 
-    //Task RenderDetailed(Scene scene, int tick, double fps);
+
 
     //T Add<T>(T value) where T : FoGlyph3D;
     //T Duplicate<T>(T value) where T : FoGlyph3D;
@@ -72,17 +73,14 @@ public class StageManagementService : FoComponent, IStageManagement
         return Members<FoStage3D>().Count;
     }
 
-    // public async Task RenderDetailed(Scene scene, int tick, double fps)
-    // {
-    //     await ActiveStage.RenderDetailed(scene, tick, fps);
-    // }
+
 
 
 
     public void ClearAll()
     {
         FoGlyph2D.ResetHitTesting(true,"ClearAll");
-        ActiveStage.ClearAll();
+        ActiveStage.ClearStage();
     }
 
     public bool ToggleHitTestRender()
@@ -109,30 +107,25 @@ public class StageManagementService : FoComponent, IStageManagement
         return found!;
     }
 
-    public FoStage3D EstablishStage<T>(string name="Stage-1") where T : FoStage3D
+    public T EstablishStage<T>(string name, FoComponent parent) where T : FoStage3D
     {
-        if (_stage == null)
+        if (_stage == null || !_stage.GetName().Matches(name))
         {
             var found = Members<FoStage3D>().Where(stage => stage.GetName().Matches(name)).FirstOrDefault();
             if (found == null)
             {
                 found = Activator.CreateInstance(typeof(T), name,10,10,10,"Red") as FoStage3D;
-                AddStage(found!);
+                found!.GetParent = () => parent;
+                AddStage(found);
             }
             SetCurrentStage(found!);
         }
 
-        return ActiveStage;
+        return (T)ActiveStage;
     }
-    public FoStage3D CurrentStage()
+    public FoStage3D? GetCurrentStage()
     {
-        if (_stage == null)
-        {
-            var found = EstablishStage<FoStage3D>();
-            SetCurrentStage(found);
-        }
-
-        return ActiveStage;
+       return ActiveStage;
     }
 
     public FoStage3D SetCurrentStage(FoStage3D stage)
@@ -178,7 +171,7 @@ public class StageManagementService : FoComponent, IStageManagement
         return found;
     }
 
-    public T Duplicate<T>(T value) where T : FoGlyph3D
+    public T Duplicate<T>(T value, Scene scene) where T : FoGlyph3D
     {
         var body = CodingExtensions.Dehydrate<T>(value, false);
         var shape = CodingExtensions.Hydrate<T>(body, false);
@@ -187,7 +180,7 @@ public class StageManagementService : FoComponent, IStageManagement
         shape.GlyphId = "";
 
         //SRS write a method to duplicate actions
-        shape.ShapeDraw = value.ShapeDraw;
+        //shape.ShapeDraw = value.ShapeDraw;
         shape.OpenCreater = value.OpenCreater;
         shape.OpenEditor = value.OpenEditor;
         shape.OpenViewer = value.OpenViewer;
@@ -216,8 +209,8 @@ public class StageManagementService : FoComponent, IStageManagement
         menu?.Clear();
     }
 
-    public virtual async Task Draw(Scene ctx, int tick)
-    {
-        await ActiveStage.Draw(ctx, tick);
-    }
+    //public virtual async Task Draw(Scene ctx, int tick)
+    //{
+    //    await ActiveStage.Draw(ctx, tick);
+    //}
 }
