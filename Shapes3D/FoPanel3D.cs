@@ -5,6 +5,7 @@ using FoundryBlazor.Extensions;
 using BlazorThreeJS.Geometires;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Materials;
+using BlazorThreeJS.Core;
 
 namespace FoundryBlazor.Shape;
 
@@ -92,7 +93,7 @@ public class FoPanel3D : FoGlyph3D, IShape3D
         return Panels().Select((item) => item.EstablishPanel3D()).ToList();
     }
 
-    private List<Mesh> ChildConnections()
+    private List<Object3D> ChildConnections()
     {
         return Connections().Select((item) => item.EstablishPathway3D()).ToList();
     }

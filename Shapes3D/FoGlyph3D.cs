@@ -16,8 +16,22 @@ public class FoGlyph3D : FoComponent
     public float Opacity { get; set; } = 1.0F;
     public string Color { get; set; } = "Green";
 
+    public double Radius { get; set; } = 0.025;
+    public List<Vector3>? Path { get; set; }
 
-    protected Object3D? _value3D;
+    public FoGeometryParameter3D GeometryParameter3D { get; set; }
+
+    private Vector3 bounds = null!;
+    public Vector3 BoundingBox 
+    { 
+        get 
+        { 
+            bounds ??= new Vector3(Width, Height, Depth);
+            return bounds; 
+        }
+        set { bounds = value; }
+    }
+
 
     protected double width = 0;
     public double Width { get { return this.width; } set { this.width = AssignDouble(value, width); } }
@@ -35,7 +49,38 @@ public class FoGlyph3D : FoComponent
     public Action<FoGlyph3D>? OnDelete { get; set; }
 
     public List<TreeNodeAction> DefaultActions = [];
-    public void AddAction(string name, string color, Action action)
+ 
+    public FoGlyph3D() : base("")
+    {
+        GeometryParameter3D = new FoGeometryParameter3D(this);
+    }
+    public FoGlyph3D(string name) : base(name)
+    {
+         GeometryParameter3D = new FoGeometryParameter3D(this);
+    }
+    public FoGlyph3D(string name, string color) : this(name)
+    {
+        Color = color;
+    }
+
+
+    public string GetGlyphId()
+    {
+        if (string.IsNullOrEmpty(GlyphId))
+            GlyphId = Guid.NewGuid().ToString();
+
+        return GlyphId;
+    }
+
+    public bool GlyphIdCompare(string other)
+    {
+        var id = GetGlyphId();
+        var result = id == other;
+        // $"GlyphIdCompare {result}  {id} {other}".WriteNote();
+        return result;
+    }
+
+   public void AddAction(string name, string color, Action action)
     {
         DefaultActions.AddAction(name, color, action);
     }
@@ -60,55 +105,20 @@ public class FoGlyph3D : FoComponent
     {
         $"Deleting {GetTreeNodeTitle()}".WriteWarning();
 
-        var mesh = Value3D();
+        var mesh = GeometryParameter3D.GetValue3D();
         if (mesh != null)
             scene.RemoveChild(mesh);
 
         stage.RemoveShape<FoGlyph3D>(this);
     }
 
-    public Object3D? Value3D()
+
+
+    public virtual FoGeometryParameter3D RenderPrimitives(Scene scene)
     {
-        return _value3D;
+        return GeometryParameter3D;
     }
 
-    public Object3D SetValue3D(Object3D value)
-    {
-        _value3D = value;
-        return _value3D;
-    }
-
-    public virtual Object3D? RenderPrimitives(Scene? scene)
-    {
-        return _value3D;
-    }
-
-    public FoGlyph3D() : base("")
-    {
-    }
-    public FoGlyph3D(string name) : base(name)
-    {
-    }
-    public FoGlyph3D(string name, string color) : base(name)
-    {
-        Color = color;
-    }
-
-    public string GetGlyphId()
-    {
-        if (string.IsNullOrEmpty(GlyphId))
-            GlyphId = Guid.NewGuid().ToString();
-
-        return GlyphId;
-    }
-
-    public bool GlyphIdCompare(string other)
-    {
-        var id = GetGlyphId();
-        var result = id == other;
-        // $"GlyphIdCompare {result}  {id} {other}".WriteNote();
-        return result;
-    }
 
     public FoGlyph3D SetBoundry(int width, int height, int depth)
     {

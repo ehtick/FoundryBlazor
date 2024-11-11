@@ -10,7 +10,7 @@ public class FoGroup3D : FoGlyph3D, IShape3D
 {
 
     public Vector3? Position { get; set; }
-    public Vector3? BoundingBox { get; set; }
+
     public Vector3? Offset { get; set; }
 
 
@@ -223,30 +223,7 @@ public class FoGroup3D : FoGlyph3D, IShape3D
         return true;
     }
 
-    public Object3D Group()
-    {
-        if (_value3D != null) return _value3D;
 
-        _value3D = new Group3D
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-        };
 
-        return _value3D;
-    }
-    public override Object3D? RenderPrimitives(Scene? scene)
-    {
-        _value3D = Group();
-        scene?.AddChild(_value3D);
-
-        //Members<FoShape3D>().ForEach(shape => shape.Render(scene, tick, fps, deep));
-        
-        return _value3D;
-    }
 }
 
