@@ -13,9 +13,6 @@ namespace FoundryBlazor.Shape;
 
 public class FoPathway3D : FoGlyph3D, IPipe3D
 {
-    public Vector3? Position { get; set; }
-    public Vector3? Pivot { get; set; }
-    public Euler? Rotation { get; set; }
 
 
     public FoPathway3D(string name) : base(name, "Grey")

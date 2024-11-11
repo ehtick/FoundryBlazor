@@ -17,15 +17,7 @@ namespace FoundryBlazor.Shape;
 public class FoShape3D : FoGlyph3D, IShape3D
 {
 
-    public string Url { get; set; } = "";
-    public string GeomType { get; set; } = "";
-
-    public Vector3? Position { get; set; }
-    public Vector3? Pivot { get; set; }
-    public Euler? Rotation { get; set; } // replace with Quaternion
-    public Vector3? Scale { get; set; }
-
-
+  
     public List<FoPanel3D>? TextPanels { get; set; }
     public Action<ImportSettings> UserHit { get; set; } = (ImportSettings model3D) => { };
 
@@ -137,19 +129,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return this;
     }
 
-    public FoShape3D CreateGlb(string url, double width, double height, double depth)
-    {
-        CreateGlb(url);
-        BoundingBox = new Vector3(width, height, depth);
-        return this;
-    }
-    public FoShape3D CreateGlb(string url)
-    {
-        GeomType = "Glb";
-        Url = url;
-        $"CreateGlb url [{Url}] ".WriteSuccess();
-        return this;
-    }
+
 
     public FoShape3D CreateSphere(string name, double width, double height, double depth)
     {
@@ -198,7 +178,24 @@ public class FoShape3D : FoGlyph3D, IShape3D
     }
   
 
+    // public override async Task<bool> PreRender(FoArena3D arena, bool deep = true)
+    // {
+    //     if (GeometryParameter3D.HasValue3D)
+    //         return true;
+            
+    //     //is symbol ends with ....
+    //     //LoadingURL = Symbol.Replace("http:", "https:");
+    //     //await Task.CompletedTask;
 
+    //     //LoadingURL = Url;
+    //     $"Shape PRERENDER {Name} => {GetTreeNodeTitle()} {Url}".WriteWarning();
+
+    //     var result = await GeometryParameter3D.PreRender(this, arena, deep);
+    //     //if (arena.Scene != null)
+    //     //    SetupHitTest(arena.Scene);
+
+    //     return result;
+    // }
 
 
 
@@ -256,67 +253,26 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override MeshStandardMaterial GetMaterial()
     {
-        if (!string.IsNullOrEmpty(Url))
-            return base.GetMaterial();
-
         var result = GetWireframe();
         result.Wireframe = false;
         return result;
     }
 
 
-    public override Vector3 GetPosition(int x = 0, int y = 0, int z = 0)
+
+    public override bool Render(Scene scene, int tick, double fps, bool deep = true)
     {
-        if (Position == null)
-            return base.GetPosition(x, y, z);
-        return Position;
+        RenderPrimitives(scene);
+
+        // SetupHitTest(scene, tick, fps, deep);
+        return true;
     }
 
-    public override Vector3 GetPivot(int x = 0, int y = 0, int z = 0)
-    {
-        if (Pivot == null)
-            return base.GetPivot(x, y, z);
-        return Pivot;
-    }
-
-    public override Vector3 GetScale(double x = 1, double y = 1, double z = 1)
-    {
-        if (Scale == null)
-            return base.GetScale(x, y, z);
-        return Scale;
-    }
-
-    public override Euler GetRotation(int x = 0, int y = 0, int z = 0)
-    {
-        if (Rotation == null)
-            return base.GetRotation(x, y, z);
-        return Rotation;
-    }
-
-    public override async Task<bool> PreRender(FoArena3D arena, bool deep = true)
-    {
-        if (GeometryParameter3D.HasValue3D)
-            return true;
-            
-        //is symbol ends with ....
-        //LoadingURL = Symbol.Replace("http:", "https:");
-        //await Task.CompletedTask;
-
-        //LoadingURL = Url;
-        $"Shape PRERENDER {Name} => {GetTreeNodeTitle()} {Url}".WriteWarning();
-
-        var result = await GeometryParameter3D.PreRender(this, arena, deep);
-        if (arena.Scene != null)
-            SetupHitTest(arena.Scene);
-
-        return result;
-    }
     public override FoGeometryParameter3D RenderPrimitives(Scene? scene)
     {
         if (!GeometryParameter3D.HasValue3D)
-        {
-            GeometryParameter3D.ComputeValue(GeomType, this);
-        };
+            GeometryParameter3D.ComputeValue(this);
+       
 
         if (GeometryParameter3D.HasValue3D)
         {
@@ -389,31 +345,25 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return TextPanels;
     }
 
-    public bool SetupHitTest(Scene ctx, int tick = 0, double fps = 0, bool deep = true)
-    {
-        //$"SetupHitTest for {Name}".WriteInfo();
-        UserHit = (ImportSettings model3D) =>
-        {
-            //$"In UserHit".WriteInfo();
+    // public bool SetupHitTest(Scene ctx, int tick = 0, double fps = 0, bool deep = true)
+    // {
+    //     //$"SetupHitTest for {Name}".WriteInfo();
+    //     UserHit = (ImportSettings model3D) =>
+    //     {
+    //         //$"In UserHit".WriteInfo();
 
-            var list = EstablishTextPanels(model3D);
-            foreach (var item in list)
-            {
-                item.IsVisible = model3D.IsShow();
-                item.Render(ctx, tick, fps, deep);  
-            }
+    //         var list = EstablishTextPanels(model3D);
+    //         foreach (var item in list)
+    //         {
+    //             item.IsVisible = model3D.IsShow();
+    //             item.Render(ctx, tick, fps, deep);  
+    //         }
 
-        };
-        return true;
-    }
+    //     };
+    //     return true;
+    // }
 
-    public override bool Render(Scene scene, int tick, double fps, bool deep = true)
-    {
-        RenderPrimitives(scene);
 
-        SetupHitTest(scene, tick, fps, deep);
-        return true;
-    }
 
 
 }

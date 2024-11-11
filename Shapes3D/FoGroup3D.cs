@@ -9,7 +9,7 @@ namespace FoundryBlazor.Shape;
 public class FoGroup3D : FoGlyph3D, IShape3D
 {
 
-    public Vector3? Position { get; set; }
+
 
     public Vector3? Offset { get; set; }
 
@@ -85,47 +85,6 @@ public class FoGroup3D : FoGlyph3D, IShape3D
 
 
 
-    public T CreateUsingDTBASE<T>(FoGlyph3D obj) where T : FoGlyph3D
-    {
-        return CreateUsing<T>(obj.Key, obj.GlyphId);
-    }
-
-    public FoShape3D CreateCylinder(FoGlyph3D obj, double width = 1.0, double height = 1.0, double depth = 1.0)
-    {
-        var result = CreateUsingDTBASE<FoShape3D>(obj);
-        return result.CreateCylinder(obj.Key, width, height, depth);
-    }
-
-    public FoShape3D CreateBlock(FoGlyph3D obj, double width = 1.0, double height = 1.0, double depth = 1.0)
-    {
-        var result = CreateUsingDTBASE<FoShape3D>(obj);
-        return result.CreateBox(obj.Key, width, height, depth);
-    }
-
-    public FoShape3D CreateSphere(FoGlyph3D obj, double width = 1.0, double height = 1.0, double depth = 1.0)
-    {
-        var result = CreateUsingDTBASE<FoShape3D>(obj);
-        return result.CreateSphere(obj.Key, width, height, depth);
-    }
-
-    public FoShape3D CreateGlb(FoGlyph3D obj, string url, double width = 1.0, double height = 1.0, double depth = 1.0)
-    {
-        var result = CreateUsingDTBASE<FoShape3D>(obj);
-        return result.CreateGlb(url, width, height, depth);
-    }
-
-    public FoText3D CreateLabel(FoGlyph3D obj, string text, double xLoc = 0.0, double yLoc = 0.0, double zLoc = 0.0)
-    {
-        var result = CreateUsingDTBASE<FoText3D>(obj);
-        return result.CreateTextAt(text, xLoc, yLoc, zLoc);
-    }
-
-
-    public FoGroup3D SetPositionTo(Vector3 loc)
-    {
-        Position = loc;
-        return this;
-    }
 
 
 

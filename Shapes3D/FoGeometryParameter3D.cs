@@ -19,7 +19,7 @@ public class FoGeometryParameter3D : FoComponent
     public string GlyphId { get; set; } = "";
     protected Object3D Value3D { get; set; }
 
-    public FoGeometryParameter3D(FoGlyph3D owner) : base("Geometry")
+    public FoGeometryParameter3D(FoGlyph3D owner) : base(owner.GetName())
     {
         GetParent = () => owner;
         Value3D = null!;
@@ -88,7 +88,7 @@ public class FoGeometryParameter3D : FoComponent
         }
     }
 
-    public async Task<bool> PreRender(FoShape3D source, FoArena3D arena, bool deep = true)
+    public async Task<bool> PreRender(FoModel3D source, FoArena3D arena, bool deep = true)
     {
         if ( Value3D != null)
             return true;
@@ -105,7 +105,7 @@ public class FoGeometryParameter3D : FoComponent
 
         return result;
     }
-    private async Task<bool> PreRenderImport(FoShape3D source, FoArena3D arena, Import3DFormats format)
+    private async Task<bool> PreRenderImport(FoModel3D source, FoArena3D arena, Import3DFormats format)
     {
         var settings = AsImportSettings(source, arena, format);
 
@@ -114,11 +114,11 @@ public class FoGeometryParameter3D : FoComponent
 
         var scene = arena.CurrentScene();
         var uuid = await scene.Request3DModel(settings);
-        arena.Add<FoShape3D>(uuid, source);
+        //arena.Add<FoShape3D>(uuid, source);
         return true;
     }
 
-    public ImportSettings AsImportSettings(FoShape3D source, FoArena3D arena, Import3DFormats format)
+    public ImportSettings AsImportSettings(FoModel3D source, FoArena3D arena, Import3DFormats format)
     {
         //LoadingURL = Url;
         var scene = arena.CurrentScene();
@@ -159,10 +159,11 @@ public class FoGeometryParameter3D : FoComponent
     }
    
 
-   public  FoGeometryParameter3D ComputeValue(string GeomType, FoGlyph3D source)
+   public (FoGeometryParameter3D obj, Object3D value) ComputeValue(FoGlyph3D source)
     {
 
-        Value3D = GeomType switch
+
+        Value3D = source.GeomType switch
         {
             "GROUP" => AsGroup(source),
             "Box" => AsBox(source),
@@ -181,7 +182,7 @@ public class FoGeometryParameter3D : FoComponent
             "Tetrahedron" => AsTetrahedron(source),
             _ => Value3D,
         };
-        return this;
+        return (this, Value3D);
     }
 
     public Mesh CreateMesh(FoGlyph3D source, BufferGeometry geometry)

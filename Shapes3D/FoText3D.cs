@@ -14,7 +14,6 @@ public class FoText3D : FoGlyph3D, IShape3D
 
     public double FontSize { get; set; } = 0.5;
 
-    public Vector3? Position { get; set; }
 
     private string _text = "";
     public string Text

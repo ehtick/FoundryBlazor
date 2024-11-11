@@ -13,11 +13,18 @@ namespace FoundryBlazor.Shape;
 public class FoGlyph3D : FoComponent
 {
     public string GlyphId { get; set; } = "";
-    public float Opacity { get; set; } = 1.0F;
+    //public float Opacity { get; set; } = 1.0F;
+
+    public string GeomType { get; set; } = "";
+    public List<Vector3>? Path { get; set; }
+
     public string Color { get; set; } = "Green";
 
-    public double Radius { get; set; } = 0.025;
-    public List<Vector3>? Path { get; set; }
+
+    public Vector3? Position { get; set; }
+    public Vector3? Pivot { get; set; }
+    public Euler? Rotation { get; set; } // replace with Quaternion
+    public Vector3? Scale { get; set; }
 
     public FoGeometryParameter3D GeometryParameter3D { get; set; }
 
@@ -32,7 +39,8 @@ public class FoGlyph3D : FoComponent
         set { bounds = value; }
     }
 
-
+    public double radius { get; set; } = 0.025;
+    public double Radius { get { return this.radius; } set { this.radius = AssignDouble(value, radius); } }
     protected double width = 0;
     public double Width { get { return this.width; } set { this.width = AssignDouble(value, width); } }
     protected double height = 0;
@@ -114,10 +122,6 @@ public class FoGlyph3D : FoComponent
 
 
 
-    public virtual FoGeometryParameter3D RenderPrimitives(Scene scene)
-    {
-        return GeometryParameter3D;
-    }
 
 
     public FoGlyph3D SetBoundry(int width, int height, int depth)
@@ -159,7 +163,8 @@ public class FoGlyph3D : FoComponent
     {
         var result = new MeshStandardMaterial()
         {
-            Color = this.Color
+            Color = this.Color,
+            //Opacity = this.Opacity,
         };
         return result;
     }
@@ -185,36 +190,42 @@ public class FoGlyph3D : FoComponent
     }
     public virtual Vector3 GetPosition(int x = 0, int y = 0, int z = 0)
     {
-        var result = new Vector3(x, y, z);
-        return result;
+        Position ??= new Vector3(x, y, z);
+        return Position;
     }
 
     public virtual Vector3 GetPivot(int x = 0, int y = 0, int z = 0)
     {
-        var result = new Vector3(x, y, z);
-        return result;
+        Pivot ??= new Vector3(x, y, z);
+        return Pivot;
     }
 
     public virtual Vector3 GetScale(double x = 1, double y = 1, double z = 1)
     {
-        var result = new Vector3(x, y, z);
-        return result;
+        Scale ??= new Vector3(x, y, z);
+        return Scale;
     }
 
     public virtual Euler GetRotation(int x = 0, int y = 0, int z = 0)
     {
-        var result = new Euler(x, y, z);
-        return result;
+        Rotation ??= new Euler(x, y, z);
+        return Rotation;
     }
 
+    public virtual bool OnModelLoadComplete(Guid PromiseGuid)
+    {
+        return false;
+    }
     public virtual async Task<bool> PreRender(FoArena3D arena, bool deep = true)
     {
         await Task.CompletedTask;
-        $"NO Prerender {Name}".WriteWarning();
-        return false;
+        return GeometryParameter3D.HasValue3D;
     }
 
-
+    public virtual FoGeometryParameter3D RenderPrimitives(Scene scene)
+    {
+        return GeometryParameter3D;
+    }
 
     public virtual bool Render(Scene scene, int tick, double fps, bool deep = true)
     {
@@ -226,10 +237,7 @@ public class FoGlyph3D : FoComponent
         await scene.ClearScene();
         return false;
     }
-    public virtual bool OnModelLoadComplete(Guid PromiseGuid)
-    {
-        return false;
-    }
+
 
 
 
