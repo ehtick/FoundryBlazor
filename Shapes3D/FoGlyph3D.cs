@@ -15,7 +15,7 @@ public class FoGlyph3D : FoComponent
     public string GlyphId { get; set; } = "";
     public float Opacity { get; set; } = 1.0F;
     public string Color { get; set; } = "Green";
-    //public string Address { get; set; } = "";
+
 
     protected Object3D? _value3D;
 
@@ -48,18 +48,24 @@ public class FoGlyph3D : FoComponent
         if ( OnDelete != null )
             result.AddAction("Delete", "btn-danger", () =>
             {
-                Delete();
+                OnDelete?.Invoke(this);
             });
 
         return result;
     }
 
-    public virtual void Delete()
+
+
+    public virtual void DeleteFromStage(FoStage3D stage, Scene scene)
     {
         $"Deleting {GetTreeNodeTitle()}".WriteWarning();
-        OnDelete?.Invoke(this);
-    }
 
+        var mesh = Value3D();
+        if (mesh != null)
+            scene.RemoveChild(mesh);
+
+        stage.RemoveShape<FoGlyph3D>(this);
+    }
 
     public Object3D? Value3D()
     {
@@ -69,6 +75,11 @@ public class FoGlyph3D : FoComponent
     public Object3D SetValue3D(Object3D value)
     {
         _value3D = value;
+        return _value3D;
+    }
+
+    public virtual Object3D? RenderPrimitives(Scene? scene)
+    {
         return _value3D;
     }
 

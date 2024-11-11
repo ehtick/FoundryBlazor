@@ -27,13 +27,12 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public Euler? Rotation { get; set; } // replace with Quaternion
     public Vector3? BoundingBox { get; set; }
     public Vector3? Scale { get; set; }
-    public string? LoadingURL { get; set; }
+    //public string? LoadingURL { get; set; }
 
     public List<FoPanel3D>? TextPanels { get; set; }
     public Action<ImportSettings> UserHit { get; set; } = (ImportSettings model3D) => { };
 
-    //private Object3D? ShapeMesh { get; set; }
-    //private Object3D? ShapeObject3D { get; set; }
+
 
     public FoShape3D() : base()
     {
@@ -208,7 +207,23 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return this;
     }
 
-       
+    public Object3D Group()
+    {
+        if (_value3D != null) return _value3D;
+
+        _value3D = new Group3D
+        {
+            Name = Key,
+            Uuid = GetGlyphId(),
+            Position = GetPosition(),
+            Pivot = GetPivot(),
+            Scale = GetScale(),
+            Rotation = GetRotation(),
+        };
+
+        return _value3D;
+    }
+
 
     public Object3D Box()
     {
@@ -485,8 +500,8 @@ public class FoShape3D : FoGlyph3D, IShape3D
     {
         var settings = AsImportSettings(arena, format);
 
-        if (string.IsNullOrEmpty(LoadingURL)) return false;
-        $"PreRenderImport url [{LoadingURL}] ".WriteInfo(1);
+        if (string.IsNullOrEmpty(Url)) return false;
+        $"PreRenderImport url [{Url}] ".WriteInfo(1);
 
         var scene = arena.CurrentScene();
         var uuid = await scene.Request3DModel(settings);
@@ -496,7 +511,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public ImportSettings AsImportSettings(FoArena3D arena, Import3DFormats format)
     {
-        LoadingURL = Url;
+        //LoadingURL = Url;
         var scene = arena.CurrentScene();
 
         var setting = new ImportSettings
@@ -504,7 +519,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Uuid = GetGlyphId(),
 
             Format = format,
-            FileURL = LoadingURL,
+            FileURL = Url,
             Position = GetPosition(),
             Rotation = GetRotation(),
             Pivot = GetPivot(),
@@ -527,7 +542,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
                     Uuid = GetGlyphId(),
                 };
                 scene.AddChild(_value3D);
-                $"OnComplete for object3D.Uuid={_value3D.Uuid}, body.LoadingURL={LoadingURL}, position.x={Position?.X}".WriteInfo();
+                $"OnComplete for object3D.Uuid={_value3D.Uuid}, body.LoadingURL={Url}, position.x={Position?.X}".WriteInfo();
             }
         };
 
@@ -634,8 +649,8 @@ public class FoShape3D : FoGlyph3D, IShape3D
         //LoadingURL = Symbol.Replace("http:", "https:");
         //await Task.CompletedTask;
 
-        LoadingURL = Url;
-        $"Shape PRERENDER {Name} => {GetTreeNodeTitle()} {LoadingURL}".WriteWarning();
+        //LoadingURL = Url;
+        $"Shape PRERENDER {Name} => {GetTreeNodeTitle()} {Url}".WriteWarning();
 
         var result = GeomType switch
         {
@@ -652,12 +667,13 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         return result;
     }
-    public void RenderPrimitives(Scene scene)
+    public override Object3D? RenderPrimitives(Scene? scene)
     {
         if (_value3D == null && IsVisible)
         {
             _value3D = GeomType switch
             {
+                "GROUP" => Group(),
                 "Box" => Box(),
                 "Boundary" => Boundary(),
                 "Circle" => Circle(),
@@ -672,24 +688,25 @@ public class FoShape3D : FoGlyph3D, IShape3D
                 "Icosahedron" => Icosahedron(),
                 "Octahedron" => Octahedron(),
                 "Tetrahedron" => Tetrahedron(),
-
                 _ => null
             };
         };
 
         if (_value3D != null)
         {
-            scene.AddChild(_value3D);
+            scene?.AddChild(_value3D);
 
         }
 
         //delete mesh if you are invisible
         if (_value3D != null && !IsVisible)
         {
-            scene.RemoveChild(_value3D);
+            scene?.RemoveChild(_value3D);
             _value3D = null!;
         }
+        return _value3D;
     }
+
     public override async Task<bool> RemoveFromRender(Scene scene, bool deep = true)
     {
         if (_value3D != null)

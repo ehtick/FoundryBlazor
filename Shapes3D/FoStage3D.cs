@@ -91,38 +91,15 @@ public class FoStage3D : FoGlyph3D, IStage
        return this;
     }
 
-    // public bool EstablishBoundry()
-    // {
-    //     if (StageMesh != null) 
-    //         return false;
-
-
-    //     StageMesh = new Mesh
-    //     {
-    //         Geometry = new BoxGeometry(Width, Height, Depth),
-    //         Position = new Vector3(0, 0, 0),
-    //         Material = new MeshStandardMaterial()
-    //         {
-    //             Color = "red",
-    //             Wireframe = true
-    //         }
-    //     };
-
-    //     CurrentScene?.Add(StageMesh);
-
-
-    //     //$"EstablishBoundry {Width} {Height} {Depth}".WriteSuccess();
-    //     return true;
-    // }
+ 
 
     public T AddShape<T>(T value) where T : FoGlyph3D
     {
         IsDirty = true;
         var collection = DynamicSlot(value.GetType());
         if (string.IsNullOrEmpty(value.Key))
-        {
             value.Key = collection.NextItemName();
-        }
+        
 
         collection.AddObject(value.Key, value);
 
@@ -136,8 +113,6 @@ public class FoStage3D : FoGlyph3D, IStage
             Pipes3D.Add(value);
             //$"IPipe3D Added {value.Name}".WriteSuccess();
         }
-
-
 
         return value;
     }

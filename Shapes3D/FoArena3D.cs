@@ -17,10 +17,10 @@ namespace FoundryBlazor.Shape;
 public interface IArena: ITreeNode
 {
     void SetScene(Scene scene);
-    //Task RenderArena(Scene scene, int tick, double fps);
+
     Task ClearArena();
     Task UpdateArena();
-    void SetDoCreate(Action<CanvasMouseArgs> action);
+    //void SetDoCreate(Action<CanvasMouseArgs> action);
 
     Task<bool> PreRender(FoGlyph3D glyph);
 
@@ -36,9 +36,6 @@ T   EstablishStage<T>(string name) where T : FoStage3D;
     FoStage3D CurrentStage();
     Scene CurrentScene();
 
-    //FoWorld3D StressTest3DModelFromFile(string folder, string filename, string baseURL, int count);
-    //FoWorld3D Load3DModelFromFile(UDTO_Body spec, string folder, string filename, string baseURL);
-    //void SetCanvasSizeInPixels(int width, int height);
     void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav);
 
 }
@@ -101,19 +98,7 @@ public class FoArena3D : FoGlyph3D, IArena
         return list;
     }
 
-    // public void SetCanvasSizeInPixels(int width, int height)
-    // {
-    //     TrueCanvasWidth = width;
-    //     TrueCanvasHeight = height;
-    // }
 
-    // public async Task RenderArena(Scene scene, int tick, double fps)
-    // {
-    //     await StageManager.RenderDetailed(scene, tick, fps);
-
-    //     //if the stage is dirty call to update
-    //     //$"Arean Render Scene {tick}".WriteInfo();
-    // }
 
     public V AddShape<V>(V shape) where V : FoGlyph3D
     {
@@ -122,11 +107,7 @@ public class FoArena3D : FoGlyph3D, IArena
 
         shape.OnDelete = (FoGlyph3D item) =>
         {
-            var mesh = item.Value3D();
-            if ( mesh != null)
-                scene.RemoveChild(mesh);
-
-            stage.RemoveShape<FoGlyph3D>(item);
+            item.DeleteFromStage(stage, scene);
             PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
 
         };
@@ -134,12 +115,13 @@ public class FoArena3D : FoGlyph3D, IArena
     }
 
     public V RemoveShape<V>(V shape) where V : FoGlyph3D
-    {    
+    {   
+        //SRS you might need to test all scenes and stages
+
         var scene = CurrentScene();
         var mesh = shape.Value3D();
         if ( mesh != null)
             scene.RemoveChild(mesh);
-
 
         var result = StageManager.RemoveShape<V>(shape);
         PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
@@ -227,60 +209,9 @@ public class FoArena3D : FoGlyph3D, IArena
         return result;
     }
 
-    //public FoWorld3D StressTest3DModelFromFile(string folder, string filename, string baseURL, int count)
-    //{
-    //    var name = Path.GetFileNameWithoutExtension(filename);
 
 
-    //    var world3D = new UDTO_World();
-    //    var data = new MockDataMaker();
-    //    var url = Path.Join(baseURL, folder, filename);
-
-    //    var root = new DT_Hero();
-
-    //    for (int i = 0; i < count; i++)
-    //    {
-    //        root.name = $"{name}-{i}";
-    //        var shape = world3D.CreateGlb(root, url, 1, 2, 3);
-    //        shape.EstablishLoc(data.GenerateDouble(-5, 5), data.GenerateDouble(-5, 5), data.GenerateDouble(-5, 5), "m");
-    //        shape.EstablishAng(data.GenerateDouble(0, 360), data.GenerateDouble(0, 360), data.GenerateDouble(0, 360), "r");
-    //    };
-
-
-    //    var world = new FoWorld3D(world3D);
-    //    RenderWorld3D(world);
-
-    //    //PostRenderplatform
-
-    //    return world;
-    //}
-
-
-
-    //public FoWorld3D Load3DModelFromFile(UDTO_Body spec, string folder, string filename, string baseURL)
-    //{
-    //    var name = Path.GetFileNameWithoutExtension(filename);
-
-    //    var url = Path.Join(baseURL, folder, filename);
-
-    //    var root = new DT_Hero
-    //    {
-    //        name = name,
-    //        guid = spec.uniqueGuid,
-    //    };
-
-
-    //    var world3D = new UDTO_World();
-    //    var body = world3D.CreateGlb(root, url);
-    //    body.boundingBox = spec.boundingBox;
-    //    body.position = spec.position;
-
-    //    var world = new FoWorld3D(world3D);
-    //    RenderWorld3D(world);
-
-    //    return world;
-    //}
-
+ 
 
 
     public bool RenderDrawingToScene(IDrawing drawing)
