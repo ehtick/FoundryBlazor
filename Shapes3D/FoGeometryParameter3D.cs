@@ -162,7 +162,6 @@ public class FoGeometryParameter3D : FoComponent
    public (FoGeometryParameter3D obj, Object3D value) ComputeValue(FoGlyph3D source)
     {
 
-
         Value3D = source.GeomType switch
         {
             "GROUP" => AsGroup(source),
@@ -185,9 +184,9 @@ public class FoGeometryParameter3D : FoComponent
         return (this, Value3D);
     }
 
-    public Mesh CreateMesh(FoGlyph3D source, BufferGeometry geometry)
+    public Mesh3D CreateMesh(FoGlyph3D source, BufferGeometry geometry)
     {
-        return new Mesh
+        return new Mesh3D
         {
             Name = Key,
             Uuid = GetGlyphId(),
@@ -337,7 +336,7 @@ public class FoGeometryParameter3D : FoComponent
     {
         if (Value3D != null) return Value3D;
 
-        Value3D = new Group3D
+        Value3D = new Group3D()
         {
             Name = Key,
             Uuid = GetGlyphId(),
