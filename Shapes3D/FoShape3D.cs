@@ -268,7 +268,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return true;
     }
 
-    public override FoGeometryParameter3D RenderPrimitives(Scene? scene)
+    public override FoGeometryComponent3D RenderPrimitives(Scene? scene)
     {
         if (!GeometryParameter3D.HasValue3D)
             GeometryParameter3D.ComputeValue(this);

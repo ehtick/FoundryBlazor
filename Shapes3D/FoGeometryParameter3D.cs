@@ -14,12 +14,12 @@ using System.Text.Json.Serialization;
 
 namespace FoundryBlazor.Shape;
 
-public class FoGeometryParameter3D : FoComponent
+public class FoGeometryComponent3D : FoComponent
 {
     public string GlyphId { get; set; } = "";
     protected Object3D Value3D { get; set; }
 
-    public FoGeometryParameter3D(FoGlyph3D owner) : base(owner.GetName())
+    public FoGeometryComponent3D(FoGlyph3D owner) : base(owner.GetName())
     {
         GetParent = () => owner;
         Value3D = null!;
@@ -159,9 +159,8 @@ public class FoGeometryParameter3D : FoComponent
     }
    
 
-   public (FoGeometryParameter3D obj, Object3D value) ComputeValue(FoGlyph3D source)
+   public (FoGeometryComponent3D obj, Object3D value) ComputeValue(FoGlyph3D source)
     {
-
         Value3D = source.GeomType switch
         {
             "GROUP" => AsGroup(source),

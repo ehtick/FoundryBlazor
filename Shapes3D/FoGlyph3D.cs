@@ -17,6 +17,7 @@ public class FoGlyph3D : FoComponent
 
     public string GeomType { get; set; } = "";
     public List<Vector3>? Path { get; set; }
+    public Action<FoGlyph3D, int>? ContextLink;
 
     public string Color { get; set; } = "Green";
 
@@ -26,7 +27,7 @@ public class FoGlyph3D : FoComponent
     public Euler? Rotation { get; set; } // replace with Quaternion
     public Vector3? Scale { get; set; }
 
-    public FoGeometryParameter3D GeometryParameter3D { get; set; }
+    public FoGeometryComponent3D GeometryParameter3D { get; set; }
 
     private Vector3 bounds = null!;
     public Vector3 BoundingBox 
@@ -60,11 +61,11 @@ public class FoGlyph3D : FoComponent
  
     public FoGlyph3D() : base("")
     {
-        GeometryParameter3D = new FoGeometryParameter3D(this);
+        GeometryParameter3D = new FoGeometryComponent3D(this);
     }
     public FoGlyph3D(string name) : base(name)
     {
-         GeometryParameter3D = new FoGeometryParameter3D(this);
+         GeometryParameter3D = new FoGeometryComponent3D(this);
     }
     public FoGlyph3D(string name, string color) : this(name)
     {
@@ -152,7 +153,7 @@ public class FoGlyph3D : FoComponent
         return true;
     }
 
-    public Action<FoGlyph3D, int>? ContextLink;
+
 
     public string GetName()
     {
@@ -185,7 +186,10 @@ public class FoGlyph3D : FoComponent
 
     public FoGlyph3D MoveTo(int x, int y, int z)
     {
-        var pos = GetPosition(x, y, z);
+        if ( Position == null )
+            Position = new Vector3(x, y, z);
+        else
+            Position.Set(x, y, z);
         return this;
     }
     public virtual Vector3 GetPosition(int x = 0, int y = 0, int z = 0)
@@ -222,7 +226,7 @@ public class FoGlyph3D : FoComponent
         return GeometryParameter3D.HasValue3D;
     }
 
-    public virtual FoGeometryParameter3D RenderPrimitives(Scene scene)
+    public virtual FoGeometryComponent3D RenderPrimitives(Scene scene)
     {
         return GeometryParameter3D;
     }
