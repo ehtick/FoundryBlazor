@@ -8,8 +8,8 @@ public class FoDatum3D : FoGlyph3D
 		public string? Shape { get; set; }
 		public string? Text { get; set; }
 		public List<string>? Details { get; set; }
-		public Vector3? Position { get; set; }
-		public Vector3? BoundingBox { get; set; }
+
+
 
 		public FoDatum3D() : base()
 		{

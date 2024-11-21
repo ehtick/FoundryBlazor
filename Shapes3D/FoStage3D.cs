@@ -164,7 +164,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
         IsDirty = false;
         Shapes3D?.ForEach(shape => shape.Render(scene, tick, fps));
-        Pipes3D?.ForEach(shape => shape.Render(scene, tick, fps));
+        //Pipes3D?.ForEach(shape => shape.Render(scene, tick, fps));
         await scene.UpdateScene(true);
 
         

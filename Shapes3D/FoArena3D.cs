@@ -119,13 +119,11 @@ public class FoArena3D : FoGlyph3D, IArena
         //SRS you might need to test all scenes and stages
 
         var scene = CurrentScene();
-        var mesh = shape.Value3D();
-        if ( mesh != null)
-            scene.RemoveChild(mesh);
+        var stage = CurrentStage();
+        shape.DeleteFromStage(stage, scene);
 
-        var result = StageManager.RemoveShape<V>(shape);
         PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
-        return result;
+        return shape;
     }
 
     public async Task ClearArena()
@@ -346,27 +344,27 @@ public class FoArena3D : FoGlyph3D, IArena
 
 
 
-    public async Task PreRenderGLBClones(List<FoShape3D> shapes)
-    {
-        var glbBodies = shapes.Where((body) => body.Type.Matches("Glb")).ToList();
-        var otherBodies = shapes.Where((body) => !body.Type.Matches("Glb")).ToList();
+    // public async Task PreRenderGLBClones(List<FoShape3D> shapes)
+    // {
+    //     var glbBodies = shapes.Where((body) => body.Type.Matches("Glb")).ToList();
+    //     var otherBodies = shapes.Where((body) => !body.Type.Matches("Glb")).ToList();
 
-        var bodyDict = glbBodies
-            .GroupBy(item => item.Url)
-            .ToDictionary(group => group.Key, group => group.ToList());
+    //     var bodyDict = glbBodies
+    //         .GroupBy(item => item.Url)
+    //         .ToDictionary(group => group.Key, group => group.ToList());
 
-        foreach (var keyValuePair in bodyDict)
-        {
-            await FoShape3D.PreRenderClones(keyValuePair.Value, this,  Import3DFormats.Gltf);
-        }
+    //     foreach (var keyValuePair in bodyDict)
+    //     {
+    //         await FoShape3D.PreRenderClones(keyValuePair.Value, this,  Import3DFormats.Gltf);
+    //     }
 
-        foreach (var body in otherBodies)
-        {
-            //$"PreRenderPlatform Body {body.Name}".WriteInfo();
-            await body.PreRender(this);
-        }
+    //     foreach (var body in otherBodies)
+    //     {
+    //         //$"PreRenderPlatform Body {body.Name}".WriteInfo();
+    //         await body.PreRender(this);
+    //     }
 
-    }
+    // }
 
 
 

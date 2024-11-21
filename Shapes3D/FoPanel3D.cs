@@ -5,14 +5,13 @@ using FoundryBlazor.Extensions;
 using BlazorThreeJS.Geometires;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Materials;
+using BlazorThreeJS.Core;
 
 namespace FoundryBlazor.Shape;
 
 public class FoPanel3D : FoGlyph3D, IShape3D
 {
-    public Vector3? Position { get; set; }
-    public Vector3? Pivot { get; set; }
-    public Euler? Rotation { get; set; }
+
     public List<string> TextLines { get; set; } = new();
     private TextPanel? TextPanel { get; set; }
     private PanelGroup? PanelGroup { get; set; }
@@ -92,7 +91,7 @@ public class FoPanel3D : FoGlyph3D, IShape3D
         return Panels().Select((item) => item.EstablishPanel3D()).ToList();
     }
 
-    private List<Mesh> ChildConnections()
+    private List<Object3D> ChildConnections()
     {
         return Connections().Select((item) => item.EstablishPathway3D()).ToList();
     }

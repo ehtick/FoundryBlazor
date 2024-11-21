@@ -16,12 +16,6 @@ namespace FoundryBlazor.Shape;
 public class FoSnap3D : FoGlyph3D, ISnap3D
 {
 
-    public Vector3? Position { get; set; }
-    public Vector3? Pivot { get; set; }
-    public Euler? Rotation { get; set; } // replace with Quaternion
-
-
-
 
     public FoSnap3D() : base()
     {

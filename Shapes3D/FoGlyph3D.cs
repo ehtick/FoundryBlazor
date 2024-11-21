@@ -13,12 +13,35 @@ namespace FoundryBlazor.Shape;
 public class FoGlyph3D : FoComponent
 {
     public string GlyphId { get; set; } = "";
-    public float Opacity { get; set; } = 1.0F;
+    //public float Opacity { get; set; } = 1.0F;
+
+    public string GeomType { get; set; } = "";
+    public List<Vector3>? Path { get; set; }
+    public Action<FoGlyph3D, int>? ContextLink;
+
     public string Color { get; set; } = "Green";
 
 
-    protected Object3D? _value3D;
+    public Vector3? Position { get; set; }
+    public Vector3? Pivot { get; set; }
+    public Euler? Rotation { get; set; } // replace with Quaternion
+    public Vector3? Scale { get; set; }
 
+    public FoGeometryComponent3D GeometryParameter3D { get; set; }
+
+    private Vector3 bounds = null!;
+    public Vector3 BoundingBox 
+    { 
+        get 
+        { 
+            bounds ??= new Vector3(Width, Height, Depth);
+            return bounds; 
+        }
+        set { bounds = value; }
+    }
+
+    public double radius { get; set; } = 0.025;
+    public double Radius { get { return this.radius; } set { this.radius = AssignDouble(value, radius); } }
     protected double width = 0;
     public double Width { get { return this.width; } set { this.width = AssignDouble(value, width); } }
     protected double height = 0;
@@ -35,7 +58,38 @@ public class FoGlyph3D : FoComponent
     public Action<FoGlyph3D>? OnDelete { get; set; }
 
     public List<TreeNodeAction> DefaultActions = [];
-    public void AddAction(string name, string color, Action action)
+ 
+    public FoGlyph3D() : base("")
+    {
+        GeometryParameter3D = new FoGeometryComponent3D(this);
+    }
+    public FoGlyph3D(string name) : base(name)
+    {
+         GeometryParameter3D = new FoGeometryComponent3D(this);
+    }
+    public FoGlyph3D(string name, string color) : this(name)
+    {
+        Color = color;
+    }
+
+
+    public string GetGlyphId()
+    {
+        if (string.IsNullOrEmpty(GlyphId))
+            GlyphId = Guid.NewGuid().ToString();
+
+        return GlyphId;
+    }
+
+    public bool GlyphIdCompare(string other)
+    {
+        var id = GetGlyphId();
+        var result = id == other;
+        // $"GlyphIdCompare {result}  {id} {other}".WriteNote();
+        return result;
+    }
+
+   public void AddAction(string name, string color, Action action)
     {
         DefaultActions.AddAction(name, color, action);
     }
@@ -60,55 +114,16 @@ public class FoGlyph3D : FoComponent
     {
         $"Deleting {GetTreeNodeTitle()}".WriteWarning();
 
-        var mesh = Value3D();
+        var mesh = GeometryParameter3D.GetValue3D();
         if (mesh != null)
             scene.RemoveChild(mesh);
 
         stage.RemoveShape<FoGlyph3D>(this);
     }
 
-    public Object3D? Value3D()
-    {
-        return _value3D;
-    }
 
-    public Object3D SetValue3D(Object3D value)
-    {
-        _value3D = value;
-        return _value3D;
-    }
 
-    public virtual Object3D? RenderPrimitives(Scene? scene)
-    {
-        return _value3D;
-    }
 
-    public FoGlyph3D() : base("")
-    {
-    }
-    public FoGlyph3D(string name) : base(name)
-    {
-    }
-    public FoGlyph3D(string name, string color) : base(name)
-    {
-        Color = color;
-    }
-
-    public string GetGlyphId()
-    {
-        if (string.IsNullOrEmpty(GlyphId))
-            GlyphId = Guid.NewGuid().ToString();
-
-        return GlyphId;
-    }
-
-    public bool GlyphIdCompare(string other)
-    {
-        var id = GetGlyphId();
-        var result = id == other;
-        // $"GlyphIdCompare {result}  {id} {other}".WriteNote();
-        return result;
-    }
 
     public FoGlyph3D SetBoundry(int width, int height, int depth)
     {
@@ -138,7 +153,7 @@ public class FoGlyph3D : FoComponent
         return true;
     }
 
-    public Action<FoGlyph3D, int>? ContextLink;
+
 
     public string GetName()
     {
@@ -149,7 +164,8 @@ public class FoGlyph3D : FoComponent
     {
         var result = new MeshStandardMaterial()
         {
-            Color = this.Color
+            Color = this.Color,
+            //Opacity = this.Opacity,
         };
         return result;
     }
@@ -170,41 +186,50 @@ public class FoGlyph3D : FoComponent
 
     public FoGlyph3D MoveTo(int x, int y, int z)
     {
-        var pos = GetPosition(x, y, z);
+        if ( Position == null )
+            Position = new Vector3(x, y, z);
+        else
+            Position.Set(x, y, z);
         return this;
     }
     public virtual Vector3 GetPosition(int x = 0, int y = 0, int z = 0)
     {
-        var result = new Vector3(x, y, z);
-        return result;
+        Position ??= new Vector3(x, y, z);
+        return Position;
     }
 
     public virtual Vector3 GetPivot(int x = 0, int y = 0, int z = 0)
     {
-        var result = new Vector3(x, y, z);
-        return result;
+        Pivot ??= new Vector3(x, y, z);
+        return Pivot;
     }
 
     public virtual Vector3 GetScale(double x = 1, double y = 1, double z = 1)
     {
-        var result = new Vector3(x, y, z);
-        return result;
+        Scale ??= new Vector3(x, y, z);
+        return Scale;
     }
 
     public virtual Euler GetRotation(int x = 0, int y = 0, int z = 0)
     {
-        var result = new Euler(x, y, z);
-        return result;
+        Rotation ??= new Euler(x, y, z);
+        return Rotation;
     }
 
+    public virtual bool OnModelLoadComplete(Guid PromiseGuid)
+    {
+        return false;
+    }
     public virtual async Task<bool> PreRender(FoArena3D arena, bool deep = true)
     {
         await Task.CompletedTask;
-        $"NO Prerender {Name}".WriteWarning();
-        return false;
+        return GeometryParameter3D.HasValue3D;
     }
 
-
+    public virtual FoGeometryComponent3D RenderPrimitives(Scene scene)
+    {
+        return GeometryParameter3D;
+    }
 
     public virtual bool Render(Scene scene, int tick, double fps, bool deep = true)
     {
@@ -216,10 +241,7 @@ public class FoGlyph3D : FoComponent
         await scene.ClearScene();
         return false;
     }
-    public virtual bool OnModelLoadComplete(Guid PromiseGuid)
-    {
-        return false;
-    }
+
 
 
 

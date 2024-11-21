@@ -17,18 +17,7 @@ namespace FoundryBlazor.Shape;
 public class FoShape3D : FoGlyph3D, IShape3D
 {
 
-    public string Url { get; set; } = "";
-    public string GeomType { get; set; } = "";
-
-    public double Radius { get; set; } = 0.025;
-    public Vector3? Position { get; set; }
-    public List<Vector3>? Path { get; set; }
-    public Vector3? Pivot { get; set; }
-    public Euler? Rotation { get; set; } // replace with Quaternion
-    public Vector3? BoundingBox { get; set; }
-    public Vector3? Scale { get; set; }
-    //public string? LoadingURL { get; set; }
-
+  
     public List<FoPanel3D>? TextPanels { get; set; }
     public Action<ImportSettings> UserHit { get; set; } = (ImportSettings model3D) => { };
 
@@ -48,20 +37,13 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override bool UpdateMeshPosition(double xLoc, double yLoc, double zLoc)
     {
-        //"Update mesh position".WriteSuccess();
-        if (_value3D != null)
-        {
-            _value3D.Position.Set(xLoc, yLoc, zLoc);
-            return true;
-        }
-
-        return false;
+        return GeometryParameter3D.UpdateMeshPosition(xLoc, yLoc, zLoc);
     }
 
     public override string GetTreeNodeTitle()
     {
 
-        var HasMesh = _value3D != null ? "Ok" : "No Value3D";
+        var HasMesh = GeometryParameter3D.HasValue3D ? "Ok" : "No Value3D";
         return $"{GeomType}: {Key} {GetType().Name} {HasMesh} => ";
     }
 
@@ -147,19 +129,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return this;
     }
 
-    public FoShape3D CreateGlb(string url, double width, double height, double depth)
-    {
-        CreateGlb(url);
-        BoundingBox = new Vector3(width, height, depth);
-        return this;
-    }
-    public FoShape3D CreateGlb(string url)
-    {
-        GeomType = "Glb";
-        Url = url;
-        $"CreateGlb url [{Url}] ".WriteSuccess();
-        return this;
-    }
+
 
     public FoShape3D CreateSphere(string name, double width, double height, double depth)
     {
@@ -206,384 +176,64 @@ public class FoShape3D : FoGlyph3D, IShape3D
         Key = name;
         return this;
     }
+  
 
-    public Object3D Group()
-    {
-        if (_value3D != null) return _value3D;
+    // public override async Task<bool> PreRender(FoArena3D arena, bool deep = true)
+    // {
+    //     if (GeometryParameter3D.HasValue3D)
+    //         return true;
+            
+    //     //is symbol ends with ....
+    //     //LoadingURL = Symbol.Replace("http:", "https:");
+    //     //await Task.CompletedTask;
 
-        _value3D = new Group3D
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-        };
+    //     //LoadingURL = Url;
+    //     $"Shape PRERENDER {Name} => {GetTreeNodeTitle()} {Url}".WriteWarning();
 
-        return _value3D;
-    }
+    //     var result = await GeometryParameter3D.PreRender(this, arena, deep);
+    //     //if (arena.Scene != null)
+    //     //    SetupHitTest(arena.Scene);
 
-
-    public Object3D Box()
-    {
-        if (_value3D != null) return _value3D;
-
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new BoxGeometry(box.X, box.Y, box.Z),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial(),
-
-        };
-
-        return _value3D;
-    }
-
-    public Object3D Boundary()
-    {
-        if (_value3D != null) return _value3D;
-
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new BoxGeometry(box.X, box.Y, box.Z),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetWireframe()
-        };
-        return _value3D;
-    }
-
-    private Object3D Cylinder()
-    {
-        if (_value3D != null) return _value3D;
-
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new CylinderGeometry(radiusTop: box.X / 2, radiusBottom: box.X / 2, height: box.Y),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-
-    private Object3D Sphere()
-    {
-        if (_value3D != null) return _value3D;
-
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new SphereGeometry(radius: box.X / 2),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-
-    private Object3D Tube()
-    {
-        if (_value3D != null) return _value3D;
-
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new TubeGeometry(radius: Radius, path: Path!, 8, 10),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-    private Object3D Circle()
-    {
-        if (_value3D != null) return _value3D;
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new CircleGeometry(radius: box.X / 2),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-
-    private Object3D Capsule()
-    {
-        if (_value3D != null) return _value3D;
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new CapsuleGeometry(radius: box.X / 2, box.Y),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-
-    private Object3D Cone()
-    {
-        if (_value3D != null) return _value3D;
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new ConeGeometry(radius: box.X / 2, height: box.Y),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-
-    private Object3D Dodecahedron()
-    {
-        if (_value3D != null) return _value3D;
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new DodecahedronGeometry(radius: box.X / 2),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-
-    private Object3D Icosahedron()
-    {
-        if (_value3D != null) return _value3D;
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new IcosahedronGeometry(radius: box.X / 2),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-
-    private Object3D Octahedron()
-    {
-        if (_value3D != null) return _value3D;
-
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new OctahedronGeometry(radius: box.X / 2),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-    private Object3D Tetrahedron()
-    {
-        if (_value3D != null) return _value3D;
-
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new TetrahedronGeometry(radius: box.X / 2),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-    private Object3D Plane()
-    {
-        if (_value3D != null) return _value3D;
-
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new PlaneGeometry(width: box.X, height: box.Y),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
-
-    private Object3D Ring()
-    {
-        if (_value3D != null) return _value3D;
-        var box = BoundingBox ?? new Vector3(1, 1, 1);
-
-        _value3D = new Mesh
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = new RingGeometry(innerRadius: box.X / 2, outerRadius: box.Y / 2),
-            Position = GetPosition(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
-            Rotation = GetRotation(),
-            Material = GetMaterial()
-        };
-        return _value3D;
-    }
+    //     return result;
+    // }
 
 
 
-    private async Task<bool> PreRenderImport(FoArena3D arena, Import3DFormats format)
-    {
-        var settings = AsImportSettings(arena, format);
+    // public static async Task<bool> PreRenderClones(List<FoShape3D> bodies, FoArena3D arena, Import3DFormats format)
+    // {
+    //     var settings = new List<ImportSettings>();
 
-        if (string.IsNullOrEmpty(Url)) return false;
-        $"PreRenderImport url [{Url}] ".WriteInfo(1);
+    //     foreach (var body in bodies)
+    //     {
+    //         var setting = body.AsImportSettings(arena, format);
+    //         arena.Add<FoShape3D>(body.GetGlyphId(), body);
+    //         settings.Add(setting);
 
-        var scene = arena.CurrentScene();
-        var uuid = await scene.Request3DModel(settings);
-        arena.Add<FoShape3D>(uuid, this);
-        return true;
-    }
+    //         $"AsImportSettings body.Symbol {body.Url} X = {setting.FileURL}".WriteSuccess();
+    //     }
 
-    public ImportSettings AsImportSettings(FoArena3D arena, Import3DFormats format)
-    {
-        //LoadingURL = Url;
-        var scene = arena.CurrentScene();
+    //     var source = settings.ElementAt(0);
+    //     settings.RemoveAt(0);
 
-        var setting = new ImportSettings
-        {
-            Uuid = GetGlyphId(),
+    //     var sourceBody = bodies.ElementAt(0);
+    //     bodies.RemoveAt(0);
 
-            Format = format,
-            FileURL = Url,
-            Position = GetPosition(),
-            Rotation = GetRotation(),
-            Pivot = GetPivot(),
-            Scale = GetScale(),
+    //     // source.OnComplete = async () =>
+    //     // {
+    //     //     if (object3D != null)
+    //     //     {
+    //     //         sourceBody.ShapeObject3D = object3D;
+    //     //         if (settings.Count > 0)
+    //     //             await scene.Clone3DModel(object3D.Uuid!, settings);
+    //     //     }
+    //     //     else
+    //     //         "Unexpected empty object3D".WriteError(1);
+    //     // };
 
-            OnClick = async (ImportSettings self) =>
-            {
-                self.Increment();
-                //$"FoundryBlazor OnClick handler for self.Uuid={self.Uuid}, self.IsShow={self.IsShow()}".WriteInfo();
-                UserHit?.Invoke(self);
-                await arena.UpdateArena();
-                //$"FoundryBlazor OnClick handler UpdateArena called".WriteInfo();
-            },
-
-            OnComplete = () =>
-            {
-                _value3D = new Group3D()
-                {
-                    Name = GetName(),
-                    Uuid = GetGlyphId(),
-                };
-                scene.AddChild(_value3D);
-                $"OnComplete for object3D.Uuid={_value3D.Uuid}, body.LoadingURL={Url}, position.x={Position?.X}".WriteInfo();
-            }
-        };
-
-        return setting;
-    }
-
-    public static async Task<bool> PreRenderClones(List<FoShape3D> bodies, FoArena3D arena, Import3DFormats format)
-    {
-        var settings = new List<ImportSettings>();
-
-        foreach (var body in bodies)
-        {
-            var setting = body.AsImportSettings(arena, format);
-            arena.Add<FoShape3D>(body.GetGlyphId(), body);
-            settings.Add(setting);
-
-            $"AsImportSettings body.Symbol {body.Url} X = {setting.FileURL}".WriteSuccess();
-        }
-
-        var source = settings.ElementAt(0);
-        settings.RemoveAt(0);
-
-        var sourceBody = bodies.ElementAt(0);
-        bodies.RemoveAt(0);
-
-        // source.OnComplete = async () =>
-        // {
-        //     if (object3D != null)
-        //     {
-        //         sourceBody.ShapeObject3D = object3D;
-        //         if (settings.Count > 0)
-        //             await scene.Clone3DModel(object3D.Uuid!, settings);
-        //     }
-        //     else
-        //         "Unexpected empty object3D".WriteError(1);
-        // };
-
-        var scene = arena.Scene!;
-        await scene.Request3DModel(source);
-        return true;
-    }
+    //     var scene = arena.Scene!;
+    //     await scene.Request3DModel(source);
+    //     return true;
+    // }
 
 
 
@@ -603,128 +253,48 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override MeshStandardMaterial GetMaterial()
     {
-        if (!string.IsNullOrEmpty(Url))
-            return base.GetMaterial();
-
         var result = GetWireframe();
         result.Wireframe = false;
         return result;
     }
 
 
-    public override Vector3 GetPosition(int x = 0, int y = 0, int z = 0)
+
+    public override bool Render(Scene scene, int tick, double fps, bool deep = true)
     {
-        if (Position == null)
-            return base.GetPosition(x, y, z);
-        return Position;
+        RenderPrimitives(scene);
+
+        // SetupHitTest(scene, tick, fps, deep);
+        return true;
     }
 
-    public override Vector3 GetPivot(int x = 0, int y = 0, int z = 0)
+    public override FoGeometryComponent3D RenderPrimitives(Scene? scene)
     {
-        if (Pivot == null)
-            return base.GetPivot(x, y, z);
-        return Pivot;
-    }
+        if (!GeometryParameter3D.HasValue3D)
+            GeometryParameter3D.ComputeValue(this);
+       
 
-    public override Vector3 GetScale(double x = 1, double y = 1, double z = 1)
-    {
-        if (Scale == null)
-            return base.GetScale(x, y, z);
-        return Scale;
-    }
-
-    public override Euler GetRotation(int x = 0, int y = 0, int z = 0)
-    {
-        if (Rotation == null)
-            return base.GetRotation(x, y, z);
-        return Rotation;
-    }
-
-    public override async Task<bool> PreRender(FoArena3D arena, bool deep = true)
-    {
-        if ( _value3D != null)
-            return true;
-            
-        //is symbol ends with ....
-        //LoadingURL = Symbol.Replace("http:", "https:");
-        //await Task.CompletedTask;
-
-        //LoadingURL = Url;
-        $"Shape PRERENDER {Name} => {GetTreeNodeTitle()} {Url}".WriteWarning();
-
-        var result = GeomType switch
+        if (GeometryParameter3D.HasValue3D)
         {
-            "Collada" => await PreRenderImport(arena, Import3DFormats.Collada),
-            "Fbx" => await PreRenderImport(arena, Import3DFormats.Fbx),
-            "Obj" => await PreRenderImport(arena, Import3DFormats.Obj),
-            "Stl" => await PreRenderImport(arena, Import3DFormats.Stl),
-            "Glb" => await PreRenderImport(arena, Import3DFormats.Gltf),
-            _ => false
-        };
-
-        if (arena.Scene != null)
-            SetupHitTest(arena.Scene);
-
-        return result;
-    }
-    public override Object3D? RenderPrimitives(Scene? scene)
-    {
-        if (_value3D == null && IsVisible)
-        {
-            _value3D = GeomType switch
-            {
-                "GROUP" => Group(),
-                "Box" => Box(),
-                "Boundary" => Boundary(),
-                "Circle" => Circle(),
-                "Cylinder" => Cylinder(),
-                "Sphere" => Sphere(),
-                "Plane" => Plane(),
-                "Capsule" => Capsule(),
-                "Cone" => Cone(),
-                "Tube" => Tube(),
-                "Ring" => Ring(),
-                "Dodecahedron" => Dodecahedron(),
-                "Icosahedron" => Icosahedron(),
-                "Octahedron" => Octahedron(),
-                "Tetrahedron" => Tetrahedron(),
-                _ => null
-            };
-        };
-
-        if (_value3D != null)
-        {
-            scene?.AddChild(_value3D);
-
+            scene?.AddChild(GeometryParameter3D.GetValue3D());
         }
 
         //delete mesh if you are invisible
-        if (_value3D != null && !IsVisible)
+        if (GeometryParameter3D.HasValue3D && !IsVisible)
         {
-            scene?.RemoveChild(_value3D);
-            _value3D = null!;
+            scene?.RemoveChild(GeometryParameter3D.GetValue3D());
+            GeometryParameter3D.Smash();
         }
-        return _value3D;
+        return GeometryParameter3D;
     }
 
     public override async Task<bool> RemoveFromRender(Scene scene, bool deep = true)
     {
-        if (_value3D != null)
-        {
-            scene.RemoveChild(_value3D);
-        }
-        _value3D = null!;
+        GeometryParameter3D.RemoveFromScene(scene);
         await Task.CompletedTask;
         return true;
     }
 
-
-            // "PIN" => "Pink",
-            // "PROC" => "Wisteria",
-            // "DOC" => "Gray",
-            // "ASST" => "Aqua",
-            // "CAD" => "Orange",
-            // "WRLD" => "Green",
 
     public List<FoPanel3D> EstablishTextPanels(ImportSettings model3D)
     {
@@ -775,31 +345,25 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return TextPanels;
     }
 
-    public bool SetupHitTest(Scene ctx, int tick = 0, double fps = 0, bool deep = true)
-    {
-        //$"SetupHitTest for {Name}".WriteInfo();
-        UserHit = (ImportSettings model3D) =>
-        {
-            //$"In UserHit".WriteInfo();
+    // public bool SetupHitTest(Scene ctx, int tick = 0, double fps = 0, bool deep = true)
+    // {
+    //     //$"SetupHitTest for {Name}".WriteInfo();
+    //     UserHit = (ImportSettings model3D) =>
+    //     {
+    //         //$"In UserHit".WriteInfo();
 
-            var list = EstablishTextPanels(model3D);
-            foreach (var item in list)
-            {
-                item.IsVisible = model3D.IsShow();
-                item.Render(ctx, tick, fps, deep);  
-            }
+    //         var list = EstablishTextPanels(model3D);
+    //         foreach (var item in list)
+    //         {
+    //             item.IsVisible = model3D.IsShow();
+    //             item.Render(ctx, tick, fps, deep);  
+    //         }
 
-        };
-        return true;
-    }
+    //     };
+    //     return true;
+    // }
 
-    public override bool Render(Scene scene, int tick, double fps, bool deep = true)
-    {
-        RenderPrimitives(scene);
 
-        SetupHitTest(scene, tick, fps, deep);
-        return true;
-    }
 
 
 }
