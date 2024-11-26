@@ -73,9 +73,11 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
         try
         {
             "Canvas2DComponentBase DisposeAsync".WriteInfo();
-            //await DoStop();
+             if ( AutoRender)
+                await DoStop();
+                
             //await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
-            await ValueTask.CompletedTask;
+            //await ValueTask.CompletedTask;
         }
         catch (Exception ex)
         {

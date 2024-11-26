@@ -11,7 +11,7 @@ using FoundryBlazor.PubSub;
 
 namespace FoundryBlazor.Shared;
 
-public partial class ShapeTreeBase : ComponentBase, IDisposable
+public partial class ShapeTreeViewBase : ComponentBase, IDisposable
 {
 
     [Inject] private ComponentBus? PubSub { get; set; }
