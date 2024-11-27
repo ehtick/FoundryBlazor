@@ -46,7 +46,7 @@ public partial class ShapeTreeViewBase : ComponentBase, IDisposable
                 var folder = new FoFolder("Scenes");
                 AllNodes.Add(folder);
                 var list = Scene.GetAllScenes();
-                $"{list.Count} Scenes".WriteSuccess();
+                //$"{list.Count} Scenes".WriteSuccess();
 
                 foreach (var item in list)
                 {
@@ -118,7 +118,7 @@ public partial class ShapeTreeViewBase : ComponentBase, IDisposable
     
     public void Dispose()
     {
-        "Canvas2DComponentBase Dispose".WriteInfo();
+        "ShapeTreeViewBase Dispose".WriteInfo();
         PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
         GC.SuppressFinalize(this);
     }

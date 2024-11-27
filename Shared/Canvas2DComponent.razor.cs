@@ -22,6 +22,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
 
     [Parameter] public int CanvasWidth { get; set; } = 1800;
     [Parameter] public int CanvasHeight { get; set; } = 1200;
+    private bool _isRendering = false;
     [Parameter] public bool AutoRender { get; set; } = true;
     
     public int tick { get; private set; }
@@ -43,6 +44,14 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
             .ToString();
         return style;
     }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AutoRender)
+            await DoStart();
+        else
+            await DoStop();
+    }
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -63,7 +72,8 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
             PubSub!.SubscribeTo<TriggerRedrawEvent>(OnTriggerRedrawEvent);
  
             Ctx = await CanvasReference!.CreateCanvas2DAsync();
-            await RenderFrame(0);
+            if ( !AutoRender)
+                await RenderFrame(0);
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -73,13 +83,15 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
         try
         {
             "Canvas2DComponentBase DisposeAsync".WriteInfo();
-             if ( AutoRender)
+             if ( _isRendering )
                 await DoStop();
                 
             PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub!.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
 
-            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
+            if ( Ctx != null )
+                await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
+            Ctx = null;
 
         }
         catch (Exception ex)
@@ -96,9 +108,13 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
 
     public async Task DoStart()
     {
-        $"Canvas2DComponentBase ENTER DO START".WriteSuccess();
         try {
-            await _jsRuntime!.InvokeVoidAsync("AppBrowser.StartAnimation");
+            if ( !_isRendering )
+            {
+                $"Canvas2DComponentBase CALLING DO START  AppBrowser.StartAnimation".WriteSuccess();
+                await _jsRuntime!.InvokeVoidAsync("AppBrowser.StartAnimation");
+            }
+            _isRendering = true;
         } catch (Exception ex) {
             $"Canvas2DComponentBase DoStart Error {ex.Message}".WriteError();
         }
@@ -106,9 +122,13 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
 
     public async Task DoStop()
     {
-        $"Canvas2DComponentBase ENTER DO STOP".WriteSuccess();
         try {
-            await _jsRuntime!.InvokeVoidAsync("AppBrowser.StopAnimation");
+            if ( _isRendering )
+            {
+                $"Canvas2DComponentBase CALLING DO STOP  AppBrowser.StopAnimation".WriteSuccess();
+                await _jsRuntime!.InvokeVoidAsync("AppBrowser.StopAnimation");
+            }
+            _isRendering = false;
         } catch (Exception ex) {
             $"Canvas2DComponentBase DoStop Error {ex.Message}".WriteError();
         }
@@ -176,7 +196,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
         }
         catch(Exception ex) 
         {
-            $"Error {ex.Message}".WriteError();
+            $"RenderFrame Error {ex.Message}".WriteError();
         }
 
         await Ctx.EndBatchAsync();

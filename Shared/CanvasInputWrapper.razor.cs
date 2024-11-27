@@ -37,13 +37,13 @@ public class CanvasInputWrapperBase : ComponentBase, IAsyncDisposable, IDisposab
     }
     public ValueTask DisposeAsync()
     {
-        $"InputWrapperBase DisposeAsync".WriteInfo();
+        $"CanvasInputWrapperBase DisposeAsync".WriteInfo();
         return ValueTask.CompletedTask;
     }
 
     public void Dispose()
     {
-        $"InputWrapperBase Dispose".WriteInfo();
+        $"CanvasInputWrapperBase Dispose".WriteInfo();
         GC.SuppressFinalize(this);
     }
 

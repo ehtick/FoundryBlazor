@@ -303,8 +303,10 @@ public class FoWorkspace : FoComponent, IWorkspace
 
     public string SetBaseUrl(string url)
     {
+        if ( !CurrentUrl.Matches(url))
+            $"FoWorkspace {Name} Set CurrentUrl to: {url}   from: {CurrentUrl}".WriteSuccess();
+
         CurrentUrl = url;
-        $"CurrentUrl: {CurrentUrl}".WriteSuccess();
         return CurrentUrl;
     }
 
