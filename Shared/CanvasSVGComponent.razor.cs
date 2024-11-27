@@ -61,8 +61,11 @@ public class CanvasSVGComponentBase : ComponentBase, IAsyncDisposable, IDisposab
         {
             //await DoStop();
             "CanvasSVGComponentBase DisposeAsync".WriteInfo();
-            //await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
-            await ValueTask.CompletedTask;
+            if (AutoRender)
+                await DoStop();
+
+            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
+
         }
         catch (Exception ex)
         {
@@ -74,6 +77,7 @@ public class CanvasSVGComponentBase : ComponentBase, IAsyncDisposable, IDisposab
 
     public void Dispose()
     {
+        $"CanvasSVGComponentBase Dispose".WriteInfo();
         PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
         PubSub!.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
         GC.SuppressFinalize(this);

@@ -76,8 +76,11 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
              if ( AutoRender)
                 await DoStop();
                 
-            //await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
-            //await ValueTask.CompletedTask;
+            PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
+            PubSub!.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
+
+            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
+
         }
         catch (Exception ex)
         {
@@ -88,13 +91,12 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
     public void Dispose()
     {
         "Canvas2DComponentBase Dispose".WriteInfo();
-        PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
-        PubSub!.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
-        GC.SuppressFinalize(this);
+         GC.SuppressFinalize(this);
     }
 
     public async Task DoStart()
     {
+        $"Canvas2DComponentBase ENTER DO START".WriteSuccess();
         try {
             await _jsRuntime!.InvokeVoidAsync("AppBrowser.StartAnimation");
         } catch (Exception ex) {
@@ -104,6 +106,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
 
     public async Task DoStop()
     {
+        $"Canvas2DComponentBase ENTER DO STOP".WriteSuccess();
         try {
             await _jsRuntime!.InvokeVoidAsync("AppBrowser.StopAnimation");
         } catch (Exception ex) {
