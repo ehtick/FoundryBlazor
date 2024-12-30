@@ -11,12 +11,13 @@ using FoundryRulesAndUnits.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen.Blazor;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace FoundryBlazor.Shape;
 
 public interface IArena: ITreeNode
 {
-    void SetScene(Scene scene);
+    void SetScene(Scene3D scene);
 
     Task ClearArena();
     Task UpdateArena();
@@ -34,7 +35,7 @@ T   EstablishStage<T>(string name) where T : FoStage3D;
     IStageManagement Stages();
     List<FoStage3D> GetAllStages();
     FoStage3D CurrentStage();
-    Scene CurrentScene();
+    (bool, Scene3D) CurrentScene();
 
     void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav);
 
@@ -42,7 +43,7 @@ T   EstablishStage<T>(string name) where T : FoStage3D;
 public class FoArena3D : FoGlyph3D, IArena
 {
 
-    public Scene? Scene { get; set; }
+    public Scene3D? Scene { get; set; }
     private IStageManagement StageManager { get; set; }
     public ComponentBus PubSub { get; set; }
 
@@ -103,24 +104,28 @@ public class FoArena3D : FoGlyph3D, IArena
     public V AddShape<V>(V shape) where V : FoGlyph3D
     {
         var stage = CurrentStage();
-        var scene = CurrentScene();
+        var (found, scene) = CurrentScene();
 
-        shape.OnDelete = (FoGlyph3D item) =>
-        {
-            item.DeleteFromStage(stage, scene);
-            PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
+        if ( found) 
+            shape.OnDelete = (FoGlyph3D item) =>
+            {
+                item.DeleteFromStage(stage, scene);
+                PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
 
-        };
+            };
+
+        
         return StageManager.AddShape<V>(shape);
     }
 
     public V RemoveShape<V>(V shape) where V : FoGlyph3D
-    {   
+    {
         //SRS you might need to test all scenes and stages
 
-        var scene = CurrentScene();
         var stage = CurrentStage();
-        shape.DeleteFromStage(stage, scene);
+        var (found, scene) = CurrentScene();
+        if (found)
+            shape.DeleteFromStage(stage, scene);
 
         PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
         return shape;
@@ -133,21 +138,33 @@ public class FoArena3D : FoGlyph3D, IArena
         var stage = CurrentStage();
         stage.ClearStage();
 
-        var scene = CurrentScene();
-        await scene.ClearScene();
+        await ClearScene();
+    }
+
+    public async Task ClearScene()
+    {
+
+        "ClearScene".WriteInfo();
+        var (found, scene) = CurrentScene();
+        if (found)
+            await scene.ClearScene();
     }
 
     public async Task UpdateArena()
     {
         "UpdateArena".WriteInfo();
         var stage = CurrentStage();
-        var scene = CurrentScene();
-        await stage.RenderToScene(scene);
+        var (found, scene) = CurrentScene();
+        if (found)
+            await stage.RenderToScene(scene);
     }
 
-    public void SetScene(Scene scene)
+    public void SetScene(Scene3D scene)
     {
-        if ( Scene == scene || scene == null)
+        if ( scene == null)
+            return;
+
+        if ( Scene == scene)
             return;
 
         var lastName = Scene?.Name ?? "None";
@@ -156,9 +173,9 @@ public class FoArena3D : FoGlyph3D, IArena
     }
 
 
-    public Scene CurrentScene()
+    public (bool, Scene3D) CurrentScene()
     {
-        return Scene!;
+        return (Scene != null, Scene!);
     }
     public async Task<bool> PreRender(FoGlyph3D glyph)
     {

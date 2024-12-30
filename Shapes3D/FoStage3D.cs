@@ -62,8 +62,9 @@ public class FoStage3D : FoGlyph3D, IStage
             IsDirty = true;
 
             PreRender(arena);
-            var scene = arena.CurrentScene();
-            Task.Run(async () => await stage.RenderToScene(scene, 0, 0));
+            var (found, scene) = arena.CurrentScene();
+            if ( found ) 
+                Task.Run(async () => await stage.RenderToScene(scene, 0, 0));
         });
         return result;
     }
@@ -152,7 +153,7 @@ public class FoStage3D : FoGlyph3D, IStage
         Shapes3D?.ForEach(async shape => await arena.PreRender(shape));
     }
 
-    public async Task RenderToScene(Scene scene, int tick=0, double fps=0.0)
+    public async Task RenderToScene(Scene3D scene, int tick=0, double fps=0.0)
     {
         if ( IsDirty == false) 
         {

@@ -79,7 +79,7 @@ public class FoGeometryComponent3D : FoComponent
         return false;
     }
 
-    public void RemoveFromScene(Scene scene, bool deep = true)
+    public void RemoveFromScene(Scene3D scene, bool deep = true)
     {
         if (HasValue3D)
         {
@@ -112,7 +112,10 @@ public class FoGeometryComponent3D : FoComponent
         if (string.IsNullOrEmpty(source.Url)) return false;
         $"PreRenderImport url [{source.Url}] ".WriteInfo(1);
 
-        var scene = arena.CurrentScene();
+        var (found, scene) = arena.CurrentScene();
+        if (!found)
+            return false;
+
         var uuid = await scene.Request3DModel(settings);
         //arena.Add<FoShape3D>(uuid, source);
         return true;
@@ -121,7 +124,7 @@ public class FoGeometryComponent3D : FoComponent
     public ImportSettings AsImportSettings(FoModel3D source, FoArena3D arena, Import3DFormats format)
     {
         //LoadingURL = Url;
-        var scene = arena.CurrentScene();
+        var (found, scene) = arena.CurrentScene();
 
         var setting = new ImportSettings
         {
@@ -150,7 +153,8 @@ public class FoGeometryComponent3D : FoComponent
                     Name = GetName(),
                     Uuid = GetGlyphId(),
                 };
-                scene.AddChild(Value3D);
+                if ( found )
+                    scene.AddChild(Value3D);
                 $"OnComplete for object3D.Uuid={Value3D.Uuid}, body.LoadingURL={source.Url}, position.x={source.Position?.X}".WriteInfo();
             }
         };

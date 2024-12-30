@@ -173,7 +173,7 @@ public class FoGroup3D : FoGlyph3D, IShape3D
         return true;
     }
 
-    public override bool Render(Scene scene, int tick, double fps, bool deep = true)
+    public override bool Render(Scene3D scene, int tick, double fps, bool deep = true)
     {
         Members<FoShape3D>().ForEach(shape => shape.Render(scene, tick, fps, deep));
         Members<FoText3D>().ForEach(shape => shape.Render(scene, tick, fps, deep));

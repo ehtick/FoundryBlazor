@@ -50,7 +50,7 @@ public class FoSnap3D : FoGlyph3D, ISnap3D
     }
 
 
-    public override bool Render(Scene ctx, int tick, double fps, bool deep = true)
+    public override bool Render(Scene3D ctx, int tick, double fps, bool deep = true)
     {
   
 

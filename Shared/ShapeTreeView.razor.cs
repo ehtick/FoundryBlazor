@@ -39,18 +39,16 @@ public partial class ShapeTreeViewBase : ComponentBase, IDisposable
 
             AllNodes.Add(Service.Drawing());
             AllNodes.Add(Service.Arena());
-            //var scene = Service.Arena().CurrentScene();
+
 
             if ( _includedScenes )
             {
-                var folder = new FoFolder("Scenes");
-                AllNodes.Add(folder);
-                var list = Scene.GetAllScenes();
-                //$"{list.Count} Scenes".WriteSuccess();
-
-                foreach (var item in list)
+                var (found, scene) = Service.Arena().CurrentScene();
+                if (found)
                 {
-                    folder.AddTreeNode(item);
+                    var folder = new FoFolder("Scenes");
+                    AllNodes.Add(folder);
+                    folder.AddTreeNode(scene!);
                 }
             }
 

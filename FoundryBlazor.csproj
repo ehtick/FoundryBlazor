@@ -22,8 +22,8 @@
     <PackageId>ApprenticeFoundryBlazor</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Copyright>Copyright © 2020</Copyright>
-    <AssemblyVersion>16.4.0</AssemblyVersion>
-    <Version>16.4.0</Version>
+    <AssemblyVersion>16.5.0</AssemblyVersion>
+    <Version>16.5.0</Version>
     <Authors>Stephen Strong</Authors>
     <Company>Stephen Strong</Company>
     <PackageProjectUrl>https://apprenticefoundry.github.io/</PackageProjectUrl>
@@ -39,9 +39,17 @@
 </ItemGroup>
 
 <ItemGroup> 
-  <PackageReference Include="ApprenticeFoundryBlazorThreeJS" Version="16.1.0" />
+  <ProjectReference Include="..\BlazorThreeJS\BlazorThreeJS.csproj" />
+  <!-- <PackageReference Include="ApprenticeFoundryBlazorThreeJS" Version="16.1.0" /> -->
+</ItemGroup>
 
-  <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="4.3.0" />
+ <!-- <ItemGroup>
+  <PackageReadmeFile>README.md</PackageReadmeFile>
+  <None Include="README.md" Pack="true" PackagePath="\"/>
+</ItemGroup> -->
+
+ <ItemGroup>
+  <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="4.4.0" />
   <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1" />
   <PackageReference Include="BlazorComponentBus" Version="2.2.0" />
 
@@ -55,9 +63,7 @@
   <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 </ItemGroup>
 
- <!-- <ItemGroup>
-  <ProjectReference Include="..\BlazorThreeJS\BlazorThreeJS.csproj" />
-</ItemGroup>  -->
+
 
 
 </Project>

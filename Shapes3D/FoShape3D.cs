@@ -260,7 +260,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
 
 
-    public override bool Render(Scene scene, int tick, double fps, bool deep = true)
+    public override bool Render(Scene3D scene, int tick, double fps, bool deep = true)
     {
         RenderPrimitives(scene);
 
@@ -268,7 +268,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return true;
     }
 
-    public override FoGeometryComponent3D RenderPrimitives(Scene? scene)
+    public override FoGeometryComponent3D RenderPrimitives(Scene3D? scene)
     {
         if (!GeometryParameter3D.HasValue3D)
             GeometryParameter3D.ComputeValue(this);
@@ -288,7 +288,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return GeometryParameter3D;
     }
 
-    public override async Task<bool> RemoveFromRender(Scene scene, bool deep = true)
+    public override async Task<bool> RemoveFromRender(Scene3D scene, bool deep = true)
     {
         GeometryParameter3D.RemoveFromScene(scene);
         await Task.CompletedTask;

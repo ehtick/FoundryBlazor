@@ -10,13 +10,12 @@ using FoundryRulesAndUnits.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Text;
+using System.Reflection.Metadata.Ecma335;
 
 namespace FoundryBlazor.Shared;
 
 public class Canvas3DComponentBase : ComponentBase, IDisposable
 {
-    public ViewerThreeD? ViewerReference;
-
 
     [Inject] public IWorkspace? Workspace { get; set; }
     [Inject] private ComponentBus? PubSub { get; set; }
@@ -26,10 +25,11 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
     [Parameter] public int CanvasHeight { get; set; } = 4000;
 
     [Parameter] public ViewerSettings? Settings3D { get; set; }
-    [Parameter] public Scene? Scene3D { get; set; }
+    [Parameter] public Scene3D? Scene3D { get; set; }
     [Parameter,EditorRequired] public string? SceneName { get; set; }
-    //private int tick = 0;
 
+
+    protected ViewerThreeD? Viewer3DReference;
 
 
     public string GetCanvasStyle()
@@ -68,26 +68,29 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public Scene GetActiveScene() 
-    { 
-        return ViewerReference!.ActiveScene;
-    }
-    public IArena GetActiveArena() 
-    { 
-        return Workspace?.GetArena()!;
+    public (bool, Scene3D) GetActiveScene() 
+    {
+        if (Viewer3DReference == null) 
+            return (false, null!);
+
+        var scene = Viewer3DReference.ActiveScene;
+        var found = scene != null;
+        return (found, scene!);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var scene = GetActiveScene();
-            scene.SetAfterUpdateAction((s,j)=>
+            var (found, scene) = GetActiveScene();
+            if (found)
+                Workspace?.GetArena()?.SetScene(scene);
+
+            scene?.SetAfterUpdateAction((s,j)=>
             {
                 PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("Canvas3DComponentBase"));
             });
 
-            GetActiveArena().SetScene(scene);
 
             PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
 
@@ -103,7 +106,7 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
 
         Task.Run(async () =>
         {
-            var arena = GetActiveArena();
+            var arena = Workspace?.GetArena();
             if ( arena != null )
                 await arena.UpdateArena();
             //$"after ThreeJSView3D.UpdateScene() {e.note}".WriteInfo();

@@ -44,7 +44,7 @@ public class FoMenu3D : FoPanel3D, IFoMenu
         return this;
     }
 
-    public bool DrawMenu3D(Scene scene)
+    public bool DrawMenu3D(Scene3D scene)
     {
         var buttons = Buttons().Select((item) =>
         {
@@ -70,7 +70,7 @@ public class FoMenu3D : FoPanel3D, IFoMenu
         return true;
     }
 
-    public override bool Render(Scene ctx, int tick, double fps, bool deep = true)
+    public override bool Render(Scene3D ctx, int tick, double fps, bool deep = true)
     {
         var result = DrawMenu3D(ctx);
         return result;

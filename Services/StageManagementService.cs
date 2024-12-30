@@ -171,7 +171,7 @@ public class StageManagementService : FoComponent, IStageManagement
         return found;
     }
 
-    public T Duplicate<T>(T value, Scene scene) where T : FoGlyph3D
+    public T Duplicate<T>(T value, Scene3D scene) where T : FoGlyph3D
     {
         var body = CodingExtensions.Dehydrate<T>(value, false);
         var shape = CodingExtensions.Hydrate<T>(body, false);

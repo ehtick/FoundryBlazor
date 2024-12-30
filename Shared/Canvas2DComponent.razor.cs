@@ -22,13 +22,16 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
 
     [Parameter] public int CanvasWidth { get; set; } = 1800;
     [Parameter] public int CanvasHeight { get; set; } = 1200;
+
     private bool _isRendering = false;
     [Parameter] public bool AutoRender { get; set; } = true;
     
     public int tick { get; private set; }
+
     private DateTime _lastRender;
 
-    public BECanvasComponent? CanvasReference;
+    protected BECanvasComponent? BECanvasReference;
+
     private Canvas2DContext? Ctx;
 
     public string GetCanvasStyle()
@@ -62,18 +65,21 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
 
             var drawing = Workspace!.GetDrawing();
             drawing?.SetCanvasSizeInPixels(CanvasWidth, CanvasHeight);
-            if ( AutoRender)
-                await DoStart();
 
-            // CreateTickPlayground();
-            // SetDoTugOfWar();
+            //lets hope the reference to BECanvas was found
+            Ctx = await BECanvasReference!.CreateCanvas2DAsync();
+ 
+
+            CreateTickPlayground();
+            SetDoTugOfWar();
 
             PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub!.SubscribeTo<TriggerRedrawEvent>(OnTriggerRedrawEvent);
  
-            Ctx = await CanvasReference!.CreateCanvas2DAsync();
             if ( !AutoRender)
                 await RenderFrame(0);
+            else
+                await DoStart();
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -137,13 +143,15 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
     [JSInvokable]
     public async ValueTask RenderFrameEventCalled()
     {
+        if (Ctx == null) return;
+
         double fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
         _lastRender = DateTime.Now; // update for the next time 
 
         try
         {
             //recomputing the ctx here look like it is needed and fixes moving between pages
-            Ctx = await CanvasReference!.CreateCanvas2DAsync();
+            //Ctx = await BECanvasReference?.CreateCanvas2DAsync();
             await RenderFrame(fps);
         }
         catch (Exception ex)

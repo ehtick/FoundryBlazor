@@ -1,5 +1,8 @@
 ﻿@inherits Canvas2DComponentBase
 @using FoundryBlazor.Shared
+@using Blazor.Extensions
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D
 
 @namespace FoundryBlazor.Shared
 
@@ -20,6 +23,6 @@
 
 <div >
     <CanvasInputWrapper CanvasStyle="@GetCanvasStyle()" CanvasWidth="@CanvasWidth" CanvasHeight="@CanvasHeight">
-        <BECanvas Width="@CanvasWidth" Height="@CanvasHeight" @ref="CanvasReference" />
+        <BECanvas Width="@CanvasWidth" Height="@CanvasHeight" @ref="BECanvasReference" />
     </CanvasInputWrapper>
 </div>

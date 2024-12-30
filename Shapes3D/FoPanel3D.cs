@@ -111,7 +111,7 @@ public class FoPanel3D : FoGlyph3D, IShape3D
 
 
 
-    public override bool Render(Scene scene, int tick, double fps, bool deep = true)
+    public override bool Render(Scene3D scene, int tick, double fps, bool deep = true)
     {
         //$"RenderPanel {Name} {Position?.X} {Position?.Y}  {Position?.Z}".WriteNote();
 
