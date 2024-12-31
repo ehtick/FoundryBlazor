@@ -11,20 +11,20 @@ using System.Text;
 
 namespace FoundryBlazor.Shared;
 
-public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposable
+public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
 {
 
     [Inject] public IWorkspace? Workspace { get; set; }
     [Inject] private ComponentBus? PubSub { get; set; }
     [Inject] protected IJSRuntime? _jsRuntime { get; set; }
 
-    [Parameter] public string CanvasStyle { get; set; } = "width:max-content; border:1px solid black;cursor:default";
+    //[Parameter] public string CanvasStyle { get; set; } = "width:max-content; border:1px solid black;cursor:default";
 
     [Parameter] public int CanvasWidth { get; set; } = 1800;
     [Parameter] public int CanvasHeight { get; set; } = 1200;
 
-    private bool _isRendering = false;
-    [Parameter] public bool AutoRender { get; set; } = true;
+    [Parameter] public bool WithAnimations { get; set; } = true;
+    [Parameter,EditorRequired] public string? SceneName { get; set; }
     
     public int tick { get; private set; }
 
@@ -34,32 +34,28 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
 
     private Canvas2DContext? Ctx;
 
-    public string GetCanvasStyle()
-    {
-        var style = new StringBuilder(CanvasStyle)
-            .Append("; ")
-            .Append("width:")
-            .Append(CanvasWidth)
-            .Append("px; ")
-            .Append("height:")
-            .Append(CanvasHeight)
-            .Append("px; ")
-            .ToString();
-        return style;
-    }
+    // public string GetCanvasStyle()
+    // {
+    //     var style = new StringBuilder(CanvasStyle)
+    //         .Append("; ")
+    //         .Append("width:")
+    //         .Append(CanvasWidth)
+    //         .Append("px; ")
+    //         .Append("height:")
+    //         .Append(CanvasHeight)
+    //         .Append("px; ")
+    //         .ToString();
+    //     return style;
+    // }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        if (AutoRender)
-            await DoStart();
-        else
-            await DoStop();
-    }
+
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            $"Canvas2DComponentBase {SceneName} OnAfterRenderAsync".WriteInfo();
+
             await _jsRuntime!.InvokeVoidAsync("AppBrowser.Initialize", DotNetObjectReference.Create(this));
  
 
@@ -76,10 +72,10 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
             PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub!.SubscribeTo<TriggerRedrawEvent>(OnTriggerRedrawEvent);
  
-            if ( !AutoRender)
-                await RenderFrame(0);
-            else
+            if ( WithAnimations)
                 await DoStart();
+            else
+                await RenderFrame(0);
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -88,8 +84,10 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
     {
         try
         {
-            "Canvas2DComponentBase DisposeAsync".WriteInfo();
-             if ( _isRendering )
+            if ( Ctx == null ) return;
+
+            $"Canvas2DComponentBase {SceneName} DisposeAsync".WriteInfo();
+            if ( WithAnimations)
                 await DoStop();
                 
             PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
@@ -106,21 +104,15 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
         }
     }
 
-    public void Dispose()
-    {
-        "Canvas2DComponentBase Dispose".WriteInfo();
-         GC.SuppressFinalize(this);
-    }
+
 
     public async Task DoStart()
     {
         try {
-            if ( !_isRendering )
-            {
-                $"Canvas2DComponentBase CALLING DO START  AppBrowser.StartAnimation".WriteSuccess();
-                await _jsRuntime!.InvokeVoidAsync("AppBrowser.StartAnimation");
-            }
-            _isRendering = true;
+
+            $"Canvas2DComponentBase {SceneName} CALLING DO START  AppBrowser.StartAnimation".WriteSuccess();
+            await _jsRuntime!.InvokeVoidAsync("AppBrowser.StartAnimation");
+
         } catch (Exception ex) {
             $"Canvas2DComponentBase DoStart Error {ex.Message}".WriteError();
         }
@@ -129,12 +121,10 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
     public async Task DoStop()
     {
         try {
-            if ( _isRendering )
-            {
-                $"Canvas2DComponentBase CALLING DO STOP  AppBrowser.StopAnimation".WriteSuccess();
-                await _jsRuntime!.InvokeVoidAsync("AppBrowser.StopAnimation");
-            }
-            _isRendering = false;
+
+            $"Canvas2DComponentBase {SceneName} CALLING DO STOP  AppBrowser.StopAnimation".WriteSuccess();
+            await _jsRuntime!.InvokeVoidAsync("AppBrowser.StopAnimation");
+
         } catch (Exception ex) {
             $"Canvas2DComponentBase DoStop Error {ex.Message}".WriteError();
         }
@@ -167,11 +157,12 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable, IDisposabl
     }
     private void OnTriggerRedrawEvent(TriggerRedrawEvent e)
     {
-        Task.Run(async () =>
-        {
-            await RenderFrame(0);
-            $"Canvas2DComponentBase TriggerRedrawEvent StateHasChanged {e.note}".WriteInfo();
-        });
+        Render();
+    }
+
+    public void Render()
+    {
+        Task.Run(async () => await RenderFrame(0) );
     }
 
     public async Task RenderFrame(double fps)

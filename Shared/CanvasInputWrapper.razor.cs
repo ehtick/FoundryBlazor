@@ -9,7 +9,7 @@ using System.Text;
 
 namespace FoundryBlazor.Shared;
 
-public class CanvasInputWrapperBase : ComponentBase, IAsyncDisposable, IDisposable
+public class CanvasInputWrapperBase : ComponentBase
 {
 
     [Inject] public IWorkspace? Workspace { get; set; }
@@ -19,33 +19,23 @@ public class CanvasInputWrapperBase : ComponentBase, IAsyncDisposable, IDisposab
 
     [Parameter] public string CanvasStyle { get; set; } = "width:max-content; border:1px solid black; cursor: default";
 
-    [Parameter] public int CanvasWidth { get; set; } = 1800;
-    [Parameter] public int CanvasHeight { get; set; } = 1200;
+    // [Parameter] public int CanvasWidth { get; set; } = 1800;
+    // [Parameter] public int CanvasHeight { get; set; } = 1200;
 
 
 
-    public string GetCanvasStyle()
-    {
-        //var cursor = Workspace!.GetDrawing().Tools().GetCursor();
-        var style = new StringBuilder(CanvasStyle).Append("; ")
-                    //.Append("cursor:").Append(cursor).Append("; ")
-                    .Append("width:")
-                    .Append(CanvasWidth).Append("px; ")
-                    .Append("height:")
-                    .Append(CanvasHeight).Append("px; ").ToString();
-        return style;
-    }
-    public ValueTask DisposeAsync()
-    {
-        $"CanvasInputWrapperBase DisposeAsync".WriteInfo();
-        return ValueTask.CompletedTask;
-    }
+    // public string GetCanvasStyle()
+    // {
+    //     //var cursor = Workspace!.GetDrawing().Tools().GetCursor();
+    //     var style = new StringBuilder(CanvasStyle).Append("; ")
+    //                 //.Append("cursor:").Append(cursor).Append("; ")
+    //                 .Append("width:")
+    //                 .Append(CanvasWidth).Append("px; ")
+    //                 .Append("height:")
+    //                 .Append(CanvasHeight).Append("px; ").ToString();
+    //     return style;
+    // }
 
-    public void Dispose()
-    {
-        $"CanvasInputWrapperBase Dispose".WriteInfo();
-        GC.SuppressFinalize(this);
-    }
 
     protected void OnMouseDown(MouseEventArgs args)
     {

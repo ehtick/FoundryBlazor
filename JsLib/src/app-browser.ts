@@ -38,9 +38,10 @@ export class AppBrowser extends App {
     public Finalize(): void {
         if (this.dotNetObjectReference != null)
         {
-            this.StopAnimation();
-            this.dotNetObjectReference.dispose();
+            var object = this.dotNetObjectReference;
             this.dotNetObjectReference = null;
+            this.StopAnimation();
+            object.dispose();
         }
     }
 
