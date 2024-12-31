@@ -2,7 +2,7 @@ using System.Drawing;
 using Blazor.Extensions.Canvas.Canvas2D;
  
 using FoundryBlazor.Shared;
-using FoundryBlazor.Shared.SVG;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -215,9 +215,4 @@ public class FoVideo2D : FoShape2D, IImage2D
 
     }
 
-    public override FoDynamicRender GetDynamicRender()
-    {
-        foDynamicRender ??= new FoDynamicRender(typeof(Video2D), this);
-        return foDynamicRender;
-    }
 }

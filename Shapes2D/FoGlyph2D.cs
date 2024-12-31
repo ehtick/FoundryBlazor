@@ -1,6 +1,6 @@
 using Blazor.Extensions.Canvas.Canvas2D;
 using FoundryBlazor.Shared;
-using FoundryBlazor.Shared.SVG;
+
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
 using System.Drawing;
@@ -148,12 +148,7 @@ public class FoGlyph2D : FoComponent, IGlyph2D, IRender
     }
 
 
-    protected FoDynamicRender? foDynamicRender;
-    public virtual FoDynamicRender GetDynamicRender()
-    {
-        foDynamicRender ??= new FoDynamicRender(typeof(Shape2D), this);
-        return foDynamicRender;
-    }
+
 
 
 

@@ -1,5 +1,5 @@
 using Blazor.Extensions.Canvas.Canvas2D;
-using FoundryBlazor.Shared.SVG;
+
 
 // https://goldfirestudios.com/canvasinput-html5-canvas-text-input
 // https://blog.steveasleep.com/how-to-draw-multi-line-text-on-an-html-canvas-in-2021
@@ -43,11 +43,7 @@ public class FoText2D : FoShape2D, IShape2D
     {
         Text = name;
     }
-    public override FoDynamicRender GetDynamicRender()
-    {
-        foDynamicRender ??= new FoDynamicRender(typeof(Text2D), this);
-        return foDynamicRender;
-    }
+
 
     protected string CreateDetails(string details="")
     {

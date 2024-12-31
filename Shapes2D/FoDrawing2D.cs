@@ -11,7 +11,7 @@ using System.Drawing;
 using FoundryRulesAndUnits.Units;
 using FoundryBlazor.PubSub;
 using FoundryRulesAndUnits.Models;
-using FoundryBlazor.Shared.SVG;
+
 
 namespace FoundryBlazor.Shape;
 
