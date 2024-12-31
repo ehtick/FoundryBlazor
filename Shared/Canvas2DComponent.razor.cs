@@ -146,7 +146,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
         }
         catch (Exception ex)
         {
-            $"Canvas2DComponentBase RenderFrameEventCalled Error {ex.Message}".WriteError();
+            $"Canvas2DComponentBase  {SceneName} RenderFrameEventCalled Error {ex.Message}".WriteError();
         }
     }
 

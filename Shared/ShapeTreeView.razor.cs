@@ -58,31 +58,13 @@ public partial class ShapeTreeViewBase : ComponentBase, IDisposable
         return AllNodes;
     }
 
-    // protected void AddScene()
-    // {
-    //     _includedScenes = !_includedScenes;
-    //     Refresh();
-    // }
-
-    // protected void AddWorld()
-    // {
-    //     _includeWorlds = !_includeWorlds;
-    //     var worlds = Service!.WorldManager().AllWorlds();
-    //     if ( _includeWorlds && worlds.Count == 0)
-    //     {
-    //         Service.WorldManager().EstablishWorld("World 616");
-    //     }
-    //     Refresh();
-    // }
-
-
 
 
 //https://learn.microsoft.com/en-us/semantic-kernel/overview/
 
     public void OnRefresh()
     {
-        PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("ShapeTree"));
+        PubSub?.Publish<RefreshUIEvent>(new RefreshUIEvent("ShapeTree"));
     }
 
     protected void Refresh()
@@ -93,7 +75,7 @@ public partial class ShapeTreeViewBase : ComponentBase, IDisposable
         Task.Run(() => {
             Thread.Sleep(200);
             //KnBase.RefreshTree = true;
-            $"ShapeTreeBase Refresh".WriteInfo();
+            //$"ShapeTreeBase Refresh".WriteInfo();
             InvokeAsync(StateHasChanged);
         });
     }
@@ -103,7 +85,7 @@ public partial class ShapeTreeViewBase : ComponentBase, IDisposable
         if (firstRender)
         {
             Refresh();
-            PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
+            PubSub?.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -116,8 +98,7 @@ public partial class ShapeTreeViewBase : ComponentBase, IDisposable
     
     public void Dispose()
     {
-        "ShapeTreeViewBase Dispose".WriteInfo();
-        PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
+        PubSub?.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
         GC.SuppressFinalize(this);
     }
 }
