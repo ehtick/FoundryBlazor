@@ -49,7 +49,7 @@ export class AppBrowser extends App {
         // Call the blazor component's [JSInvokable] RenderInBlazor method
         if ( self.dotNetObjectReference != null)
         {
-            self.dotNetObjectReference.invokeMethodAsync('RenderFrameEventCalled');
+            self.dotNetObjectReference?.invokeMethodAsync('RenderFrameEventCalled');
             // request another animation frame
             self.AnimationRequest = window.requestAnimationFrame(() => self.RenderJS(self));
         }

@@ -18,8 +18,6 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
     [Inject] private ComponentBus? PubSub { get; set; }
     [Inject] protected IJSRuntime? _jsRuntime { get; set; }
 
-    //[Parameter] public string CanvasStyle { get; set; } = "width:max-content; border:1px solid black;cursor:default";
-
     [Parameter] public int CanvasWidth { get; set; } = 1800;
     [Parameter] public int CanvasHeight { get; set; } = 1200;
 
@@ -34,21 +32,6 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
 
     private Canvas2DContext? Ctx;
 
-    // public string GetCanvasStyle()
-    // {
-    //     var style = new StringBuilder(CanvasStyle)
-    //         .Append("; ")
-    //         .Append("width:")
-    //         .Append(CanvasWidth)
-    //         .Append("px; ")
-    //         .Append("height:")
-    //         .Append(CanvasHeight)
-    //         .Append("px; ")
-    //         .ToString();
-    //     return style;
-    // }
-
-
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -58,8 +41,9 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
 
             await _jsRuntime!.InvokeVoidAsync("AppBrowser.Initialize", DotNetObjectReference.Create(this));
  
-
             var drawing = Workspace!.GetDrawing();
+            drawing?.ClearAll();  //we do not want to share the old drawing here
+
             drawing?.SetCanvasSizeInPixels(CanvasWidth, CanvasHeight);
 
             //lets hope the reference to BECanvas was found
@@ -69,8 +53,8 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
             CreateTickPlayground();
             SetDoTugOfWar();
 
-            PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
-            PubSub!.SubscribeTo<TriggerRedrawEvent>(OnTriggerRedrawEvent);
+            PubSub?.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
+            PubSub?.SubscribeTo<TriggerRedrawEvent>(OnTriggerRedrawEvent);
  
             if ( WithAnimations)
                 await DoStart();
@@ -85,6 +69,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
         try
         {
             if ( Ctx == null ) return;
+            Ctx = null;
 
             $"Canvas2DComponentBase {SceneName} DisposeAsync".WriteInfo();
             if ( WithAnimations)
@@ -93,9 +78,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
             PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub!.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
 
-            if ( Ctx != null )
-                await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
-            Ctx = null;
+            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
 
         }
         catch (Exception ex)
@@ -133,13 +116,16 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
     [JSInvokable]
     public async ValueTask RenderFrameEventCalled()
     {
-        if (Ctx == null) return;
-
-        double fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
-        _lastRender = DateTime.Now; // update for the next time 
-
         try
         {
+            if (Ctx == null) {  
+                $"Canvas2DComponentBase {SceneName} RenderFrameEventCalled Ctx is null".WriteError();
+                return;
+            }
+
+            double fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
+            _lastRender = DateTime.Now; // update for the next time 
+
             //recomputing the ctx here look like it is needed and fixes moving between pages
             //Ctx = await BECanvasReference?.CreateCanvas2DAsync();
             await RenderFrame(fps);
@@ -155,6 +141,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
         InvokeAsync(StateHasChanged);
         //$"Canvas2DComponentBase OnRefreshUIEvent StateHasChanged {e.note}".WriteInfo();
     }
+
     private void OnTriggerRedrawEvent(TriggerRedrawEvent e)
     {
         Render();
@@ -169,7 +156,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
     {
         if (Ctx == null)
         {
-            $"Canvas2D has no context".WriteError();
+            $"Canvas2DComponentBase has no context".WriteError();
             return;
         }
         tick++;
