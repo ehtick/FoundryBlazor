@@ -184,7 +184,7 @@ public class FoGlyph3D : FoComponent
     //    await Task.CompletedTask;
     //}
 
-    public FoGlyph3D MoveTo(int x, int y, int z)
+    public FoGlyph3D MoveTo(double x, double y, double z)
     {
         if ( Position == null )
             Position = new Vector3(x, y, z);

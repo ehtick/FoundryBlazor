@@ -69,6 +69,15 @@ public class FoStage3D : FoGlyph3D, IStage
         return result;
     }
 
+    public List<FoShape3D> GetShapes3D()
+    {
+        return Shapes3D.Values().Cast<FoShape3D>().ToList();
+    }
+
+    public List<FoPipe3D> GetPipes3D()
+    {
+        return Pipes3D.Values().Cast<FoPipe3D>().ToList();
+    }
 
     public override IEnumerable<ITreeNode> GetTreeChildren()
     {

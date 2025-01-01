@@ -75,8 +75,8 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
             if ( WithAnimations)
                 await DoStop();
                 
-            PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
-            PubSub!.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
+            PubSub?.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
+            PubSub?.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
 
             await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
 

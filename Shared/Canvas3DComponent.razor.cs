@@ -14,7 +14,7 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace FoundryBlazor.Shared;
 
-public class Canvas3DComponentBase : ComponentBase, IDisposable
+public class Canvas3DComponentBase : ComponentBase, IAsyncDisposable
 {
 
     [Inject] public IWorkspace? Workspace { get; set; }
@@ -24,13 +24,14 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
     [Parameter] public int CanvasWidth { get; set; } = 2500;
     [Parameter] public int CanvasHeight { get; set; } = 4000;
 
-    [Parameter] public ViewerSettings? Settings3D { get; set; }
-    [Parameter] public Scene3D? Scene3D { get; set; }
+    //[Parameter] public ViewerSettings? Settings3D { get; set; }
+
     [Parameter,EditorRequired] public string? SceneName { get; set; }
 
 
     protected ViewerThreeD? Viewer3DReference;
 
+    private Scene3D? Ctx;
 
     public string GetCanvasStyle()
     {
@@ -46,34 +47,14 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
         return style;
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        try
-        {
-            "Canvas3DComponentBase DisposeAsync".WriteInfo();
-            //await DoStop();
-            //await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
-            await ValueTask.CompletedTask;
-        }
-        catch (Exception ex)
-        {
-            $"Canvas3DComponentBase DisposeAsync Exception {ex.Message}".WriteError();
-        }
-    }
 
-    public void Dispose()
-    {
-        "Canvas3DComponentBase Dispose".WriteInfo();
-        PubSub!.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
-        GC.SuppressFinalize(this);
-    }
 
     public (bool, Scene3D) GetActiveScene() 
     {
         if (Viewer3DReference == null) 
             return (false, null!);
 
-        var scene = Viewer3DReference.ActiveScene;
+        var scene = Viewer3DReference.GetActiveScene();
         var found = scene != null;
         return (found, scene!);
     }
@@ -82,78 +63,57 @@ public class Canvas3DComponentBase : ComponentBase, IDisposable
     {
         if (firstRender)
         {
+            $"Canvas3DComponentBase {SceneName} OnAfterRenderAsync".WriteInfo();
             var (found, scene) = GetActiveScene();
             if (found)
-                Workspace?.GetArena()?.SetScene(scene);
-
-            scene?.SetAfterUpdateAction((s,j)=>
             {
-                PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("Canvas3DComponentBase"));
-            });
+                Ctx = scene; 
+                Ctx?.SetAfterUpdateAction((s,j)=>
+                {
+                    PubSub?.Publish<RefreshUIEvent>(new RefreshUIEvent("Canvas3DComponentBase"));
+                });
+            }
 
-
-            PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
-
+            PubSub?.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
         }
+
         await base.OnAfterRenderAsync(firstRender);
     }
 
-
-    private void OnRefreshUIEvent(RefreshUIEvent e)
+    public async ValueTask DisposeAsync()
     {
-        //InvokeAsync(StateHasChanged);
-        //$"Canvas3DComponentBase OnRefreshUIEvent StateHasChanged {e.note}".WriteInfo();
-
-        Task.Run(async () =>
+        try
         {
+            if ( Ctx == null ) return;
+            Ctx?.SetAfterUpdateAction((s,j)=> {});
+            Ctx = null;
+
+            "Canvas3DComponentBase DisposeAsync".WriteInfo();
+            PubSub?.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
+            GC.SuppressFinalize(this);
+            await ValueTask.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            $"Canvas3DComponentBase DisposeAsync Exception {ex.Message}".WriteError();
+        }
+    }
+    public void Render()
+    {
+        Task.Run(async () => {
             var arena = Workspace?.GetArena();
             if ( arena != null )
-                await arena.UpdateArena();
-            //$"after ThreeJSView3D.UpdateScene() {e.note}".WriteInfo();
+                await arena.UpdateArena();     
         });
     }
 
+    private void OnRefreshUIEvent(RefreshUIEvent e)
+    {
+        InvokeAsync(StateHasChanged);
+        $"Canvas3DComponentBase OnRefreshUIEvent StateHasChanged {e.note}".WriteInfo();
 
-
-
-    // public async Task RenderFrameOBSOLITE(double fps)
-    // {
-    //     if (GetActiveScene() == null) 
-    //         return;
-
-    //     tick++;
-
-    //     $"Canvas3D RenderFrame {tick} {fps}".WriteInfo();
-
-    //     Workspace?.PreRender(tick);
-
-    //     var arena = Workspace?.GetArena();
-    //     if (arena == null) return;
-
-    //     var stage = arena.CurrentStage();
-    //     if (stage == null) return;
-
-    //     // $"RenderFrame {tick} {stage.Name} {stage.IsDirty}".WriteError();
-
-    //     //if you are already rendering then skip it this cycle
-    //     //if (drawing.SetCurrentlyRendering(true)) return;
-
-
-    //     await arena.RenderArena(GetActiveScene(), tick, fps);
-    //     //Workspace?.RenderWatermark(Ctx, tick);
-
-
-    //     //drawing.SetCurrentlyRendering(false);
-
-    //     //Workspace?.PostRender(tick);
-
-    //     if (stage.IsDirty)
-    //     {
-    //         stage.IsDirty = false;
-    //         await GetActiveScene().UpdateScene();
-    //         //$"RenderFrame stage.IsDirty  so... ThreeJSView3D.UpdateScene()  {tick} {stage.Name}".WriteSuccess();
-    //     }
-    // }
+        //Render();
+    }
 
 
 }

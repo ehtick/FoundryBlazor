@@ -1,19 +1,24 @@
-import { App } from './app';
+// import { App } from './app';
 
-export class AppBrowser extends App {
+export class AppBrowser {
     public AnimationRequest: any = null;
+    public blazorDotNetObject: any = null;
+
+    public SetDotNetObjectReference(ref: any) {
+        this.blazorDotNetObject = ref;
+    }
 
     public CopyText(text: string) {
         navigator.clipboard.writeText(text).then(
             () => {
                 const message = `Successfully Copied ${text}`;
                 console.log(`CopyText ${message}`);
-                this.dotNetObjectReference.invokeMethodAsync('OnCopySuccess', message);
+                this.blazorDotNetObject.invokeMethodAsync('OnCopySuccess', message);
             },
             () => {
                 const message = `Error: Could not copy ${text}`;
                 console.error(`CopyText ${message}`);
-                this.dotNetObjectReference.invokeMethodAsync('OnCopyError', message);
+                this.blazorDotNetObject.invokeMethodAsync('OnCopyError', message);
             }
         );
     }
@@ -21,9 +26,9 @@ export class AppBrowser extends App {
         const node = document.getElementById(elementId);
         if (Boolean(node)) {
             const boundingBox = node.getBoundingClientRect();
-            this.dotNetObjectReference.invokeMethodAsync('OnBoundingClientRect', boundingBox);
+            this.blazorDotNetObject.invokeMethodAsync('OnBoundingClientRect', boundingBox);
         } else {
-            this.dotNetObjectReference.invokeMethodAsync('OnBoundingClientRect', null);
+            this.blazorDotNetObject.invokeMethodAsync('OnBoundingClientRect', null);
         }
     }
     public HTMLWindow(): { InnerWidth: number; InnerHeight: number } {
@@ -31,27 +36,36 @@ export class AppBrowser extends App {
     }
 
     public Initialize(ref: any): void {
-        if (this.dotNetObjectReference == null)
-            this.SetDotNetObjectReference(ref);
+        this.SetDotNetObjectReference(ref);
     }
 
     public Finalize(): void {
-        if (this.dotNetObjectReference != null)
+        if (this.blazorDotNetObject != null)
         {
-            var object = this.dotNetObjectReference;
-            this.dotNetObjectReference = null;
             this.StopAnimation();
-            object.dispose();
+            //var object = this.blazorDotNetObject;
+            this.blazorDotNetObject = null;
+            //object.dispose();
         }
     }
 
     private RenderJS(self: any) {
         // Call the blazor component's [JSInvokable] RenderInBlazor method
-        if ( self.dotNetObjectReference != null)
+        if ( self.blazorDotNetObject != null)
         {
-            self.dotNetObjectReference?.invokeMethodAsync('RenderFrameEventCalled');
+            self.AnimationRequest = window.requestAnimationFrame(() => 
+            {
+                if ( self.blazorDotNetObject != null)
+                    self.RenderJS(self)
+            });
+
+            try {
+                self.blazorDotNetObject?.invokeMethodAsync('RenderFrameEventCalled');
+            } catch (error) {
+                console.error(`RenderJS ${error}`);
+                
+            }
             // request another animation frame
-            self.AnimationRequest = window.requestAnimationFrame(() => self.RenderJS(self));
         }
     }
     public StartAnimation() {
