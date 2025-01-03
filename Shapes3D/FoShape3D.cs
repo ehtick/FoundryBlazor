@@ -288,10 +288,9 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return GeometryParameter3D;
     }
 
-    public override async Task<bool> RemoveFromRender(Scene3D scene, bool deep = true)
+    public override bool RemoveFromRender(Scene3D scene, bool deep = true)
     {
         GeometryParameter3D.RemoveFromScene(scene);
-        await Task.CompletedTask;
         return true;
     }
 

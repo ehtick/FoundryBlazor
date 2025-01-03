@@ -19,9 +19,8 @@ public interface IArena: ITreeNode
 {
     void SetScene(Scene3D scene);
 
-    Task ClearArena();
-    Task UpdateArena();
-    //void SetDoCreate(Action<CanvasMouseArgs> action);
+    void ClearArena();
+    void UpdateArena();
 
     Task<bool> PreRender(FoGlyph3D glyph);
 
@@ -31,7 +30,7 @@ public interface IArena: ITreeNode
     V AddShape<V>(V shape) where V : FoGlyph3D;
     V RemoveShape<V>(V shape) where V : FoGlyph3D;
 
-T   EstablishStage<T>(string name) where T : FoStage3D;
+    T EstablishStage<T>(string name) where T : FoStage3D;
     IStageManagement Stages();
     List<FoStage3D> GetAllStages();
     FoStage3D CurrentStage();
@@ -131,32 +130,32 @@ public class FoArena3D : FoGlyph3D, IArena
         return shape;
     }
 
-    public async Task ClearArena()
+    public void ClearArena()
     {
 
         "ClearArena".WriteInfo();
         var stage = CurrentStage();
         stage.ClearStage();
 
-        await ClearScene();
+        ClearScene();
     }
 
-    public async Task ClearScene()
+    public void ClearScene()
     {
 
         "ClearScene".WriteInfo();
         var (found, scene) = CurrentScene();
         if (found)
-            await scene.ClearScene();
+            scene.ClearScene();
     }
 
-    public async Task UpdateArena()
+    public void UpdateArena()
     {
         "UpdateArena".WriteInfo();
         var stage = CurrentStage();
         var (found, scene) = CurrentScene();
         if (found)
-            await stage.RenderToScene(scene);
+            stage.RenderToScene(scene);
     }
 
     public void SetScene(Scene3D scene)
@@ -213,12 +212,12 @@ public class FoArena3D : FoGlyph3D, IArena
         var result = base.GetTreeNodeActions().ToList();
         result.AddAction("Clear", "btn-danger", () =>
         {
-            Task.Run(async () => await ClearArena());
+            ClearArena();
         });
 
         result.AddAction("Update", "btn-success", () =>
         {
-           Task.Run(async () => await UpdateArena());
+           UpdateArena();
         });
         
         return result;

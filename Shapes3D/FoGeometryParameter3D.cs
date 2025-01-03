@@ -137,12 +137,12 @@ public class FoGeometryComponent3D : FoComponent
             Pivot = source.GetPivot(),
             Scale = source.GetScale(),
 
-            OnClick = async (ImportSettings self) =>
+            OnClick = (ImportSettings self) =>
             {
                 self.Increment();
                 //$"FoundryBlazor OnClick handler for self.Uuid={self.Uuid}, self.IsShow={self.IsShow()}".WriteInfo();
                 //source.UserHit?.Invoke(self);
-                await arena.UpdateArena();
+                arena.UpdateArena();
                 //$"FoundryBlazor OnClick handler UpdateArena called".WriteInfo();
             },
 

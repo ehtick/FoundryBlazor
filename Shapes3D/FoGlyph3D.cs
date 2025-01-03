@@ -236,9 +236,9 @@ public class FoGlyph3D : FoComponent
         scene.ForceSceneRefresh();
         return false;
     }
-    public virtual async Task<bool> RemoveFromRender(Scene3D scene, bool deep = true)
+    public virtual bool RemoveFromRender(Scene3D scene, bool deep = true)
     {
-        await scene.ClearScene();
+        scene.ClearScene();
         return false;
     }
 

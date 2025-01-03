@@ -100,11 +100,9 @@ public class Canvas3DComponentBase : ComponentBase, IAsyncDisposable
     }
     public void Render()
     {
-        Task.Run(async () => {
-            var arena = Workspace?.GetArena();
-            if ( arena != null )
-                await arena.UpdateArena();     
-        });
+        var arena = Workspace?.GetArena();
+        if ( arena != null )
+            arena.UpdateArena();     
     }
 
     private void OnRefreshUIEvent(RefreshUIEvent e)

@@ -64,7 +64,7 @@ public class FoStage3D : FoGlyph3D, IStage
             PreRender(arena);
             var (found, scene) = arena.CurrentScene();
             if ( found ) 
-                Task.Run(async () => await stage.RenderToScene(scene, 0, 0));
+                stage.RenderToScene(scene);
         });
         return result;
     }
@@ -158,11 +158,10 @@ public class FoStage3D : FoGlyph3D, IStage
 
     public void PreRender(IArena arena)
     {
-
         Shapes3D?.ForEach(async shape => await arena.PreRender(shape));
     }
 
-    public async Task RenderToScene(Scene3D scene, int tick=0, double fps=0.0)
+    public void RenderToScene(Scene3D scene, int tick=0, double fps=0.0)
     {
         if ( IsDirty == false) 
         {
@@ -175,9 +174,7 @@ public class FoStage3D : FoGlyph3D, IStage
         IsDirty = false;
         Shapes3D?.ForEach(shape => shape.Render(scene, tick, fps));
         //Pipes3D?.ForEach(shape => shape.Render(scene, tick, fps));
-        await scene.UpdateScene(true);
-
-        
+        scene.ForceSceneRefresh();
     }
 
 
