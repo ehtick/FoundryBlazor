@@ -33,13 +33,16 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
     private Canvas2DContext? Ctx;
 
     
+
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             $"Canvas2DComponentBase {SceneName} OnAfterRenderAsync".WriteInfo();
 
-            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Initialize", DotNetObjectReference.Create(this));
+            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Initialize");
  
             var drawing = Workspace!.GetDrawing();
             drawing?.ClearAll();  //we do not want to share the old drawing here
@@ -111,6 +114,12 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
         } catch (Exception ex) {
             $"Canvas2DComponentBase DoStop Error {ex.Message}".WriteError();
         }
+    }
+
+    [JSInvokable]
+    public static void JSCallbackTest(string uuid)
+    {
+        $"CALLBACK JSCallbackTest  {uuid}".WriteWarning();
     }
 
     [JSInvokable]
