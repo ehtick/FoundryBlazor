@@ -11,11 +11,15 @@ using System.Text;
 
 namespace FoundryBlazor.Shared;
 
+
+
 public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
 {
 
     [Inject] public IWorkspace? Workspace { get; set; }
     [Inject] private ComponentBus? PubSub { get; set; }
+    
+    [Inject] protected IFoundryService? FoundryService { get; set; }
     [Inject] protected IJSRuntime? _jsRuntime { get; set; }
 
     [Parameter] public int CanvasWidth { get; set; } = 1800;
@@ -26,13 +30,9 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
     
     public int tick { get; private set; }
 
-    private DateTime _lastRender;
-
     protected BECanvasComponent? BECanvasReference;
 
     private Canvas2DContext? Ctx;
-
-    
 
 
 
@@ -58,6 +58,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
 
             PubSub?.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub?.SubscribeTo<TriggerRedrawEvent>(OnTriggerRedrawEvent);
+            FoundryService?.AnimationBus().SubscribeTo<AnimationEvent>(OnAnimationEvent);
  
             if ( WithAnimations)
                 await DoStart();
@@ -80,6 +81,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
                 
             PubSub?.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub?.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
+            FoundryService?.AnimationBus().UnSubscribeFrom<AnimationEvent>(OnAnimationEvent);
 
             await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
 
@@ -116,34 +118,14 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
         }
     }
 
-    [JSInvokable]
-    public static void JSCallbackTest(string uuid)
+
+
+    protected async void OnAnimationEvent(AnimationEvent message)
     {
-        $"CALLBACK JSCallbackTest  {uuid}".WriteWarning();
+        await RenderFrame(message.fps);
     }
 
-    [JSInvokable]
-    public async ValueTask RenderFrameEventCalled()
-    {
-        try
-        {
-            if (Ctx == null) {  
-                $"Canvas2DComponentBase {SceneName} RenderFrameEventCalled Ctx is null".WriteError();
-                return;
-            }
 
-            double fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
-            _lastRender = DateTime.Now; // update for the next time 
-
-            //recomputing the ctx here look like it is needed and fixes moving between pages
-            //Ctx = await BECanvasReference?.CreateCanvas2DAsync();
-            await RenderFrame(fps);
-        }
-        catch (Exception ex)
-        {
-            $"Canvas2DComponentBase  {SceneName} RenderFrameEventCalled Error {ex.Message}".WriteError();
-        }
-    }
 
     private void OnRefreshUIEvent(RefreshUIEvent e)
     {

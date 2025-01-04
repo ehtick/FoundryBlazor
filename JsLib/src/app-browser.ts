@@ -20,14 +20,11 @@ export class AppBrowser {
     }
 
     private RenderJS(self: any) {
-        console.info(`RenderJS`);
+        //console.info(`RenderJS`);
         
-        try {
-            //self.blazorDotNetObject?.invokeMethodAsync('RenderFrameEventCalled');
-            console.info(`RenderJS call JSCallbackTest`,self);
-            DotNet.invokeMethodAsync('FoundryBlazor', 'JSCallbackTest','Hello from JS');
-            console.info(`RenderJS AfterCall JSCallbackTest`,self);
-            
+        try 
+        {
+            DotNet.invokeMethodAsync('FoundryBlazor', 'TriggerAnimationFrame');  
         } catch (error) {
             console.error(`RenderJS ${error}`);
             

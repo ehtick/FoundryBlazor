@@ -1,11 +1,16 @@
 using BlazorComponentBus;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Shared;
-
+using FoundryRulesAndUnits.Extensions;
 using Microsoft.JSInterop;
 using Radzen;
 
 namespace FoundryBlazor.Solutions;
+
+public class AnimationEvent
+{
+    public double fps = 0;
+}
 
 public interface IFoundryService
 {
@@ -22,6 +27,7 @@ public interface IFoundryService
     IQRCodeService QRCode();
     IToolManagement Tools();
     IWorldManager WorldManager();
+    ComponentBus AnimationBus();
 }
 
 public class FoundryService : IFoundryService
@@ -38,6 +44,9 @@ public class FoundryService : IFoundryService
     protected IPopupDialog dialog { get; set; }
     protected IJSRuntime js { get; set; }
     protected ComponentBus pubsub { get; set; }
+
+    private static ComponentBus Publish { get; set; } = null!;
+    private static DateTime _lastRender;
 
     public FoundryService(
         IToast toast,
@@ -65,8 +74,27 @@ public class FoundryService : IFoundryService
         this.selection = selection;
         this.hittest = hittest;
         this.qrcode = qrcode;
+
+        Publish = new ComponentBus();
+        _lastRender = DateTime.Now;
     }
 
+    [JSInvokable]
+    public static async void TriggerAnimationFrame()
+    {
+        if (Publish != null)
+        {
+            var framerate = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
+            _lastRender = DateTime.Now; // update for the next time 
+            //$"TriggerAnimationFrame  {framerate}".WriteSuccess();
+            await Publish.Publish<AnimationEvent>(new AnimationEvent() { fps = framerate });
+        }
+    }
+
+    public ComponentBus AnimationBus()
+    {
+        return Publish;
+    }
 
     public ICommand Command()
     {
