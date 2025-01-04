@@ -60,10 +60,10 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
             PubSub?.SubscribeTo<TriggerRedrawEvent>(OnTriggerRedrawEvent);
             FoundryService?.AnimationBus().SubscribeTo<AnimationEvent>(OnAnimationEvent);
  
+            await RenderFrame(0);
             if ( WithAnimations)
                 await DoStart();
-            else
-                await RenderFrame(0);
+
         }
         await base.OnAfterRenderAsync(firstRender);
     }
