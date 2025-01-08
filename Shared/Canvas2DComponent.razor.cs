@@ -53,8 +53,8 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
             Ctx = await BECanvasReference!.CreateCanvas2DAsync();
  
 
-            CreateTickPlayground();
-            SetDoTugOfWar();
+            //CreateTickPlayground();
+            //SetDoTugOfWar();
 
             PubSub?.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub?.SubscribeTo<TriggerRedrawEvent>(OnTriggerRedrawEvent);

@@ -163,6 +163,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
     public void RenderToScene(Scene3D scene, int tick=0, double fps=0.0)
     {
+        IsDirty = true;
         if ( IsDirty == false) 
         {
             $"FoStage3D RenderToScene IsDirty == false".WriteInfo();

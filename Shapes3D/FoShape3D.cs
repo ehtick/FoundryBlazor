@@ -19,7 +19,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
   
     public List<FoPanel3D>? TextPanels { get; set; }
-    public Action<ImportSettings> UserHit { get; set; } = (ImportSettings model3D) => { };
+    //private Action<ImportSettings> UserHit { get; set; } = (ImportSettings model3D) => { };
 
 
 

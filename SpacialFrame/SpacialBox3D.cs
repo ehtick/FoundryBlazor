@@ -27,16 +27,16 @@ public class SpacialBox3D
         Units = units;
     }
 
-    public Point3D Center => new Point3D(Width / 2, Height / 2, Depth / 2);
+    public Point3D Center => new (Width / 2, Height / 2, Depth / 2);
 
-    public Point3D TopLeftFront => new Point3D(0, Height, Depth);
-    public Point3D TopRightFront => new Point3D(Width, Height, Depth);
-    public Point3D BottomLeftFront => new Point3D(0, 0, Depth);
-    public Point3D BottomRightFront => new Point3D(Width, 0, Depth);
-    public Point3D TopLeftBack => new Point3D(0, Height, 0);
-    public Point3D TopRightBack => new Point3D(Width, Height, 0);
-    public Point3D BottomLeftBack => new Point3D(0, 0, 0);
-    public Point3D BottomRightBack => new Point3D(Width, 0, 0);
+    public Point3D TopLeftFront => new (0, Height, Depth);
+    public Point3D TopRightFront => new (Width, Height, Depth);
+    public Point3D BottomLeftFront => new (0, 0, Depth);
+    public Point3D BottomRightFront => new (Width, 0, Depth);
+    public Point3D TopLeftBack => new (0, Height, 0);
+    public Point3D TopRightBack => new (Width, Height, 0);
+    public Point3D BottomLeftBack => new (0, 0, 0);
+    public Point3D BottomRightBack => new (Width, 0, 0);
 
     public List<Point3D> Vertices => new List<Point3D>
     {
@@ -50,12 +50,12 @@ public class SpacialBox3D
         BottomRightBack
     };
 
-    public Point3D FrontFaceCenter => new Point3D(Width / 2, Height / 2, 0);
-    public Point3D RearFaceCenter => new Point3D(Width / 2, Height / 2, Depth);
-    public Point3D LeftFaceCenter => new Point3D(0, Height / 2, Depth / 2);
-    public Point3D RightFaceCenter => new Point3D(Width, Height / 2, Depth / 2);
-    public Point3D TopFaceCenter => new Point3D(Width / 2, Height, Depth / 2);
-    public Point3D BottomFaceCenter => new Point3D(Width / 2, 0, Depth / 2);
+    public Point3D FrontFaceCenter => new (Width / 2, Height / 2, 0);
+    public Point3D RearFaceCenter => new (Width / 2, Height / 2, Depth);
+    public Point3D LeftFaceCenter => new (0, Height / 2, Depth / 2);
+    public Point3D RightFaceCenter => new (Width, Height / 2, Depth / 2);
+    public Point3D TopFaceCenter => new (Width / 2, Height, Depth / 2);
+    public Point3D BottomFaceCenter => new (Width / 2, 0, Depth / 2);
 
     public List<Point3D> FaceCenters => new List<Point3D>
     {
