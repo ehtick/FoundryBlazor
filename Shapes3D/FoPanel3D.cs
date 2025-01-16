@@ -1,11 +1,11 @@
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Viewers;
-using BlazorThreeJS.Menus;
+using BlazorThreeJS.Core;
 using FoundryBlazor.Extensions;
 using BlazorThreeJS.Geometires;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Materials;
-using BlazorThreeJS.Core;
+
 
 namespace FoundryBlazor.Shape;
 
@@ -13,8 +13,8 @@ public class FoPanel3D : FoGlyph3D, IShape3D
 {
 
     public List<string> TextLines { get; set; } = new();
-    private TextPanel? TextPanel { get; set; }
-    private PanelGroup? PanelGroup { get; set; }
+    private TextPanel3D? TextPanel { get; set; }
+    private PanelGroup3D? PanelGroup { get; set; }
 
     public string DisplayText()
     {
@@ -49,36 +49,43 @@ public class FoPanel3D : FoGlyph3D, IShape3D
         return this;
     }
 
-    public TextPanel EstablishPanel3D()
+    public TextPanel3D EstablishPanel3D()
     {
         if (TextPanel != null) return TextPanel;
 
-        TextPanel = new TextPanel()
+        TextPanel = new TextPanel3D()
         {
             TextLines = TextLines,
             Height = Height,
             Width = Width,
             Color = Color,
-            Position = Position ?? new Vector3(0, 0, 0),
-            Pivot = Pivot ?? new Vector3(0, 0, 0),
-            Rotation = Rotation ?? new Euler(0, 0, 0),
+            Transform = new Transform3D()
+            {
+                Position = Position ?? new Vector3(0, 0, 0),
+                Pivot = Pivot ?? new Vector3(0, 0, 0),
+                Rotation = Rotation ?? new Euler(0, 0, 0),
+            }
+
         };
         return TextPanel;
     }
 
-    public PanelGroup EstablishGroup3D()
+    public PanelGroup3D EstablishGroup3D()
     {
         if (PanelGroup != null) return PanelGroup;
 
-        PanelGroup = new PanelGroup()
+        PanelGroup = new PanelGroup3D()
         {
             TextLines = TextLines,
             Height = Height,
             Width = Width,
             Color = Color,
-            Position = Position ?? new Vector3(0, 0, 0),
-            Pivot = Pivot ?? new Vector3(0, 0, 0),
-            Rotation = Rotation ?? new Euler(0, 0, 0),
+            Transform = new Transform3D()
+            {
+                Position = Position ?? new Vector3(0, 0, 0),
+                Pivot = Pivot ?? new Vector3(0, 0, 0),
+                Rotation = Rotation ?? new Euler(0, 0, 0),
+            },
             TextPanels = ChildPanels(),
             Meshes = ChildConnections()
         };
@@ -86,7 +93,7 @@ public class FoPanel3D : FoGlyph3D, IShape3D
     }
 
 
-    private List<TextPanel> ChildPanels()
+    private List<TextPanel3D> ChildPanels()
     {
         return Panels().Select((item) => item.EstablishPanel3D()).ToList();
     }

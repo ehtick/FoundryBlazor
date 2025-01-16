@@ -300,7 +300,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         if ( TextPanels != null && TextPanels.Count > 0)
             return TextPanels;
 
-        var root = model3D.Position.CreatePlus(0, 1, 0);
+        var root = model3D.Transform.Position.CreatePlus(0, 1, 0);
         if (Position != null && BoundingBox != null)
             root = Position.CreatePlus(0, BoundingBox.Y, 0);
 

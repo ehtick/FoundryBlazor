@@ -73,7 +73,7 @@ public class FoGeometryComponent3D : FoComponent
         //"Update mesh position".WriteSuccess();
         if (Value3D != null)
         {
-            Value3D.Position.Set(xLoc, yLoc, zLoc);
+            Value3D.Transform.Position.Set(xLoc, yLoc, zLoc);
             return true;
         }
         return false;
@@ -132,31 +132,34 @@ public class FoGeometryComponent3D : FoComponent
 
             Format = format,
             FileURL = source.Url,
-            Position = source.GetPosition(),
-            Rotation = source.GetRotation(),
-            Pivot = source.GetPivot(),
-            Scale = source.GetScale(),
-
-            OnClick = (ImportSettings self) =>
+            Transform = new Transform3D()
             {
-                self.Increment();
-                //$"FoundryBlazor OnClick handler for self.Uuid={self.Uuid}, self.IsShow={self.IsShow()}".WriteInfo();
-                //source.UserHit?.Invoke(self);
-                arena.UpdateArena();
-                //$"FoundryBlazor OnClick handler UpdateArena called".WriteInfo();
+                Position = source.GetPosition(),
+                Rotation = source.GetRotation(),
+                Pivot = source.GetPivot(),
+                Scale = source.GetScale(),
             },
 
-            OnComplete = () =>
-            {
-                Value3D = new Group3D()
-                {
-                    Name = GetName(),
-                    Uuid = GetGlyphId(),
-                };
-                if ( found )
-                    scene.AddChild(Value3D);
-                $"OnComplete for object3D.Uuid={Value3D.Uuid}, body.LoadingURL={source.Url}, position.x={source.Position?.X}".WriteInfo();
-            }
+            // OnClick = (ImportSettings self) =>
+            // {
+            //     self.Increment();
+            //     //$"FoundryBlazor OnClick handler for self.Uuid={self.Uuid}, self.IsShow={self.IsShow()}".WriteInfo();
+            //     //source.UserHit?.Invoke(self);
+            //     arena.UpdateArena();
+            //     //$"FoundryBlazor OnClick handler UpdateArena called".WriteInfo();
+            // },
+
+            // OnComplete = () =>
+            // {
+            //     Value3D = new Group3D()
+            //     {
+            //         Name = GetName(),
+            //         Uuid = GetGlyphId(),
+            //     };
+            //     if ( found )
+            //         scene.AddChild(Value3D);
+            //     $"OnComplete for object3D.Uuid={Value3D.Uuid}, body.LoadingURL={source.Url}, position.x={source.Position?.X}".WriteInfo();
+            // }
         };
 
         return setting;
@@ -194,10 +197,13 @@ public class FoGeometryComponent3D : FoComponent
             Name = Key,
             Uuid = GetGlyphId(),
             Geometry = geometry,
-            Position = source.GetPosition(),
-            Pivot = source.GetPivot(),
-            Scale = source.GetScale(),
-            Rotation = source.GetRotation(),
+            Transform = new Transform3D()
+            {
+                Position = source.GetPosition(),
+                Pivot = source.GetPivot(),
+                Scale = source.GetScale(),
+                Rotation = source.GetRotation(),
+            },
             Material = source.GetMaterial()
         };
     }
@@ -343,10 +349,13 @@ public class FoGeometryComponent3D : FoComponent
         {
             Name = Key,
             Uuid = GetGlyphId(),
-            Position = source.GetPosition(),
-            Pivot = source.GetPivot(),
-            Scale = source.GetScale(),
-            Rotation = source.GetRotation(),
+            Transform = new Transform3D()
+            {
+                Position = source.GetPosition(),
+                Pivot = source.GetPivot(),
+                Scale = source.GetScale(),
+                Rotation = source.GetRotation(),
+            }
         };
 
         return Value3D;

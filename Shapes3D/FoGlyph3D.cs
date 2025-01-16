@@ -233,12 +233,12 @@ public class FoGlyph3D : FoComponent
 
     public virtual bool Render(Scene3D scene, int tick, double fps, bool deep = true)
     {
-        scene.ForceSceneRefresh();
+        //scene.ForceSceneRefresh();
         return false;
     }
     public virtual bool RemoveFromRender(Scene3D scene, bool deep = true)
     {
-        scene.ClearScene();
+        //scene.ClearScene();
         return false;
     }
 

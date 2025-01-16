@@ -1,5 +1,5 @@
 using BlazorThreeJS.Core;
-using BlazorThreeJS.Labels;
+
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
@@ -10,7 +10,7 @@ namespace FoundryBlazor.Shape;
 public class FoText3D : FoGlyph3D, IShape3D
 {
 
-    private LabelText? Label { get; set; }
+    private Text3D? Label { get; set; }
 
     public double FontSize { get; set; } = 0.5;
 
@@ -74,13 +74,18 @@ public class FoText3D : FoGlyph3D, IShape3D
 
     public override bool Render(Scene3D scene, int tick, double fps, bool deep = true)
     {
-        var text = Text ?? "LabelText";
-        Label = new LabelText(text)
+        var text = Text ?? "Text3D";
+        Label = new Text3D(text)
         {
             Uuid = GetGlyphId(),
             Name = GetName(),
             Color = Color ?? "Yellow",
-            Position = GetPosition(),
+            Transform = new Transform3D()
+            {
+                Position = GetPosition(),
+                Pivot = Pivot ?? new Vector3(0, 0, 0),
+                Rotation = Rotation ?? new Euler(0, 0, 0),
+            },
             FontSize = FontSize,
         };
         scene.AddChild(Label);
@@ -106,7 +111,7 @@ public class FoText3D : FoGlyph3D, IShape3D
         //"Update label position".WriteSuccess();
         if (Label != null)
         {
-            Label.Position.Set(xLoc, yLoc, zLoc);
+            Label.Transform.Position.Set(xLoc, yLoc, zLoc);
             return true;
         }
 
