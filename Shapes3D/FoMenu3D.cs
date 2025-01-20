@@ -7,7 +7,7 @@ using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
-using BlazorThreeJS.Menus;
+using BlazorThreeJS.Core;
 
 namespace FoundryBlazor.Shape;
 
@@ -49,23 +49,22 @@ public class FoMenu3D : FoPanel3D, IFoMenu
         var buttons = Buttons().Select((item) =>
         {
             var text = item.DisplayText();
-            var button = new Button(text, text)
+            var button = new Button3D(text, text)
             {
-                OnClick = (Button btn) => Console.WriteLine("Clicked Button1")
+                OnClick = (Button3D btn) => Console.WriteLine("Clicked Button1")
             };
             return button;
         }).ToList();
 
         Width = 1;
         Height = buttons.Count * 0.22;
-        var menu = new PanelMenu()
+        var menu = new PanelMenu3D()
         {
             Buttons = buttons,
             Height = Height,
             Width = Width,
-            Position = Position ?? new Vector3(0, 0, 0),
         };
-
+        menu.Transform.Position = Position ?? new Vector3(0, 0, 0);
         scene.AddChild(menu);
         return true;
     }

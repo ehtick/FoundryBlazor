@@ -73,7 +73,7 @@ public class FoGeometryComponent3D : FoComponent
         //"Update mesh position".WriteSuccess();
         if (Value3D != null)
         {
-            Value3D.Position.Set(xLoc, yLoc, zLoc);
+            Value3D.Transform.Position.Set(xLoc, yLoc, zLoc);
             return true;
         }
         return false;
@@ -95,72 +95,33 @@ public class FoGeometryComponent3D : FoComponent
             
         var result = source.GeomType switch
         {
-            "Collada" => await PreRenderImport(source, arena, Import3DFormats.Collada),
-            "Fbx" => await PreRenderImport(source, arena, Import3DFormats.Fbx),
-            "Obj" => await PreRenderImport(source, arena, Import3DFormats.Obj),
-            "Stl" => await PreRenderImport(source, arena, Import3DFormats.Stl),
-            "Glb" => await PreRenderImport(source, arena, Import3DFormats.Gltf),
+            "Collada" => await PreRenderImport(source, arena, Model3DFormats.Collada),
+            "Fbx" => await PreRenderImport(source, arena, Model3DFormats.Fbx),
+            "Obj" => await PreRenderImport(source, arena, Model3DFormats.Obj),
+            "Stl" => await PreRenderImport(source, arena, Model3DFormats.Stl),
+            "Glb" => await PreRenderImport(source, arena, Model3DFormats.Gltf),
             _ => false
         };
 
         return result;
     }
-    private async Task<bool> PreRenderImport(FoModel3D source, FoArena3D arena, Import3DFormats format)
+    private async Task<bool> PreRenderImport(FoModel3D source, FoArena3D arena, Model3DFormats format)
     {
-        var settings = AsImportSettings(source, arena, format);
+        var model = source.AsModel3D(format);
 
-        if (string.IsNullOrEmpty(source.Url)) return false;
-        $"PreRenderImport url [{source.Url}] ".WriteInfo(1);
+        if (string.IsNullOrEmpty(model.Url)) return false;
+        $"PreRenderImport url [{model.Url}] ".WriteInfo(1);
 
         var (found, scene) = arena.CurrentScene();
         if (!found)
             return false;
 
-        var uuid = await scene.Request3DModel(settings);
+        var uuid = await scene.Request3DModel(model);
         //arena.Add<FoShape3D>(uuid, source);
         return true;
     }
 
-    public ImportSettings AsImportSettings(FoModel3D source, FoArena3D arena, Import3DFormats format)
-    {
-        //LoadingURL = Url;
-        var (found, scene) = arena.CurrentScene();
 
-        var setting = new ImportSettings
-        {
-            Uuid = GetGlyphId(),
-
-            Format = format,
-            FileURL = source.Url,
-            Position = source.GetPosition(),
-            Rotation = source.GetRotation(),
-            Pivot = source.GetPivot(),
-            Scale = source.GetScale(),
-
-            OnClick = (ImportSettings self) =>
-            {
-                self.Increment();
-                //$"FoundryBlazor OnClick handler for self.Uuid={self.Uuid}, self.IsShow={self.IsShow()}".WriteInfo();
-                //source.UserHit?.Invoke(self);
-                arena.UpdateArena();
-                //$"FoundryBlazor OnClick handler UpdateArena called".WriteInfo();
-            },
-
-            OnComplete = () =>
-            {
-                Value3D = new Group3D()
-                {
-                    Name = GetName(),
-                    Uuid = GetGlyphId(),
-                };
-                if ( found )
-                    scene.AddChild(Value3D);
-                $"OnComplete for object3D.Uuid={Value3D.Uuid}, body.LoadingURL={source.Url}, position.x={source.Position?.X}".WriteInfo();
-            }
-        };
-
-        return setting;
-    }
    
 
    public (FoGeometryComponent3D obj, Object3D value) ComputeValue(FoGlyph3D source)
@@ -194,10 +155,13 @@ public class FoGeometryComponent3D : FoComponent
             Name = Key,
             Uuid = GetGlyphId(),
             Geometry = geometry,
-            Position = source.GetPosition(),
-            Pivot = source.GetPivot(),
-            Scale = source.GetScale(),
-            Rotation = source.GetRotation(),
+            Transform = new Transform3D()
+            {
+                Position = source.GetPosition(),
+                Pivot = source.GetPivot(),
+                Scale = source.GetScale(),
+                Rotation = source.GetRotation(),
+            },
             Material = source.GetMaterial()
         };
     }
@@ -343,10 +307,13 @@ public class FoGeometryComponent3D : FoComponent
         {
             Name = Key,
             Uuid = GetGlyphId(),
-            Position = source.GetPosition(),
-            Pivot = source.GetPivot(),
-            Scale = source.GetScale(),
-            Rotation = source.GetRotation(),
+            Transform = new Transform3D()
+            {
+                Position = source.GetPosition(),
+                Pivot = source.GetPivot(),
+                Scale = source.GetScale(),
+                Rotation = source.GetRotation(),
+            }
         };
 
         return Value3D;

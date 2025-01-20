@@ -19,7 +19,6 @@ public class FoModel3D : FoShape3D
 
     public string Url { get; set; } = "";
 
-    
 
     public FoModel3D() : base()
     {
@@ -29,6 +28,25 @@ public class FoModel3D : FoShape3D
     }
     public FoModel3D(string name, string color) : base(name, color)
     {
+    }
+
+    public Model3D AsModel3D(Model3DFormats format)
+    {
+        var model = new Model3D()
+        {
+            Url = Url,
+            Format = format,
+            Name = this.GetName(),
+            Uuid = this.GetGlyphId(),
+            Transform = new Transform3D()
+            {
+                Position = this.GetPosition(),
+                Rotation = this.GetRotation(),
+                Pivot = this.GetPivot(),
+                Scale = this.GetScale(),
+            }
+        };
+        return model;
     }
 
     //https://BlazorThreeJS.com/reference/Index.html

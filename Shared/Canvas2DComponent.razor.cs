@@ -11,11 +11,15 @@ using System.Text;
 
 namespace FoundryBlazor.Shared;
 
+
+
 public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
 {
 
     [Inject] public IWorkspace? Workspace { get; set; }
     [Inject] private ComponentBus? PubSub { get; set; }
+    
+    [Inject] protected IFoundryService? FoundryService { get; set; }
     [Inject] protected IJSRuntime? _jsRuntime { get; set; }
 
     [Parameter] public int CanvasWidth { get; set; } = 1800;
@@ -26,20 +30,19 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
     
     public int tick { get; private set; }
 
-    private DateTime _lastRender;
-
     protected BECanvasComponent? BECanvasReference;
 
     private Canvas2DContext? Ctx;
 
-    
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             $"Canvas2DComponentBase {SceneName} OnAfterRenderAsync".WriteInfo();
 
-            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Initialize", DotNetObjectReference.Create(this));
+            await _jsRuntime!.InvokeVoidAsync("AppBrowser.Initialize");
  
             var drawing = Workspace!.GetDrawing();
             drawing?.ClearAll();  //we do not want to share the old drawing here
@@ -50,16 +53,17 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
             Ctx = await BECanvasReference!.CreateCanvas2DAsync();
  
 
-            CreateTickPlayground();
-            SetDoTugOfWar();
+            //CreateTickPlayground();
+            //SetDoTugOfWar();
 
             PubSub?.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub?.SubscribeTo<TriggerRedrawEvent>(OnTriggerRedrawEvent);
+            FoundryService?.AnimationBus().SubscribeTo<AnimationEvent>(OnAnimationEvent);
  
+            await RenderFrame(0);
             if ( WithAnimations)
                 await DoStart();
-            else
-                await RenderFrame(0);
+
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -77,6 +81,7 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
                 
             PubSub?.UnSubscribeFrom<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub?.UnSubscribeFrom<TriggerRedrawEvent>(OnTriggerRedrawEvent);
+            FoundryService?.AnimationBus().UnSubscribeFrom<AnimationEvent>(OnAnimationEvent);
 
             await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
 
@@ -113,28 +118,14 @@ public class Canvas2DComponentBase : ComponentBase, IAsyncDisposable
         }
     }
 
-    [JSInvokable]
-    public async ValueTask RenderFrameEventCalled()
+
+
+    protected async void OnAnimationEvent(AnimationEvent message)
     {
-        try
-        {
-            if (Ctx == null) {  
-                $"Canvas2DComponentBase {SceneName} RenderFrameEventCalled Ctx is null".WriteError();
-                return;
-            }
-
-            double fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
-            _lastRender = DateTime.Now; // update for the next time 
-
-            //recomputing the ctx here look like it is needed and fixes moving between pages
-            //Ctx = await BECanvasReference?.CreateCanvas2DAsync();
-            await RenderFrame(fps);
-        }
-        catch (Exception ex)
-        {
-            $"Canvas2DComponentBase  {SceneName} RenderFrameEventCalled Error {ex.Message}".WriteError();
-        }
+        await RenderFrame(message.fps);
     }
+
+
 
     private void OnRefreshUIEvent(RefreshUIEvent e)
     {
