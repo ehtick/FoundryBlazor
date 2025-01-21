@@ -155,7 +155,7 @@ public class FoGeometryComponent3D : FoComponent
             Name = Key,
             Uuid = GetGlyphId(),
             Geometry = geometry,
-            Transform = new Transform3D()
+            Transform = new Transform3()
             {
                 Position = source.GetPosition(),
                 Pivot = source.GetPivot(),
@@ -307,7 +307,7 @@ public class FoGeometryComponent3D : FoComponent
         {
             Name = Key,
             Uuid = GetGlyphId(),
-            Transform = new Transform3D()
+            Transform = new Transform3()
             {
                 Position = source.GetPosition(),
                 Pivot = source.GetPivot(),

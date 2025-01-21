@@ -10,10 +10,6 @@ public class FoGroup3D : FoGlyph3D, IShape3D
 {
 
 
-
-    public Vector3? Offset { get; set; }
-
-
     public FoGroup3D() : base()
     {
         GetSlot<FoShape3D>();
@@ -78,8 +74,6 @@ public class FoGroup3D : FoGlyph3D, IShape3D
     {
         this.Key = name;
         BoundingBox = new Vector3(width, height, depth);
-        Position = new Vector3();
-        Offset = new Vector3();
         return this;
     }
 
@@ -173,12 +167,12 @@ public class FoGroup3D : FoGlyph3D, IShape3D
         return true;
     }
 
-    public override bool Render(Scene3D scene, int tick, double fps, bool deep = true)
+    public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
-        Members<FoShape3D>().ForEach(shape => shape.Render(scene, tick, fps, deep));
-        Members<FoText3D>().ForEach(shape => shape.Render(scene, tick, fps, deep));
-        Members<FoGroup3D>().ForEach(shape => shape.Render(scene, tick, fps, deep));
-        Members<FoDatum3D>().ForEach(shape => shape.Render(scene, tick, fps, deep));
+        Members<FoShape3D>().ForEach(shape => shape.RefreshScene(scene, deep));
+        Members<FoText3D>().ForEach(shape => shape.RefreshScene(scene, deep));
+        Members<FoGroup3D>().ForEach(shape => shape.RefreshScene(scene, deep));
+        Members<FoDatum3D>().ForEach(shape => shape.RefreshScene(scene, deep));
         return true;
     }
 

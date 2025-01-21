@@ -29,7 +29,7 @@ public class FoPathway3D : FoGlyph3D, IPipe3D
         return GeometryParameter3D.GetValue3D();
     }
 
-    public override bool Render(Scene3D scene, int tick, double fps, bool deep = true)
+    public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
         $"RenderPathway {Key}".WriteNote();
         scene.AddChild(EstablishPathway3D());

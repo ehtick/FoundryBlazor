@@ -19,7 +19,7 @@ public class FoDatum3D : FoGlyph3D
 		{
 			this.Text = text.Trim();
 
-			Position = new Vector3(xLoc, yLoc, zLoc);
+			GetTransform().Position = new Vector3(xLoc, yLoc, zLoc);
 
 			return this;
 		}

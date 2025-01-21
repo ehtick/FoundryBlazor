@@ -28,33 +28,8 @@ public class FoSnap3D : FoGlyph3D, ISnap3D
     {
     }
 
-    public override Vector3 GetPosition(int x = 0, int y = 0, int z = 0)
-    {
-        if (Position == null)
-            return base.GetPosition(x, y, z);
-        return Position;
-    }
-
-    public override Vector3 GetPivot(int x = 0, int y = 0, int z = 0)
-    {
-        if (Pivot == null)
-            return base.GetPivot(x, y, z);
-        return Pivot;
-    }
-
-    public override Euler GetRotation(int x = 0, int y = 0, int z = 0)
-    {
-        if (Rotation == null)
-            return base.GetRotation(x, y, z);
-        return Rotation;
-    }
 
 
-    public override bool Render(Scene3D ctx, int tick, double fps, bool deep = true)
-    {
-  
 
 
-        return true;
-    }
 }

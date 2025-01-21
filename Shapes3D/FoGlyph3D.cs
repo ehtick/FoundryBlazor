@@ -21,11 +21,7 @@ public class FoGlyph3D : FoComponent
 
     public string Color { get; set; } = "Green";
 
-
-    public Vector3? Position { get; set; }
-    public Vector3? Pivot { get; set; }
-    public Euler? Rotation { get; set; } // replace with Quaternion
-    public Vector3? Scale { get; set; }
+    public Transform3? Transform { get; set; }
 
     public FoGeometryComponent3D GeometryParameter3D { get; set; }
 
@@ -42,16 +38,26 @@ public class FoGlyph3D : FoComponent
 
     public double radius { get; set; } = 0.025;
     public double Radius { get { return this.radius; } set { this.radius = AssignDouble(value, radius); } }
+
     protected double width = 0;
     public double Width { get { return this.width; } set { this.width = AssignDouble(value, width); } }
+
     protected double height = 0;
     public double Height { get { return this.height; } set { this.height = AssignDouble(value, height); } }
+
     protected double depth = 0;
     public double Depth { get { return this.depth; } set { this.depth = AssignDouble(value, depth); } }
+
     public bool IsVisible
     {
         get { return this.StatusBits.IsVisible; }
         set { this.StatusBits.IsVisible = value; }
+    }
+
+    public bool IsDirty
+    {
+        get { return this.StatusBits.IsDirty; }
+        set { this.StatusBits.IsDirty = value; }
     }
 
     [JsonIgnore]
@@ -186,34 +192,52 @@ public class FoGlyph3D : FoComponent
 
     public FoGlyph3D MoveTo(double x, double y, double z)
     {
-        if ( Position == null )
-            Position = new Vector3(x, y, z);
+        if ( Transform == null )
+            GetPosition(x, y, z);
         else
-            Position.Set(x, y, z);
+            Transform.Position.Set(x, y, z);
         return this;
     }
-    public virtual Vector3 GetPosition(int x = 0, int y = 0, int z = 0)
+    public virtual Transform3 GetTransform()
     {
-        Position ??= new Vector3(x, y, z);
-        return Position;
+        Transform ??= new Transform3();
+        return Transform;
     }
 
-    public virtual Vector3 GetPivot(int x = 0, int y = 0, int z = 0)
+    public virtual Vector3 GetPosition(double x = 0, double y = 0, double z = 0)
     {
-        Pivot ??= new Vector3(x, y, z);
-        return Pivot;
+        if ( Transform == null )
+        {
+            Transform = new Transform3() { Position = new Vector3(x, y, z) };
+        }
+        return Transform.Position;
+    }
+
+    public virtual Vector3 GetPivot(double x = 0, double y = 0, double z = 0)
+    {
+        if ( Transform == null )
+        {
+            Transform = new Transform3() { Pivot = new Vector3(x, y, z) };
+        }
+        return Transform.Pivot;
     }
 
     public virtual Vector3 GetScale(double x = 1, double y = 1, double z = 1)
     {
-        Scale ??= new Vector3(x, y, z);
-        return Scale;
+        if ( Transform == null )
+        {
+            Transform = new Transform3() { Scale = new Vector3(x, y, z) };
+        }
+        return Transform.Scale;
     }
 
-    public virtual Euler GetRotation(int x = 0, int y = 0, int z = 0)
+    public virtual Euler GetRotation(double x = 0, double y = 0, double z = 0)
     {
-        Rotation ??= new Euler(x, y, z);
-        return Rotation;
+        if ( Transform == null )
+        {
+            Transform = new Transform3() { Rotation = new Euler(x, y, z) };
+        }
+        return Transform.Rotation;
     }
 
     public virtual bool OnModelLoadComplete(Guid PromiseGuid)
@@ -231,17 +255,16 @@ public class FoGlyph3D : FoComponent
         return GeometryParameter3D;
     }
 
-    public virtual bool Render(Scene3D scene, int tick, double fps, bool deep = true)
+
+
+    public virtual bool RefreshScene(Scene3D scene, bool deep = true)
     {
-        //scene.ForceSceneRefresh();
         return false;
     }
     public virtual bool RemoveFromRender(Scene3D scene, bool deep = true)
     {
-        //scene.ClearScene();
         return false;
     }
-
 
 
 

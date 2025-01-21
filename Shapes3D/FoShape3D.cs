@@ -260,7 +260,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
 
 
-    public override bool Render(Scene3D scene, int tick, double fps, bool deep = true)
+    public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
         RenderPrimitives(scene);
 
@@ -301,8 +301,8 @@ public class FoShape3D : FoGlyph3D, IShape3D
             return TextPanels;
 
         var root = model3D.Transform.Position.CreatePlus(0, 1, 0);
-        if (Position != null && BoundingBox != null)
-            root = Position.CreatePlus(0, BoundingBox.Y, 0);
+        // if (Position != null && BoundingBox != null)
+        //     root = Position.CreatePlus(0, BoundingBox.Y, 0);
 
         var leftPos = root.CreatePlus(-3, 1, 0);
         var centerPos = root.CreatePlus(0, 1, 0);  
@@ -317,7 +317,8 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Height = 1.5,
             Color = "Gray",
             TextLines = new() { "Thread Links" },
-            Position = centerPos
+            Transform = new Transform3() { Position = centerPos }
+
         };
 
         //if this is Mk48 then add a panel for the process steps
@@ -327,7 +328,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Height = 1.5,
             Color = "Wisteria",
             TextLines = new() { "Process Steps" },
-            Position = leftPos
+            Transform = new Transform3() { Position = leftPos }
         };
         //if this is Mk48 then add a panel for the BOM
         var right = new FoPanel3D("BOM")
@@ -336,7 +337,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Height = 1.5,
             Color = "Pink",
             TextLines = new() { "BOM Structure" },
-            Position = rightPos
+            Transform = new Transform3() { Position = rightPos }
         };
 
         TextPanels = new List<FoPanel3D>() { left, center, right };
