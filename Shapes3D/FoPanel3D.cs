@@ -59,13 +59,7 @@ public class FoPanel3D : FoGlyph3D, IShape3D
             Height = Height,
             Width = Width,
             Color = Color,
-            Transform = new Transform3D()
-            {
-                Position = Position ?? new Vector3(0, 0, 0),
-                Pivot = Pivot ?? new Vector3(0, 0, 0),
-                Rotation = Rotation ?? new Euler(0, 0, 0),
-            }
-
+            Transform = GetTransform(),
         };
         return TextPanel;
     }
@@ -80,12 +74,7 @@ public class FoPanel3D : FoGlyph3D, IShape3D
             Height = Height,
             Width = Width,
             Color = Color,
-            Transform = new Transform3D()
-            {
-                Position = Position ?? new Vector3(0, 0, 0),
-                Pivot = Pivot ?? new Vector3(0, 0, 0),
-                Rotation = Rotation ?? new Euler(0, 0, 0),
-            },
+            Transform = GetTransform(),
             TextPanels = ChildPanels(),
             Meshes = ChildConnections()
         };
@@ -118,7 +107,7 @@ public class FoPanel3D : FoGlyph3D, IShape3D
 
 
 
-    public override bool Render(Scene3D scene, int tick, double fps, bool deep = true)
+    public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
         //$"RenderPanel {Name} {Position?.X} {Position?.Y}  {Position?.Z}".WriteNote();
 

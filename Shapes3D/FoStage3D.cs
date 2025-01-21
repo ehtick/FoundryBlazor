@@ -15,7 +15,6 @@ public class FoStage3D : FoGlyph3D, IStage
 {
     public static bool RefreshMenus { get; set; } = true;
     public bool IsActive { get; set; } = false;
-    public bool IsDirty { get; set; } = false;  // dirty TRUE means we need to update the scene after render
     public double StageMargin { get; set; } = .50;  //meters
     public double StageWidth { get; set; } = 30.0;  //meters
     public double StageHeight { get; set; } = 30.0;  //meters
@@ -64,7 +63,7 @@ public class FoStage3D : FoGlyph3D, IStage
             PreRender(arena);
             var (found, scene) = arena.CurrentScene();
             if ( found ) 
-                stage.RenderToScene(scene);
+                stage.RefreshScene(scene);
         });
         return result;
     }
@@ -111,6 +110,7 @@ public class FoStage3D : FoGlyph3D, IStage
             value.Key = collection.NextItemName();
         
 
+        value.IsDirty = true;
         collection.AddObject(value.Key, value);
 
         if (value is IShape3D)
@@ -136,6 +136,7 @@ public class FoStage3D : FoGlyph3D, IStage
             value.Key = collection.NextItemName();
         }
 
+        value.IsDirty = true;
         collection.RemoveObject(value.Key);
 
         if (value is IShape3D)
@@ -149,10 +150,6 @@ public class FoStage3D : FoGlyph3D, IStage
             //$"IPipe3D Added {value.Name}".WriteSuccess();
         }
 
-        //do we need to remove mesh from scene
-        //var uuid = value.GetGlyphId();
-
-
         return value;
     }
 
@@ -161,21 +158,12 @@ public class FoStage3D : FoGlyph3D, IStage
         Shapes3D?.ForEach(async shape => await arena.PreRender(shape));
     }
 
-    public void RenderToScene(Scene3D scene, int tick=0, double fps=0.0)
+    public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
-        IsDirty = true;
-        if ( IsDirty == false) 
-        {
-            $"FoStage3D RenderToScene IsDirty == false".WriteInfo();
-            return;
-        }
-
-        $"FoStage3D RenderToScene IsDirty == true".WriteSuccess();
-
-        IsDirty = false;
-        Shapes3D?.ForEach(shape => shape.Render(scene, tick, fps));
+        Shapes3D?.ForEach(shape => shape.RefreshScene(scene, deep));
         //Pipes3D?.ForEach(shape => shape.Render(scene, tick, fps));
         //scene.ForceSceneRefresh();
+        return true;
     }
 
 

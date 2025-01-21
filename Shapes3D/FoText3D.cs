@@ -52,18 +52,18 @@ public class FoText3D : FoGlyph3D, IShape3D
 
     public FoText3D CreateTextAt(string text, double x, double y, double z)
     {
-        Position = new Vector3(x, y, z);
+        GetTransform().Position = new Vector3(x, y, z);
         Text = text;
         return this;
     }
 
 
-    public override Vector3 GetPosition(int x = 0, int y = 0, int z = 0)
+    public override Vector3 GetPosition(double x = 0, double y = 0, double z = 0)
     {
-        if (Position == null)
+        if (Transform == null)
             return base.GetPosition(x, y, z);
 
-        var result = Position;
+        var result = Transform.Position;
         return result;
     }
 
@@ -72,7 +72,7 @@ public class FoText3D : FoGlyph3D, IShape3D
         return $"{base.GetTreeNodeTitle()} {Text}";
     }
 
-    public override bool Render(Scene3D scene, int tick, double fps, bool deep = true)
+    public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
         var text = Text ?? "Text3D";
         Label = new Text3D(text)
@@ -80,12 +80,7 @@ public class FoText3D : FoGlyph3D, IShape3D
             Uuid = GetGlyphId(),
             Name = GetName(),
             Color = Color ?? "Yellow",
-            Transform = new Transform3D()
-            {
-                Position = GetPosition(),
-                Pivot = Pivot ?? new Vector3(0, 0, 0),
-                Rotation = Rotation ?? new Euler(0, 0, 0),
-            },
+            Transform = GetTransform(),
             FontSize = FontSize,
         };
         scene.AddChild(Label);

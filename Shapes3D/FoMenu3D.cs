@@ -63,13 +63,13 @@ public class FoMenu3D : FoPanel3D, IFoMenu
             Buttons = buttons,
             Height = Height,
             Width = Width,
+            Transform = GetTransform()
         };
-        menu.Transform.Position = Position ?? new Vector3(0, 0, 0);
         scene.AddChild(menu);
         return true;
     }
 
-    public override bool Render(Scene3D ctx, int tick, double fps, bool deep = true)
+    public override bool RefreshScene(Scene3D ctx, bool deep = true)
     {
         var result = DrawMenu3D(ctx);
         return result;

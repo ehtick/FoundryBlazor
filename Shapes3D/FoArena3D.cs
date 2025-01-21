@@ -155,7 +155,7 @@ public class FoArena3D : FoGlyph3D, IArena
         var stage = CurrentStage();
         var (found, scene) = CurrentScene();
         if (found)
-            stage.RenderToScene(scene);
+            stage.RefreshScene(scene);
     }
 
     public void SetScene(Scene3D scene)
@@ -235,23 +235,36 @@ public class FoArena3D : FoGlyph3D, IArena
 
         var north = new FoPanel3D("-Z Wall")
         {
-            Position = new Vector3(0, 7, -14.8),
-            Rotation = new Euler(0, Math.PI * 0 / 180, 0),
+            Transform = new Transform3()
+            {
+                Position = new Vector3(0, 7, -14.8),
+                Rotation = new Euler(0, Math.PI * 0 / 180, 0),
+            }
+
         };
         var south = new FoPanel3D("+Z Wall")
         {
-            Position = new Vector3(0, 7, 14.8),
-            Rotation = new Euler(0, Math.PI * 180 / 180, 0),
+            Transform = new Transform3()
+            {
+                Position = new Vector3(0, 7, 14.8),
+                Rotation = new Euler(0, Math.PI * 180 / 180, 0),
+            }
         };
         var east = new FoPanel3D("-X Wall")
         {
-            Position = new Vector3(-14.8, 7, 0),
-            Rotation = new Euler(0, Math.PI * 90 / 180, 0),
+            Transform = new Transform3()
+            {
+                Position = new Vector3(-14.8, 7, 0),
+                Rotation = new Euler(0, Math.PI * 90 / 180, 0),
+            }
         };
         var west = new FoPanel3D("+X Wall")
         {
-            Position = new Vector3(14.8, 7, 0),
-            Rotation = new Euler(0, Math.PI * 270 / 180, 0),
+            Transform = new Transform3()
+            {
+                Position = new Vector3(14.8, 7, 0),
+                Rotation = new Euler(0, Math.PI * 270 / 180, 0),
+            }
         };
         //need to convert pixels to meters
         //Conversion(5000, "px", 1, "m");
@@ -291,7 +304,10 @@ public class FoArena3D : FoGlyph3D, IArena
                     Height = h,
                     Color = shape.Color,
                     // Position = Placement(page.Name, wall.Position!, x, y),
-                    Position = new Vector3(x - halfW, halfH - y, z),
+                    Transform = new Transform3()
+                    {
+                        Position = new Vector3(x - halfW, halfH - y, z),
+                    }
                 };
                 var textLines = shape.GetText().Split('_').ToList();
                 panel.TextLines.AddRange(textLines);
@@ -321,7 +337,7 @@ public class FoArena3D : FoGlyph3D, IArena
                 wall.Add(pathway);
             }
 
-            wall.Render(Scene, 0, 0);
+            wall.RefreshScene(Scene);
         }
         return true;
     }

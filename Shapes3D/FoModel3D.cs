@@ -38,7 +38,7 @@ public class FoModel3D : FoShape3D
             Format = format,
             Name = this.GetName(),
             Uuid = this.GetGlyphId(),
-            Transform = new Transform3D()
+            Transform = new Transform3()
             {
                 Position = this.GetPosition(),
                 Rotation = this.GetRotation(),
@@ -155,7 +155,7 @@ public class FoModel3D : FoShape3D
 
 
 
-    public override bool Render(Scene3D scene, int tick, double fps, bool deep = true)
+    public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
         RenderPrimitives(scene);
 
