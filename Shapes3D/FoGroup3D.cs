@@ -153,19 +153,7 @@ public class FoGroup3D : FoGlyph3D, IShape3D
     }
 
 
-    public override async Task<bool> PreRender(FoArena3D arena, bool deep = true)
-    {
-        var tasks = new List<Task>();
 
-        tasks.AddRange(Members<FoShape3D>().Select(shape => shape.PreRender(arena, deep)));
-        tasks.AddRange(Members<FoText3D>().Select(shape => shape.PreRender(arena, deep)));
-        tasks.AddRange(Members<FoGroup3D>().Select(shape => shape.PreRender(arena, deep)));
-        tasks.AddRange(Members<FoDatum3D>().Select(shape => shape.PreRender(arena, deep)));
-
-
-        await Task.WhenAll(tasks);
-        return true;
-    }
 
     public override bool RefreshScene(Scene3D scene, bool deep = true)
     {

@@ -27,10 +27,26 @@ public class FoGeometryComponent3D : FoComponent
 
     public bool HasValue3D => Value3D != null;
     
+    public void SetValue3DDirty(bool value)
+    {
+        if (Value3D != null)
+        {
+            Value3D.SetDirty(value);
+        }
+    }
+
 
     public Object3D GetValue3D()
     {
         return Value3D;
+    }
+
+    public Object3D DeleteValue3D()
+    {
+        
+        var result = Value3D;
+        result.Delete();
+        return result;
     }
 
     public Object3D SetValue3D(Object3D value)
@@ -74,6 +90,7 @@ public class FoGeometryComponent3D : FoComponent
         if (Value3D != null)
         {
             Value3D.Transform.Position.Set(xLoc, yLoc, zLoc);
+            Value3D.SetDirty(true);
             return true;
         }
         return false;
@@ -83,42 +100,20 @@ public class FoGeometryComponent3D : FoComponent
     {
         if (HasValue3D)
         {
+            Value3D.ShouldDelete();
             scene.RemoveChild(Value3D);
             Smash();
         }
     }
 
-    public async Task<bool> PreRender(FoModel3D source, FoArena3D arena, bool deep = true)
-    {
-        if ( Value3D != null)
-            return true;
-            
-        var result = source.GeomType switch
-        {
-            "Collada" => await PreRenderImport(source, arena, Model3DFormats.Collada),
-            "Fbx" => await PreRenderImport(source, arena, Model3DFormats.Fbx),
-            "Obj" => await PreRenderImport(source, arena, Model3DFormats.Obj),
-            "Stl" => await PreRenderImport(source, arena, Model3DFormats.Stl),
-            "Glb" => await PreRenderImport(source, arena, Model3DFormats.Gltf),
-            _ => false
-        };
 
-        return result;
-    }
-    private async Task<bool> PreRenderImport(FoModel3D source, FoArena3D arena, Model3DFormats format)
+    private Model3D AsModel3D(FoGlyph3D glyph, Model3DFormats format)
     {
+        if ( glyph is not FoModel3D source)
+            return null!;
+
         var model = source.AsModel3D(format);
-
-        if (string.IsNullOrEmpty(model.Url)) return false;
-        $"PreRenderImport url [{model.Url}] ".WriteInfo(1);
-
-        var (found, scene) = arena.CurrentScene();
-        if (!found)
-            return false;
-
-        var uuid = await scene.Request3DModel(model);
-        //arena.Add<FoShape3D>(uuid, source);
-        return true;
+        return model;
     }
 
 
@@ -128,6 +123,12 @@ public class FoGeometryComponent3D : FoComponent
     {
         Value3D = source.GeomType switch
         {
+            "Collada" => AsModel3D(source,Model3DFormats.Collada),
+            "Fbx" => AsModel3D(source, Model3DFormats.Fbx),
+            "Obj" => AsModel3D(source, Model3DFormats.Obj),
+            "Stl" => AsModel3D(source, Model3DFormats.Stl),
+            "Glb" => AsModel3D(source, Model3DFormats.Gltf),
+
             "GROUP" => AsGroup(source),
             "Box" => AsBox(source),
             "Boundary" => AsBoundary(source),
@@ -143,6 +144,8 @@ public class FoGeometryComponent3D : FoComponent
             "Icosahedron" => AsIcosahedron(source),
             "Octahedron" => AsOctahedron(source),
             "Tetrahedron" => AsTetrahedron(source),
+            "TorusKnot" => AsTorusKnot(source),
+            "Torus" => AsTorus(source),
             _ => Value3D,
         };
         return (this, Value3D);
@@ -278,6 +281,23 @@ public class FoGeometryComponent3D : FoComponent
         var box = source.BoundingBox ?? new Vector3(1, 1, 1);
 
         Value3D = CreateMesh(source, new TetrahedronGeometry(box.X / 2));
+        return Value3D;
+    }
+
+    public Object3D AsTorusKnot(FoGlyph3D source)
+    {
+        if (Value3D != null) return Value3D;
+        var box = source.BoundingBox ?? new Vector3(1, 1, 1);
+
+        Value3D = CreateMesh(source, new TorusKnotGeometry(box.X / 2));
+        return Value3D;
+    }
+    public Object3D AsTorus(FoGlyph3D source)
+    {
+        if (Value3D != null) return Value3D;
+        var box = source.BoundingBox ?? new Vector3(1, 1, 1);
+
+        Value3D = CreateMesh(source, new TorusGeometry(box.X / 2));
         return Value3D;
     }
 

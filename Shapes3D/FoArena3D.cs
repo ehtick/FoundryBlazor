@@ -22,7 +22,6 @@ public interface IArena: ITreeNode
     void ClearArena();
     void UpdateArena();
 
-    Task<bool> PreRender(FoGlyph3D glyph);
 
     FoStage3D SetCurrentStage(FoStage3D stage);
     void AddAction(string name, string color, Action action);
@@ -108,13 +107,14 @@ public class FoArena3D : FoGlyph3D, IArena
         if ( found) 
             shape.OnDelete = (FoGlyph3D item) =>
             {
-                item.DeleteFromStage(stage, scene);
+                item.DeleteFromStage(stage);
                 PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
 
             };
 
         
-        return StageManager.AddShape<V>(shape);
+        stage.AddShape<V>(shape);
+        return shape;
     }
 
     public V RemoveShape<V>(V shape) where V : FoGlyph3D
@@ -122,9 +122,7 @@ public class FoArena3D : FoGlyph3D, IArena
         //SRS you might need to test all scenes and stages
 
         var stage = CurrentStage();
-        var (found, scene) = CurrentScene();
-        if (found)
-            shape.DeleteFromStage(stage, scene);
+        shape.DeleteFromStage(stage);
 
         PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
         return shape;
@@ -132,30 +130,17 @@ public class FoArena3D : FoGlyph3D, IArena
 
     public void ClearArena()
     {
-
         "ClearArena".WriteInfo();
         var stage = CurrentStage();
         stage.ClearStage();
-
-        ClearScene();
     }
 
-    public void ClearScene()
-    {
-
-        "ClearScene".WriteInfo();
-        var (found, scene) = CurrentScene();
-        if (found)
-            scene.ClearScene();
-    }
 
     public void UpdateArena()
     {
         "UpdateArena".WriteInfo();
         var stage = CurrentStage();
-        var (found, scene) = CurrentScene();
-        if (found)
-            stage.RefreshScene(scene);
+        stage.UpdateStage();
     }
 
     public void SetScene(Scene3D scene)
@@ -176,10 +161,7 @@ public class FoArena3D : FoGlyph3D, IArena
     {
         return (Scene != null, Scene!);
     }
-    public async Task<bool> PreRender(FoGlyph3D glyph)
-    {
-        return await glyph.PreRender(this);
-    }
+
 
     public virtual void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
     {
@@ -342,61 +324,7 @@ public class FoArena3D : FoGlyph3D, IArena
         return true;
     }
 
-    // public void RenderWorld3D(IWorld3D world)
-    // {
-    //     if (world == null) return;
 
-    //     $"RenderWorld {world.GetTreeNodeTitle()}".WriteNote();
-
-    //     Task.Run(async () =>
-    //     {
-    //         await PreRenderWorld3D(world);
-    //         RenderWorld3DToScene(world);
-    //         await UpdateArena();
-    //     });
-    // }
-
-
-    // public async Task PreRenderWorld3D(IWorld3D world)
-    // {
-    //     //$"PreRenderWorld world={world}".WriteInfo();
-    //     if (world == null)
-    //     {
-    //         $"world is empty or viewer is not preent".WriteError();
-    //         return;
-    //     }
-
-    //     var bodies = world.ShapeBodies();
-    //     if (bodies != null)
-    //         await PreRenderGLBClones(bodies);
-    // }
-
-
-   
-
-
-
-    // public async Task PreRenderGLBClones(List<FoShape3D> shapes)
-    // {
-    //     var glbBodies = shapes.Where((body) => body.Type.Matches("Glb")).ToList();
-    //     var otherBodies = shapes.Where((body) => !body.Type.Matches("Glb")).ToList();
-
-    //     var bodyDict = glbBodies
-    //         .GroupBy(item => item.Url)
-    //         .ToDictionary(group => group.Key, group => group.ToList());
-
-    //     foreach (var keyValuePair in bodyDict)
-    //     {
-    //         await FoShape3D.PreRenderClones(keyValuePair.Value, this,  Import3DFormats.Gltf);
-    //     }
-
-    //     foreach (var body in otherBodies)
-    //     {
-    //         //$"PreRenderPlatform Body {body.Name}".WriteInfo();
-    //         await body.PreRender(this);
-    //     }
-
-    // }
 
 
 

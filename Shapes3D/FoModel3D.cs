@@ -81,77 +81,25 @@ public class FoModel3D : FoShape3D
 
 
 
-    public override async Task<bool> PreRender(FoArena3D arena, bool deep = true)
-    {
-        if (GeometryParameter3D.HasValue3D)
-            return true;
-            
-        //is symbol ends with ....
-        //LoadingURL = Symbol.Replace("http:", "https:");
-        //await Task.CompletedTask;
-
-        //LoadingURL = Url;
-        $"Shape PRERENDER {Name} => {GetTreeNodeTitle()} {Url}".WriteWarning();
-
-        var result = await GeometryParameter3D.PreRender(this, arena, deep);
-        //if (arena.Scene != null)
-        //    SetupHitTest(arena.Scene);
-
-        return result;
-    }
-
-
-
-    // public static async Task<bool> PreRenderClones(List<FoShape3D> bodies, FoArena3D arena, Import3DFormats format)
+    // public override async Task<bool> PreRender(FoArena3D arena, bool deep = true)
     // {
-    //     var settings = new List<ImportSettings>();
+    //     if (GeometryParameter3D.HasValue3D)
+    //         return true;
+            
+    //     //is symbol ends with ....
+    //     //LoadingURL = Symbol.Replace("http:", "https:");
+    //     //await Task.CompletedTask;
 
-    //     foreach (var body in bodies)
-    //     {
-    //         var setting = body.AsImportSettings(arena, format);
-    //         arena.Add<FoShape3D>(body.GetGlyphId(), body);
-    //         settings.Add(setting);
+    //     //LoadingURL = Url;
+    //     $"Shape PRERENDER {Name} => {GetTreeNodeTitle()} {Url}".WriteWarning();
 
-    //         $"AsImportSettings body.Symbol {body.Url} X = {setting.FileURL}".WriteSuccess();
-    //     }
+    //     var result = await GeometryParameter3D.PreRender(this, arena, deep);
+    //     //if (arena.Scene != null)
+    //     //    SetupHitTest(arena.Scene);
 
-    //     var source = settings.ElementAt(0);
-    //     settings.RemoveAt(0);
-
-    //     var sourceBody = bodies.ElementAt(0);
-    //     bodies.RemoveAt(0);
-
-    //     // source.OnComplete = async () =>
-    //     // {
-    //     //     if (object3D != null)
-    //     //     {
-    //     //         sourceBody.ShapeObject3D = object3D;
-    //     //         if (settings.Count > 0)
-    //     //             await scene.Clone3DModel(object3D.Uuid!, settings);
-    //     //     }
-    //     //     else
-    //     //         "Unexpected empty object3D".WriteError(1);
-    //     // };
-
-    //     var scene = arena.Scene!;
-    //     await scene.Request3DModel(source);
-    //     return true;
+    //     return result;
     // }
 
-
-
-
-
-
-    public override MeshStandardMaterial GetMaterial()
-    {
-        if (!string.IsNullOrEmpty(Url))
-            return base.GetMaterial();
-
-        var result = GetWireframe();
-        result.Wireframe = false;
-        return result;
-    }
 
 
 
@@ -163,31 +111,36 @@ public class FoModel3D : FoShape3D
         return true;
     }
 
-    public override FoGeometryComponent3D RenderPrimitives(Scene3D? scene)
+    public override FoGeometryComponent3D RenderPrimitives(Scene3D scene)
     {
         if (!GeometryParameter3D.HasValue3D)
             GeometryParameter3D.ComputeValue(this);
-       
+
+        //$"FoGeometryComponent3D RenderPrimitives".WriteInfo();
 
         if (GeometryParameter3D.HasValue3D)
         {
-            scene?.AddChild(GeometryParameter3D.GetValue3D());
+            var geom = GeometryParameter3D.GetValue3D();
+            if ( geom.ShouldDelete() )
+            {
+                scene.RemoveChild(geom);
+                GeometryParameter3D.Smash();
+            }
+            else
+            {
+                geom.IsDirty();
+                scene.AddChild(geom);
+            }
         }
 
-        //delete mesh if you are invisible
-        if (GeometryParameter3D.HasValue3D && !IsVisible)
-        {
-            scene?.RemoveChild(GeometryParameter3D.GetValue3D());
-            GeometryParameter3D.Smash();
-        }
         return GeometryParameter3D;
     }
 
-    public override bool RemoveFromRender(Scene3D scene, bool deep = true)
-    {
-        GeometryParameter3D.RemoveFromScene(scene);
-        return true;
-    }
+    // public override bool RemoveFromRender(Scene3D scene, bool deep = true)
+    // {
+    //     GeometryParameter3D.RemoveFromScene(scene);
+    //     return true;
+    // }
 
 
 

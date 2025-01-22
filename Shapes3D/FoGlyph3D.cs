@@ -116,13 +116,11 @@ public class FoGlyph3D : FoComponent
 
 
 
-    public virtual void DeleteFromStage(FoStage3D stage, Scene3D scene)
+    public virtual void DeleteFromStage(FoStage3D stage)
     {
         $"Deleting {GetTreeNodeTitle()}".WriteWarning();
 
-        var mesh = GeometryParameter3D.GetValue3D();
-        if (mesh != null)
-            scene.RemoveChild(mesh);
+        GeometryParameter3D.DeleteValue3D();
 
         stage.RemoveShape<FoGlyph3D>(this);
     }
@@ -244,10 +242,10 @@ public class FoGlyph3D : FoComponent
     {
         return false;
     }
-    public virtual async Task<bool> PreRender(FoArena3D arena, bool deep = true)
+
+    public void SetValue3DDirty(bool value)
     {
-        await Task.CompletedTask;
-        return GeometryParameter3D.HasValue3D;
+        GeometryParameter3D.SetValue3DDirty(value);
     }
 
     public virtual FoGeometryComponent3D RenderPrimitives(Scene3D scene)
@@ -261,10 +259,10 @@ public class FoGlyph3D : FoComponent
     {
         return false;
     }
-    public virtual bool RemoveFromRender(Scene3D scene, bool deep = true)
-    {
-        return false;
-    }
+    // public virtual bool RemoveFromRender(Scene3D scene, bool deep = true)
+    // {
+    //     return false;
+    // }
 
 
 

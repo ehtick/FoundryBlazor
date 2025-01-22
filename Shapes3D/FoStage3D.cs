@@ -7,6 +7,7 @@ namespace FoundryBlazor.Shape;
 public interface IStage
 {
     FoStage3D ClearStage();
+    FoStage3D UpdateStage();
     V AddShape<V>(V shape) where V : FoGlyph3D;
     T RemoveShape<T>(T value) where T : FoGlyph3D;
 }
@@ -55,15 +56,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
         result.AddAction("Render", "btn-success", () =>
         {
-            var stage = this;
-            var arena = GetParentOfType<FoArena3D>() ;
-            if ( arena == null) return;
-            IsDirty = true;
-
-            PreRender(arena);
-            var (found, scene) = arena.CurrentScene();
-            if ( found ) 
-                stage.RefreshScene(scene);
+            UpdateStage();
         });
         return result;
     }
@@ -95,12 +88,18 @@ public class FoStage3D : FoGlyph3D, IStage
     public FoStage3D ClearStage()
     {
        IsDirty = true;
-       Shapes3D.Clear();
-       Pipes3D.Clear();
+       Shapes3D.ForEach(shape => shape.DeleteFromStage(this));
+       Pipes3D.ForEach(pipe => pipe.DeleteFromStage(this));
        return this;
     }
 
- 
+     public FoStage3D UpdateStage()
+    {
+       IsDirty = true;
+       Shapes3D.ForEach(shape => shape.SetValue3DDirty(true));
+       Pipes3D.ForEach(pipe => pipe.SetValue3DDirty(true));
+       return this;
+    }
 
     public T AddShape<T>(T value) where T : FoGlyph3D
     {
@@ -153,14 +152,15 @@ public class FoStage3D : FoGlyph3D, IStage
         return value;
     }
 
-    public void PreRender(IArena arena)
-    {
-        Shapes3D?.ForEach(async shape => await arena.PreRender(shape));
-    }
 
     public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
-        Shapes3D?.ForEach(shape => shape.RefreshScene(scene, deep));
+
+        $"Stage RefreshScene".WriteNote();
+        Shapes3D?.ForEach(shape => {
+            shape.SetValue3DDirty(true);
+            shape.RefreshScene(scene, deep);
+        });
         //Pipes3D?.ForEach(shape => shape.Render(scene, tick, fps));
         //scene.ForceSceneRefresh();
         return true;
