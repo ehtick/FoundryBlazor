@@ -119,7 +119,7 @@ public class FoGeometryComponent3D : FoComponent
 
    
 
-   public (FoGeometryComponent3D obj, Object3D value) ComputeValue(FoGlyph3D source)
+   public (FoGeometryComponent3D obj, Object3D value) ComputeValue(FoGlyph3D source, Object3D? parent)
     {
         Value3D = source.GeomType switch
         {
@@ -129,7 +129,7 @@ public class FoGeometryComponent3D : FoComponent
             "Stl" => AsModel3D(source, Model3DFormats.Stl),
             "Glb" => AsModel3D(source, Model3DFormats.Gltf),
 
-            "GROUP" => AsGroup(source),
+            "Group" => AsGroup(source),
             "Box" => AsBox(source),
             "Boundary" => AsBoundary(source),
             "Circle" => AsCircle(source),
@@ -148,10 +148,11 @@ public class FoGeometryComponent3D : FoComponent
             "Torus" => AsTorus(source),
             _ => Value3D,
         };
+        parent?.AddChild(Value3D);
         return (this, Value3D);
     }
 
-    public Mesh3D CreateMesh(FoGlyph3D source, BufferGeometry geometry)
+    public Mesh3D CreateMesh(FoGlyph3D source, BufferGeometry geometry, Material material = null!)
     {
         return new Mesh3D
         {
@@ -165,7 +166,7 @@ public class FoGeometryComponent3D : FoComponent
                 Scale = source.GetScale(),
                 Rotation = source.GetRotation(),
             },
-            Material = source.GetMaterial()
+            Material = material != null ? material : source.GetMaterial()
         };
     }
 
@@ -323,19 +324,8 @@ public class FoGeometryComponent3D : FoComponent
     {
         if (Value3D != null) return Value3D;
 
-        Value3D = new Group3D()
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Transform = new Transform3()
-            {
-                Position = source.GetPosition(),
-                Pivot = source.GetPivot(),
-                Scale = source.GetScale(),
-                Rotation = source.GetRotation(),
-            }
-        };
-
+        var box = source.BoundingBox ?? new Vector3(1, 1, 1);
+        Value3D = CreateMesh(source, new BoxGeometry(box.X, box.Y, box.Z), source.GetWireframe());
         return Value3D;
     }
 

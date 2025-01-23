@@ -87,7 +87,7 @@ public class FoStage3D : FoGlyph3D, IStage
     
     public FoStage3D ClearStage()
     {
-       IsDirty = true;
+
        Shapes3D.ForEach(shape => shape.DeleteFromStage(this));
        Pipes3D.ForEach(pipe => pipe.DeleteFromStage(this));
        return this;
@@ -95,7 +95,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
      public FoStage3D UpdateStage()
     {
-       IsDirty = true;
+
        Shapes3D.ForEach(shape => shape.SetValue3DDirty(true));
        Pipes3D.ForEach(pipe => pipe.SetValue3DDirty(true));
        return this;
@@ -103,7 +103,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
     public T AddShape<T>(T value) where T : FoGlyph3D
     {
-        IsDirty = true;
+
         var collection = DynamicSlot(value.GetType());
         if (string.IsNullOrEmpty(value.Key))
             value.Key = collection.NextItemName();
@@ -128,7 +128,7 @@ public class FoStage3D : FoGlyph3D, IStage
 
     public T RemoveShape<T>(T value) where T : FoGlyph3D
     {
-        IsDirty = true;
+
         var collection = DynamicSlot(value.GetType());
         if (string.IsNullOrEmpty(value.Key))
         {
@@ -156,7 +156,7 @@ public class FoStage3D : FoGlyph3D, IStage
     public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
 
-        $"Stage RefreshScene".WriteNote();
+        //$"Stage RefreshScene".WriteNote();
         Shapes3D?.ForEach(shape => {
             shape.SetValue3DDirty(true);
             shape.RefreshScene(scene, deep);

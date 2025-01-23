@@ -10,6 +10,7 @@ using BlazorThreeJS.Settings;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
 using static System.Formats.Asn1.AsnWriter;
+using FoundryRulesAndUnits.Models;
 
 
 namespace FoundryBlazor.Shape;
@@ -17,10 +18,7 @@ namespace FoundryBlazor.Shape;
 public class FoShape3D : FoGlyph3D, IShape3D
 {
 
-  
     public List<FoPanel3D>? TextPanels { get; set; }
-    //private Action<ImportSettings> UserHit { get; set; } = (ImportSettings model3D) => { };
-
 
 
     public FoShape3D() : base()
@@ -42,12 +40,22 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override string GetTreeNodeTitle()
     {
-
+        var box = BoundingBox ?? new Vector3(0, 0, 0);
+        var pos = GetPosition();
         var HasMesh = GeometryParameter3D.HasValue3D ? "Ok" : "No Value3D";
-        return $"{GeomType}: {Key} {GetType().Name} {HasMesh} => ";
+        return $"{GeomType}: {Key} {Color} {GetType().Name} B:{box.X:F1} {box.Y:F1} {box.Z:F1} P:{pos.X:F1} {pos.Y:F1} {pos.Z:F1} {HasMesh} => ";
     }
 
+    public override IEnumerable<ITreeNode> GetTreeChildren()
+    {
+        var list = base.GetTreeChildren().ToList();
+        foreach (var item in Members<FoShape3D>())
+        {
+            list.Add(item);
+        }
 
+        return list;
+    }
 
     public FoShape3D CreateBox(string name, double width, double height, double depth)
     {
@@ -59,6 +67,13 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public FoShape3D CreateBoundry(string name, double width, double height, double depth)
     {
         GeomType = "Boundry";
+        BoundingBox = new Vector3(width, height, depth);
+        Key = name;
+        return this;
+    }
+    public FoShape3D CreateGroup(string name, double width, double height, double depth)
+    {
+        GeomType = "Group";
         BoundingBox = new Vector3(width, height, depth);
         Key = name;
         return this;
@@ -184,17 +199,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
 
 
-    public MeshStandardMaterial GetWireframe()
-    {
-        var result = new MeshStandardMaterial()
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Color = this.Color,
-            Wireframe = true
-        };
-        return result;
-    }
+
 
     public override MeshStandardMaterial GetMaterial()
     {
@@ -207,42 +212,31 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
-        RenderPrimitives(scene);
+        var (obj, parent) = RenderPrimitives(scene);
 
         // SetupHitTest(scene, tick, fps, deep);
         return true;
     }
 
-    public override FoGeometryComponent3D RenderPrimitives(Scene3D scene)
+    public override (FoGeometryComponent3D, Object3D value) RenderPrimitives(Object3D parent)
     {
         if (!GeometryParameter3D.HasValue3D)
-            GeometryParameter3D.ComputeValue(this);
+            GeometryParameter3D.ComputeValue(this,parent);
 
         //$"FoGeometryComponent3D RenderPrimitives".WriteInfo();
 
+        var result = GeometryParameter3D.GetValue3D();
         if (GeometryParameter3D.HasValue3D)
         {
-            var geom = GeometryParameter3D.GetValue3D();
-            if ( geom.ShouldDelete() )
+            foreach (var item in Members<FoShape3D>())
             {
-                scene.RemoveChild(geom);
-                GeometryParameter3D.Smash();
-            }
-            else
-            {
-                geom.IsDirty();
-                scene.AddChild(geom);
+                item.RenderPrimitives(result);
             }
         }
 
-        return GeometryParameter3D;
+        return (GeometryParameter3D, result);;
     }
 
-    // public override bool RemoveFromRender(Scene3D scene, bool deep = true)
-    // {
-    //     GeometryParameter3D.RemoveFromScene(scene);
-    //     return true;
-    // }
 
 
     public List<FoPanel3D> EstablishTextPanels(ImportSettings model3D)
@@ -268,7 +262,6 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Color = "Gray",
             TextLines = new() { "Thread Links" },
             Transform = new Transform3() { Position = centerPos }
-
         };
 
         //if this is Mk48 then add a panel for the process steps

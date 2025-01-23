@@ -58,6 +58,8 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
     {
         if (glyph is FoGroup3D group)
             Slot<FoGroup3D>()?.Add(group);
+        else if (glyph is FoModel3D model)
+            Slot<FoModel3D>()?.Add(model);
         else if (glyph is FoShape3D shape)
             Slot<FoShape3D>()?.Add(shape);
         else if (glyph is FoText3D text)
@@ -80,6 +82,8 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
     {
         if (glyph is FoGroup3D group)
             GetSlot<FoGroup3D>()?.Remove(group);
+        if (glyph is FoModel3D model)
+            GetSlot<FoModel3D>()?.Remove(model);
         if (glyph is FoShape3D shape)
             GetSlot<FoShape3D>()?.Remove(shape);
         if (glyph is FoText3D text)
@@ -98,6 +102,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
     public IWorld3D ClearAll()
     {
         GetSlot<FoGroup3D>()?.Clear();
+        GetSlot<FoModel3D>()?.Clear();
         GetSlot<FoShape3D>()?.Clear();
         GetSlot<FoText3D>()?.Clear();
         GetSlot<FoDatum3D>()?.Clear();
@@ -111,6 +116,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
     {
         var list = new List<ITreeNode>();
         AddFolderIfNotEmpty<FoGroup3D>(list);
+        AddFolderIfNotEmpty<FoModel3D>(list);
         AddFolderIfNotEmpty<FoShape3D>(list);
         AddFolderIfNotEmpty<FoText3D>(list);
         AddFolderIfNotEmpty<FoDatum3D>(list);
@@ -125,6 +131,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
     public bool PublishToStage(FoStage3D stage)
     {
         GetMembers<FoShape3D>()?.ForEach(shape => stage.AddShape<FoShape3D>(shape));
+        GetMembers<FoModel3D>()?.ForEach(model => stage.AddShape<FoModel3D>(model));
         GetMembers<FoGroup3D>()?.ForEach(group => stage.AddShape<FoGroup3D>(group));
         GetMembers<FoText3D>()?.ForEach(label => stage.AddShape<FoText3D>(label));
         GetMembers<FoDatum3D>()?.ForEach(datum => stage.AddShape<FoDatum3D>(datum));
@@ -137,6 +144,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
 
     public bool PublishToArena(IArena arena)
     {
+        GetMembers<FoModel3D>()?.ForEach(shape => arena.AddShape<FoModel3D>(shape));
         GetMembers<FoShape3D>()?.ForEach(shape => arena.AddShape<FoShape3D>(shape));
         GetMembers<FoGroup3D>()?.ForEach(group => arena.AddShape<FoGroup3D>(group));
         GetMembers<FoText3D>()?.ForEach(label => arena.AddShape<FoText3D>(label));
@@ -145,7 +153,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         GetMembers<FoPanel3D>()?.ForEach(panel => arena.AddShape<FoPanel3D>(panel));
         GetMembers<FoPathway3D>()?.ForEach(pathway => arena.AddShape<FoPathway3D>(pathway));
 
-        return true;
+        return PublishToStage(arena.CurrentStage());
     }
  
     public List<FoGroup3D>? ShapeGroups()

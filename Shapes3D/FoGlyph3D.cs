@@ -164,6 +164,18 @@ public class FoGlyph3D : FoComponent
         return Key;
     }
 
+    public MeshStandardMaterial GetWireframe()
+    {
+        var result = new MeshStandardMaterial()
+        {
+            Name = Key,
+            Uuid = GetGlyphId(),
+            Color = this.Color,
+            Wireframe = true
+        };
+        return result;
+    }
+    
     public virtual MeshStandardMaterial GetMaterial()
     {
         var result = new MeshStandardMaterial()
@@ -179,14 +191,7 @@ public class FoGlyph3D : FoComponent
         return false;
     }
 
-    //public virtual async Task Draw(Scene ctx, int tick)
-    //{
-    //    //await ctx.SaveAsync();
-    //    ShapeDraw?.Invoke(ctx, this);
-    //    //await ctx.RestoreAsync();
-    //    //await DrawPin(ctx);
-    //    await Task.CompletedTask;
-    //}
+
 
     public FoGlyph3D MoveTo(double x, double y, double z)
     {
@@ -248,9 +253,12 @@ public class FoGlyph3D : FoComponent
         GeometryParameter3D.SetValue3DDirty(value);
     }
 
-    public virtual FoGeometryComponent3D RenderPrimitives(Scene3D scene)
+    public virtual (FoGeometryComponent3D, Object3D value)  RenderPrimitives(Object3D parent)
     {
-        return GeometryParameter3D;
+        if (!GeometryParameter3D.HasValue3D)
+            GeometryParameter3D.ComputeValue(this,parent);
+
+        return (GeometryParameter3D, GeometryParameter3D.GetValue3D());
     }
 
 
@@ -259,10 +267,7 @@ public class FoGlyph3D : FoComponent
     {
         return false;
     }
-    // public virtual bool RemoveFromRender(Scene3D scene, bool deep = true)
-    // {
-    //     return false;
-    // }
+
 
 
 

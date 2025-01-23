@@ -111,30 +111,14 @@ public class FoModel3D : FoShape3D
         return true;
     }
 
-    public override FoGeometryComponent3D RenderPrimitives(Scene3D scene)
-    {
-        if (!GeometryParameter3D.HasValue3D)
-            GeometryParameter3D.ComputeValue(this);
+    // public override (FoGeometryComponent3D, Object3D value) RenderPrimitives(Object3D parent)
+    // {
+    //     if (!GeometryParameter3D.HasValue3D)
+    //         GeometryParameter3D.ComputeValue(this,parent);
 
-        //$"FoGeometryComponent3D RenderPrimitives".WriteInfo();
 
-        if (GeometryParameter3D.HasValue3D)
-        {
-            var geom = GeometryParameter3D.GetValue3D();
-            if ( geom.ShouldDelete() )
-            {
-                scene.RemoveChild(geom);
-                GeometryParameter3D.Smash();
-            }
-            else
-            {
-                geom.IsDirty();
-                scene.AddChild(geom);
-            }
-        }
-
-        return GeometryParameter3D;
-    }
+    //     return (GeometryParameter3D, GeometryParameter3D.GetValue3D());
+    // }
 
     // public override bool RemoveFromRender(Scene3D scene, bool deep = true)
     // {
