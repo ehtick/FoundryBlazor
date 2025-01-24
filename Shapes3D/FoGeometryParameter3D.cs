@@ -119,7 +119,7 @@ public class FoGeometryComponent3D : FoComponent
 
    
 
-   public (FoGeometryComponent3D obj, Object3D value) ComputeValue(FoGlyph3D source, Object3D? parent)
+   public (FoGeometryComponent3D obj, Object3D value) ComputeValue3D(FoGlyph3D source, Object3D? parent)
     {
         Value3D = source.GeomType switch
         {
@@ -185,8 +185,7 @@ public class FoGeometryComponent3D : FoComponent
         if (Value3D != null) return Value3D;
 
         var box = source.BoundingBox ?? new Vector3(1, 1, 1);
-        Value3D = CreateMesh(source, new BoxGeometry(box.X, box.Y, box.Z));
-        //Value3D!.Material.Wireframe = true;
+        Value3D = CreateMesh(source, new BoundaryGeometry(box.X, box.Y, box.Z), source.GetWireframe());
         return Value3D;
     }
 

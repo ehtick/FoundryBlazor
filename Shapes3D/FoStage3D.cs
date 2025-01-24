@@ -41,7 +41,7 @@ public class FoStage3D : FoGlyph3D, IStage
     public FoStage3D(string name, int width, int height, int depth, string color) : base(name, color)
     {
         //ResetLocalPin((obj) => 0, (obj) => 0);
-        SetBoundry(width, height, depth);
+        SetBoundary(width, height, depth);
     }
 
 

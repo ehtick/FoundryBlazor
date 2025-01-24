@@ -106,7 +106,7 @@ public class FoLayoutNetwork<U,V> where V : FoText2D where U : FoShape1D
         ApplyLocationToShape(0);
     }
 
-    public void DoBoundryRule()
+    public void DoBoundaryRule()
     {
         ResetNodes();
         ApplyBoundaryForces();

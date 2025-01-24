@@ -49,6 +49,17 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public override IEnumerable<ITreeNode> GetTreeChildren()
     {
         var list = base.GetTreeChildren().ToList();
+
+        //$"FoShape3D GetTreeChildren has value {GeometryParameter3D.HasValue3D}".WriteInfo();
+
+        //list.Add(GeometryParameter3D);
+
+        if ( GeometryParameter3D.HasValue3D )
+        {
+            var value = GeometryParameter3D.GetValue3D();
+            list.Add(value);
+        }
+
         foreach (var item in Members<FoShape3D>())
         {
             list.Add(item);
@@ -64,9 +75,9 @@ public class FoShape3D : FoGlyph3D, IShape3D
         Key = name;
         return this;
     }
-    public FoShape3D CreateBoundry(string name, double width, double height, double depth)
+    public FoShape3D CreateBoundary(string name, double width, double height, double depth)
     {
-        GeomType = "Boundry";
+        GeomType = "Boundary";
         BoundingBox = new Vector3(width, height, depth);
         Key = name;
         return this;
@@ -212,7 +223,8 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override bool RefreshScene(Scene3D scene, bool deep = true)
     {
-        var (obj, parent) = RenderPrimitives(scene);
+        var (obj, result) = RenderPrimitives(scene);
+
 
         // SetupHitTest(scene, tick, fps, deep);
         return true;
@@ -221,7 +233,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public override (FoGeometryComponent3D, Object3D value) RenderPrimitives(Object3D parent)
     {
         if (!GeometryParameter3D.HasValue3D)
-            GeometryParameter3D.ComputeValue(this,parent);
+            GeometryParameter3D.ComputeValue3D(this,parent);
 
         //$"FoGeometryComponent3D RenderPrimitives".WriteInfo();
 
@@ -234,7 +246,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
             }
         }
 
-        return (GeometryParameter3D, result);;
+        return (GeometryParameter3D, result);
     }
 
 

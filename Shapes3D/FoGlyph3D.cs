@@ -129,7 +129,7 @@ public class FoGlyph3D : FoComponent
 
 
 
-    public FoGlyph3D SetBoundry(int width, int height, int depth)
+    public FoGlyph3D SetBoundary(int width, int height, int depth)
     {
         (Width, Height, Depth) = (width, height, depth);
         return this;
@@ -256,7 +256,7 @@ public class FoGlyph3D : FoComponent
     public virtual (FoGeometryComponent3D, Object3D value)  RenderPrimitives(Object3D parent)
     {
         if (!GeometryParameter3D.HasValue3D)
-            GeometryParameter3D.ComputeValue(this,parent);
+            GeometryParameter3D.ComputeValue3D(this,parent);
 
         return (GeometryParameter3D, GeometryParameter3D.GetValue3D());
     }
