@@ -44,6 +44,30 @@ public class FoStage3D : FoGlyph3D, IStage
         SetBoundary(width, height, depth);
     }
 
+    public (string, FoShape3D?) FindMemberByPath(List<FoShape3D> members, string path)
+    {
+        var parts = path.Split('.', 2); // Split into first part and the rest
+        var firstPart = parts[0];
+        var rest = parts.Length > 1 ? parts[1] : null;
+
+        var current = members.FirstOrDefault(x => x.GetName().Matches(firstPart));
+        if (current == null || rest == null) return (path, current!);
+        return (path, FindMemberByPath(current, rest));
+    }
+
+    public FoShape3D? FindMemberByPath(FoShape3D parent, string path)
+    {
+        if ( path == null || parent == null) return parent;
+
+        var parts = path.Split('.');
+        var current = parent;
+        foreach (var part in parts)
+        {
+            current = current.GetMembers<FoShape3D>().FirstOrDefault(x => x.GetName().Matches(part));
+            if (current == null) return null;
+        }
+        return current;
+    }
 
 
     public override IEnumerable<TreeNodeAction> GetTreeNodeActions()
@@ -112,15 +136,15 @@ public class FoStage3D : FoGlyph3D, IStage
         value.IsDirty = true;
         collection.AddObject(value.Key, value);
 
-        if (value is IShape3D)
-        {
-            Shapes3D.Add(value);
-            //$"IShape3D Added {value.Key}".WriteSuccess();
-        }
-        else if (value is IPipe3D)
+        if (value is IPipe3D)
         {
             Pipes3D.Add(value);
             //$"IPipe3D Added {value.Name}".WriteSuccess();
+        }
+        else if (value is IShape3D)
+        {
+            Shapes3D.Add(value);
+            //$"IShape3D Added {value.Key}".WriteSuccess();
         }
 
         return value;

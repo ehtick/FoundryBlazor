@@ -11,13 +11,13 @@ using FoundryRulesAndUnits.Extensions;
 namespace FoundryBlazor.Shape;
 
 
-public class FoPathway3D : FoGlyph3D, IPipe3D
+public class FoPathway3D : FoShape3D, IPipe3D
 {
 
 
     public FoPathway3D(string name) : base(name, "Grey")
     {
-        Color = "pink";
+
     }
 
     public Object3D EstablishPathway3D()
@@ -29,11 +29,11 @@ public class FoPathway3D : FoGlyph3D, IPipe3D
         return GeometryParameter3D.GetValue3D();
     }
 
-    public override bool RefreshScene(Scene3D scene, bool deep = true)
-    {
-        $"RenderPathway {Key}".WriteNote();
-        scene.AddChild(EstablishPathway3D());
-        return true;
-    }
+    // public override bool RefreshScene(Scene3D scene, bool deep = true)
+    // {
+    //     $"RenderPathway {Key}".WriteNote();
+    //     scene.AddChild(EstablishPathway3D());
+    //     return true;
+    // }
 
 }
