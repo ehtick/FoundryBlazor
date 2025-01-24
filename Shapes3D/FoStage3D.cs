@@ -44,13 +44,13 @@ public class FoStage3D : FoGlyph3D, IStage
         SetBoundary(width, height, depth);
     }
 
-    public (string, FoShape3D?) FindMemberByPath(List<FoShape3D> members, string path)
+    public (string, FoShape3D?) FindMemberByPath(string path)
     {
         var parts = path.Split('.', 2); // Split into first part and the rest
         var firstPart = parts[0];
         var rest = parts.Length > 1 ? parts[1] : null;
 
-        var current = members.FirstOrDefault(x => x.GetName().Matches(firstPart));
+        var current = GetShapes3D().FirstOrDefault(x => x.GetName().Matches(firstPart));
         if (current == null || rest == null) return (path, current!);
         return (path, FindMemberByPath(current, rest));
     }
@@ -63,8 +63,8 @@ public class FoStage3D : FoGlyph3D, IStage
         var current = parent;
         foreach (var part in parts)
         {
-            current = current.GetMembers<FoShape3D>().FirstOrDefault(x => x.GetName().Matches(part));
-            if (current == null) return null;
+         current = current.FindWhere<FoShape3D>((x) => x.GetName().Matches(part)).FirstOrDefault();
+        if (current == null) return null;
         }
         return current;
     }
