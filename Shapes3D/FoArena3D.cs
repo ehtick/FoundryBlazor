@@ -26,8 +26,8 @@ public interface IArena: ITreeNode
     FoStage3D SetCurrentStage(FoStage3D stage);
     void AddAction(string name, string color, Action action);
 
-    V AddShape<V>(V shape) where V : FoGlyph3D;
-    V RemoveShape<V>(V shape) where V : FoGlyph3D;
+    V AddShapeToStage<V>(V shape) where V : FoGlyph3D;
+    V RemoveShapeFromStage<V>(V shape) where V : FoGlyph3D;
 
     T EstablishStage<T>(string name) where T : FoStage3D;
     IStageManagement Stages();
@@ -99,25 +99,31 @@ public class FoArena3D : FoGlyph3D, IArena
 
 
 
-    public V AddShape<V>(V shape) where V : FoGlyph3D
+    public V AddShapeToStage<V>(V shape) where V : FoGlyph3D
     {
         var stage = CurrentStage();
-        var (found, scene) = CurrentScene();
 
-        if ( found) 
-            shape.OnDelete = (FoGlyph3D item) =>
-            {
-                item.DeleteFromStage(stage);
-                PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
 
-            };
+        //$"AddShapeToStage {shape.Name}".WriteInfo();
 
-        
         stage.AddShape<V>(shape);
+        shape.OnDelete = (FoGlyph3D item) =>
+        {
+            item.DeleteFromStage(stage);
+            PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:RemoveShape"));
+
+        };
+
+        PubSub!.Publish<RefreshUIEvent>(new RefreshUIEvent("FoArena3D:AddShape"));
+
+        var (found, scene) = CurrentScene();
+        if ( found)
+            shape.RefreshToScene(scene);
+
         return shape;
     }
 
-    public V RemoveShape<V>(V shape) where V : FoGlyph3D
+    public V RemoveShapeFromStage<V>(V shape) where V : FoGlyph3D
     {
         //SRS you might need to test all scenes and stages
 
@@ -319,7 +325,7 @@ public class FoArena3D : FoGlyph3D, IArena
                 wall.Add(pathway);
             }
 
-            wall.RefreshScene(Scene);
+            wall.RefreshToScene(Scene);
         }
         return true;
     }

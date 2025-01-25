@@ -49,11 +49,12 @@ public class FoButton2D : FoGlyph2D, IFoButton
     {
         if (newValue != oldValue)
         {
-            //ComputeResize = true;
+            ComputeResize = true;
         }
 
         return newValue;
     }
+
 
     public override FoGlyph2D MarkSelected(bool value)
     {

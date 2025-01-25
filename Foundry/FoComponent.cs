@@ -12,7 +12,7 @@ public interface IFoComponent
     List<T> Members<T>() where T : FoBase;
 }
 
-public class SlotGroups: Dictionary<string, object>
+public class SlotGroups: Dictionary<string, IFoCollection>
 {
     public IFoCollection EstablishSlotFor(Type TypeSpec)
     {
@@ -20,7 +20,7 @@ public class SlotGroups: Dictionary<string, object>
         if (ContainsKey(key) == false)
         {
             var type = typeof(FoCollection<>).MakeGenericType(TypeSpec);
-            var result = Activator.CreateInstance(type);
+            var result = Activator.CreateInstance(type) as IFoCollection;
             Add(key, result!);
         }
         return (this[key] as IFoCollection)!;
@@ -44,6 +44,11 @@ public class SlotGroups: Dictionary<string, object>
         var found = ContainsKey(key) == true ? this[key] : null;
 
         return found as FoCollection<U>;
+    }
+
+    public List<IFoCollection> SlotsOfType<U>() where U : FoBase
+    {
+        return Values.Where(item => typeof(U).IsAssignableFrom(item.TypeSpec)).ToList();
     }
 
 }
@@ -72,6 +77,11 @@ public class FoComponent : FoBase, IFoComponent
     {
         var found = Slots.EstablishSlotFor(type);
         return found;
+    }
+
+    public virtual List<IFoCollection> AllSlotsOfType<T>() where T : FoBase
+    {
+        return Slots.SlotsOfType<T>();
     }
 
     public T? GetParentOfType<T>() where T : FoComponent
@@ -200,12 +210,9 @@ public class FoComponent : FoBase, IFoComponent
         return (found as T)!;
     }
 
-
-
-    protected ITreeNode FolderOf<T>() where T : FoBase
+    protected FoFolder FolderFor(Type type)
     {
-        var count = Members<T>().Count;
-        var name = typeof(T).Name.Replace("Fo", "");
+        var name = type.Name.Replace("Fo", "");
         
         if ( name.EndsWith("y"))
             name = name[..^1] + "ies";
@@ -213,6 +220,12 @@ public class FoComponent : FoBase, IFoComponent
             name += "s";
 
         var folder = new FoFolder(name);
+        return folder;
+    }
+
+    protected ITreeNode FolderOf<T>() where T : FoBase
+    {
+        var folder = FolderFor(typeof(T));
 
         Members<T>().ForEach(item =>
         {
@@ -221,17 +234,42 @@ public class FoComponent : FoBase, IFoComponent
         return folder;
     }
 
-    public void AddFolderIfNotEmpty<T>(List<ITreeNode> list, bool skip=true) where T : FoBase
+    public ITreeNode? AddTreeNodeFolderOf<T>(List<ITreeNode> list) where T : FoBase
     {
         var count = GetMembers<T>()?.Count ?? 0;
         if ( count == 0)
-            return;
+            return null;
 
         var folder = FolderOf<T>();
-        if ( skip )
-            list.AddRange(folder.GetTreeChildren());
-        else
-            list.Add(folder);  
+        list.Add(folder);  
+        return folder;
+    }
+
+    public List<ITreeNode>? AddTreeNodeFor<T>(List<ITreeNode> list) where T : FoBase
+    {
+        var count = GetMembers<T>()?.Count ?? 0;
+        if ( count == 0)
+            return null;
+
+        var result = new List<ITreeNode>();
+        foreach (var item in Members<T>())
+        {
+            result.AddRange(item.GetTreeChildren());
+        }
+        list.AddRange(result);
+        return result;
+  
+    }
+
+    public ITreeNode AddFolderFor(List<ITreeNode> list, IFoCollection collection)
+    {
+        var folder = FolderFor(collection.TypeSpec);
+        foreach (var item in collection.ValuesOfType<FoBase>())
+        {
+            folder.AddChild(item);
+        }
+  
+        return folder;
     }
 
 }

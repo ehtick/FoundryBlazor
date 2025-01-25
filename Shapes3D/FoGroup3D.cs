@@ -31,10 +31,10 @@ public class FoGroup3D : FoGlyph3D, IShape3D
     public override IEnumerable<ITreeNode> GetTreeChildren()
     {
         var list = new List<ITreeNode>();
-        AddFolderIfNotEmpty<FoGroup3D>(list);
-        AddFolderIfNotEmpty<FoShape3D>(list);
-        AddFolderIfNotEmpty<FoText3D>(list);
-        AddFolderIfNotEmpty<FoDatum3D>(list);
+        AddTreeNodeFor<FoGroup3D>(list);
+        AddTreeNodeFor<FoShape3D>(list);
+        AddTreeNodeFor<FoText3D>(list);
+        AddTreeNodeFor<FoDatum3D>(list);
 
         return list;
     }
@@ -155,14 +155,14 @@ public class FoGroup3D : FoGlyph3D, IShape3D
 
 
 
-    public override bool RefreshScene(Scene3D scene, bool deep = true)
-    {
-        Members<FoShape3D>().ForEach(shape => shape.RefreshScene(scene, deep));
-        Members<FoText3D>().ForEach(shape => shape.RefreshScene(scene, deep));
-        Members<FoGroup3D>().ForEach(shape => shape.RefreshScene(scene, deep));
-        Members<FoDatum3D>().ForEach(shape => shape.RefreshScene(scene, deep));
-        return true;
-    }
+    // public override bool RefreshScene(Scene3D scene, bool deep = true)
+    // {
+    //     Members<FoShape3D>().ForEach(shape => shape.RefreshScene(scene, deep));
+    //     Members<FoText3D>().ForEach(shape => shape.RefreshScene(scene, deep));
+    //     Members<FoGroup3D>().ForEach(shape => shape.RefreshScene(scene, deep));
+    //     Members<FoDatum3D>().ForEach(shape => shape.RefreshScene(scene, deep));
+    //     return true;
+    // }
 
 
 

@@ -24,7 +24,7 @@ public class FoButton3D : FoGlyph3D, IFoButton
     {
         if (newValue != oldValue)
         {
-            //ComputeResize = true;
+            ComputeResize = true;
         }
 
         return newValue;

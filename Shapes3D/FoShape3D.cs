@@ -221,7 +221,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
 
 
-    public override bool RefreshScene(Scene3D scene, bool deep = true)
+    public override bool RefreshToScene(Scene3D scene, bool deep = true)
     {
         var (obj, result) = RenderPrimitives(scene);
 

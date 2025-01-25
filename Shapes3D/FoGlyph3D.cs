@@ -79,6 +79,7 @@ public class FoGlyph3D : FoComponent
     }
 
 
+
     public string GetGlyphId()
     {
         if (string.IsNullOrEmpty(GlyphId))
@@ -263,7 +264,7 @@ public class FoGlyph3D : FoComponent
 
 
 
-    public virtual bool RefreshScene(Scene3D scene, bool deep = true)
+    public virtual bool RefreshToScene(Scene3D scene, bool deep = true)
     {
         return false;
     }

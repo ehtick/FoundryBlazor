@@ -7,10 +7,8 @@ using FoundryRulesAndUnits.Models;
 
 namespace FoundryBlazor.Shape;
 
-public class FoText3D : FoGlyph3D, IShape3D
+public class FoText3D : FoShape3D, IShape3D
 {
-
-    private Text3D? Label { get; set; }
 
     public double FontSize { get; set; } = 0.5;
 
@@ -58,59 +56,79 @@ public class FoText3D : FoGlyph3D, IShape3D
     }
 
 
-    public override Vector3 GetPosition(double x = 0, double y = 0, double z = 0)
-    {
-        if (Transform == null)
-            return base.GetPosition(x, y, z);
+    // public override Vector3 GetPosition(double x = 0, double y = 0, double z = 0)
+    // {
+    //     if (Transform == null)
+    //         return base.GetPosition(x, y, z);
 
-        var result = Transform.Position;
-        return result;
-    }
+    //     var result = Transform.Position;
+    //     return result;
+    // }
 
     public override string GetTreeNodeTitle()
     {
         return $"{base.GetTreeNodeTitle()} {Text}";
     }
 
-    public override bool RefreshScene(Scene3D scene, bool deep = true)
+    public Text3D AsText3D()
     {
-        var text = Text ?? "Text3D";
-        Label = new Text3D(text)
+        var label = new Text3D(Text)
         {
             Uuid = GetGlyphId(),
             Name = GetName(),
             Color = Color ?? "Yellow",
-            Transform = GetTransform(),
             FontSize = FontSize,
+            Transform = new Transform3()
+            {
+                Position = this.GetPosition(),
+                Rotation = this.GetRotation(),
+                Pivot = this.GetPivot(),
+                Scale = this.GetScale(),
+            }
         };
-        scene.AddChild(Label);
-
-        return true;
+        return label;
     }
 
-    public bool UpdateText(string text)
-    {
-        Text = text;
-        //"Update label text".WriteSuccess();
-        if (Label != null)
-        {
-            Label.Text = Text;
-            return true;
-        }
 
-        return false;
-    }
+    // public override bool RefreshScene(Scene3D scene, bool deep = true)
+    // {
+    //     var text = Text ?? "Text3D";
+    //     Label = new Text3D(text)
+    //     {
+    //         Uuid = GetGlyphId(),
+    //         Name = GetName(),
+    //         Color = Color ?? "Yellow",
+    //         Transform = GetTransform(),
+    //         FontSize = FontSize,
+    //     };
+    //     scene.AddChild(Label);
 
-    public override bool UpdateMeshPosition(double xLoc, double yLoc, double zLoc)
-    {
-        //"Update label position".WriteSuccess();
-        if (Label != null)
-        {
-            Label.Transform.Position.Set(xLoc, yLoc, zLoc);
-            return true;
-        }
+    //     return true;
+    // }
 
-        return false;
-    }
+    // public bool UpdateText(string text)
+    // {
+    //     Text = text;
+    //     //"Update label text".WriteSuccess();
+    //     if (Label != null)
+    //     {
+    //         Label.Text = Text;
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
+
+    // public override bool UpdateMeshPosition(double xLoc, double yLoc, double zLoc)
+    // {
+    //     //"Update label position".WriteSuccess();
+    //     if (Label != null)
+    //     {
+    //         Label.Transform.Position.Set(xLoc, yLoc, zLoc);
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
 
 }

@@ -107,7 +107,7 @@ public class FoPanel3D : FoGlyph3D, IShape3D
 
 
 
-    public override bool RefreshScene(Scene3D scene, bool deep = true)
+    public override bool RefreshToScene(Scene3D scene, bool deep = true)
     {
         //$"RenderPanel {Name} {Position?.X} {Position?.Y}  {Position?.Z}".WriteNote();
 

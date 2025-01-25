@@ -116,7 +116,14 @@ public class FoGeometryComponent3D : FoComponent
         return model;
     }
 
+    private Text3D AsText3D(FoGlyph3D glyph)
+    {
+        if ( glyph is not FoText3D source)
+            return null!;
 
+        var model = source.AsText3D();
+        return model;
+    }
    
 
    public (FoGeometryComponent3D obj, Object3D value) ComputeValue3D(FoGlyph3D source, Object3D? parent)
@@ -128,6 +135,8 @@ public class FoGeometryComponent3D : FoComponent
             "Obj" => AsModel3D(source, Model3DFormats.Obj),
             "Stl" => AsModel3D(source, Model3DFormats.Stl),
             "Glb" => AsModel3D(source, Model3DFormats.Gltf),
+
+            "Text" => AsText3D(source),
 
             "Group" => AsGroup(source),
             "Box" => AsBox(source),

@@ -49,19 +49,7 @@ public class FoModel3D : FoShape3D
         return model;
     }
 
-    //https://BlazorThreeJS.com/reference/Index.html
 
-    public override bool UpdateMeshPosition(double xLoc, double yLoc, double zLoc)
-    {
-        return GeometryParameter3D.UpdateMeshPosition(xLoc, yLoc, zLoc);
-    }
-
-    public override string GetTreeNodeTitle()
-    {
-
-        var HasMesh = GeometryParameter3D.HasValue3D ? "Ok" : "No Value3D";
-        return $"{GeomType}: {Key} {GetType().Name} {HasMesh} => ";
-    }
 
 
     public FoModel3D CreateGlb(string url, double width, double height, double depth)
@@ -78,53 +66,6 @@ public class FoModel3D : FoShape3D
         $"CreateGlb url [{Url}] ".WriteSuccess();
         return this;
     }
-
-
-
-    // public override async Task<bool> PreRender(FoArena3D arena, bool deep = true)
-    // {
-    //     if (GeometryParameter3D.HasValue3D)
-    //         return true;
-            
-    //     //is symbol ends with ....
-    //     //LoadingURL = Symbol.Replace("http:", "https:");
-    //     //await Task.CompletedTask;
-
-    //     //LoadingURL = Url;
-    //     $"Shape PRERENDER {Name} => {GetTreeNodeTitle()} {Url}".WriteWarning();
-
-    //     var result = await GeometryParameter3D.PreRender(this, arena, deep);
-    //     //if (arena.Scene != null)
-    //     //    SetupHitTest(arena.Scene);
-
-    //     return result;
-    // }
-
-
-
-
-    public override bool RefreshScene(Scene3D scene, bool deep = true)
-    {
-        RenderPrimitives(scene);
-
-        // SetupHitTest(scene, tick, fps, deep);
-        return true;
-    }
-
-    // public override (FoGeometryComponent3D, Object3D value) RenderPrimitives(Object3D parent)
-    // {
-    //     if (!GeometryParameter3D.HasValue3D)
-    //         GeometryParameter3D.ComputeValue(this,parent);
-
-
-    //     return (GeometryParameter3D, GeometryParameter3D.GetValue3D());
-    // }
-
-    // public override bool RemoveFromRender(Scene3D scene, bool deep = true)
-    // {
-    //     GeometryParameter3D.RemoveFromScene(scene);
-    //     return true;
-    // }
 
 
 

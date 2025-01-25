@@ -115,16 +115,16 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
     public override IEnumerable<ITreeNode> GetTreeChildren()
     {
         var list = new List<ITreeNode>();
-        AddFolderIfNotEmpty<FoGroup3D>(list);
-        AddFolderIfNotEmpty<FoModel3D>(list);
-        AddFolderIfNotEmpty<FoShape3D>(list);
-        AddFolderIfNotEmpty<FoText3D>(list);
-        AddFolderIfNotEmpty<FoDatum3D>(list);
+        AddTreeNodeFor<FoGroup3D>(list);
+        AddTreeNodeFor<FoModel3D>(list);
+        AddTreeNodeFor<FoShape3D>(list);
+        AddTreeNodeFor<FoText3D>(list);
+        AddTreeNodeFor<FoDatum3D>(list);
 
-        AddFolderIfNotEmpty<FoMenu3D>(list);
+        AddTreeNodeFor<FoMenu3D>(list);
 
-        AddFolderIfNotEmpty<FoPanel3D>(list);
-        AddFolderIfNotEmpty<FoPathway3D>(list);
+        AddTreeNodeFor<FoPanel3D>(list);
+        AddTreeNodeFor<FoPathway3D>(list);
         return list;
     }
 
@@ -144,14 +144,14 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
 
     public bool PublishToArena(IArena arena)
     {
-        GetMembers<FoModel3D>()?.ForEach(shape => arena.AddShape<FoModel3D>(shape));
-        GetMembers<FoShape3D>()?.ForEach(shape => arena.AddShape<FoShape3D>(shape));
-        GetMembers<FoGroup3D>()?.ForEach(group => arena.AddShape<FoGroup3D>(group));
-        GetMembers<FoText3D>()?.ForEach(label => arena.AddShape<FoText3D>(label));
-        GetMembers<FoDatum3D>()?.ForEach(datum => arena.AddShape<FoDatum3D>(datum));
-        GetMembers<FoMenu3D>()?.ForEach(menu => arena.AddShape<FoMenu3D>(menu));
-        GetMembers<FoPanel3D>()?.ForEach(panel => arena.AddShape<FoPanel3D>(panel));
-        GetMembers<FoPathway3D>()?.ForEach(pathway => arena.AddShape<FoPathway3D>(pathway));
+        //GetMembers<FoModel3D>()?.ForEach(shape => arena.AddShape<FoModel3D>(shape));
+        //GetMembers<FoShape3D>()?.ForEach(shape => arena.AddShape<FoShape3D>(shape));
+        //GetMembers<FoGroup3D>()?.ForEach(group => arena.AddShape<FoGroup3D>(group));
+        //GetMembers<FoText3D>()?.ForEach(label => arena.AddShape<FoText3D>(label));
+        //GetMembers<FoDatum3D>()?.ForEach(datum => arena.AddShape<FoDatum3D>(datum));
+        //GetMembers<FoMenu3D>()?.ForEach(menu => arena.AddShape<FoMenu3D>(menu));
+        //GetMembers<FoPanel3D>()?.ForEach(panel => arena.AddShape<FoPanel3D>(panel));
+        //GetMembers<FoPathway3D>()?.ForEach(pathway => arena.AddShape<FoPathway3D>(pathway));
 
         return PublishToStage(arena.CurrentStage());
     }

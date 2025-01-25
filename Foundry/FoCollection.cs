@@ -6,6 +6,7 @@ namespace FoundryBlazor;
 public interface IFoCollection
 {
     int Count();
+    Type TypeSpec { get; set; }
     string GetName();
     string NextItemName();
     List<string> Keys();
@@ -18,6 +19,7 @@ public interface IFoCollection
 public class FoCollection<T>: IFoCollection where T : FoBase
 {
     public string Key { get; set; }
+    public Type TypeSpec { get; set; } = typeof(T); 
 
     private readonly Dictionary<string, T> members = new();
 

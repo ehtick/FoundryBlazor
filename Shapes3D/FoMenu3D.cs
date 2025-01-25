@@ -69,7 +69,7 @@ public class FoMenu3D : FoPanel3D, IFoMenu
         return true;
     }
 
-    public override bool RefreshScene(Scene3D ctx, bool deep = true)
+    public override bool RefreshToScene(Scene3D ctx, bool deep = true)
     {
         var result = DrawMenu3D(ctx);
         return result;
