@@ -42,6 +42,21 @@ public class FoStage3D : FoGlyph3D, IStage
         SetBoundary(width, height, depth);
     }
 
+    public (bool success, string path, T? found) FindUsingPath<U,T>(string path) where U: FoGlyph3D where T: FoGlyph3D
+    {
+        var parts = path.Split('.', 2); // Split into first part and the rest
+        var firstPart = parts[0];
+        var rest = parts.Length > 1 ? parts[1] : null;
+
+        var current = Slot<U>().FindWhere(x => x.GetName().Matches(firstPart));
+        if (rest == null) return (false, path, null);
+        var parent = current?.FirstOrDefault() as T;
+        if ( parent == null) return (false, path, null);
+
+        var result = FindMemberByPath<T>(parent, rest);
+        return (result.success, path, result.found);
+    }
+
     public (bool success, string path, T? found) FindMemberByPath<T>(string path) where T: FoGlyph3D
     {
         var parts = path.Split('.', 2); // Split into first part and the rest
@@ -97,12 +112,12 @@ public class FoStage3D : FoGlyph3D, IStage
         var list = base.GetTreeChildren().ToList();
         var slots = AllSlotsOfType<FoGlyph3D>();
 
-        //$"GetTreeChildren Slots {slots.Count()}".WriteInfo();
+        //$"Stage GetTreeChildren Slots {slots.Count()}".WriteInfo();
 
         foreach (var collection in slots)
         {
             AddFolderFor(list, collection);
-            $"GetTreeChildren Adding Folder For {collection.TypeSpec.Name}".WriteInfo();
+            //$"GetTreeChildren Adding Folder For {collection.TypeSpec.Name}".WriteInfo();
         }
 
         return list;
@@ -137,7 +152,7 @@ public class FoStage3D : FoGlyph3D, IStage
         value.IsDirty = true;
         collection.AddObject(value.Key, value);
 
-        $"Stage AddShape Total {collection.Count()} {collection.TypeSpec.Name} {value.GetName()}".WriteInfo();
+        //$"Stage AddShape Total {collection.Count()} {collection.TypeSpec.Name} {value.GetName()}".WriteInfo();
         return value;
     }
 

@@ -55,6 +55,7 @@ public class FoArena3D : FoGlyph3D, IArena
 
         PubSub = pubSub;
     }
+
     public FoStage3D SetCurrentStage(FoStage3D stage)
     {
         StageManager.SetCurrentStage(stage);
@@ -62,6 +63,7 @@ public class FoArena3D : FoGlyph3D, IArena
         //PanZoomService.ReadFromPage(page);
         return stage;
     }
+
     public T EstablishStage<T>(string name) where T : FoStage3D
     {
         var stage = StageManager.EstablishStage<T>(name, this) as T;
@@ -77,10 +79,12 @@ public class FoArena3D : FoGlyph3D, IArena
         stage = StageManager.GetCurrentStage()!;
         return stage;
     }
+
     public IStageManagement Stages()
     {
         return StageManager;
     }
+
     public List<FoStage3D> GetAllStages()
     {
         return StageManager.GetAllStages();
@@ -88,11 +92,13 @@ public class FoArena3D : FoGlyph3D, IArena
 
     public override IEnumerable<ITreeNode> GetTreeChildren()
     {
-        var list = new List<ITreeNode>();
-        foreach (var item in GetAllStages())
-        {
-            list.Add(item);
-        }
+
+        var folder = FolderFor(typeof(FoStage3D));
+        folder.AddRange(GetAllStages());
+        
+        var list = base.GetTreeChildren().ToList();
+        list.Add(folder);
+
 
         return list;
     }

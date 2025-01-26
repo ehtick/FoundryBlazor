@@ -1,6 +1,7 @@
 using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Models;
 
 namespace FoundryBlazor.Shape;
 
@@ -19,12 +20,6 @@ public interface IStageManagement
     int StageCount();
     List<FoStage3D> GetAllStages();
 
-
-
-    //T Add<T>(T value) where T : FoGlyph3D;
-    //T Duplicate<T>(T value) where T : FoGlyph3D;
-    //U MorphTo<T, U>(T value) where T : FoGlyph3D where U : FoGlyph3D;
-    //T? GroupSelected<T>() where T : FoGlyph3D;
  }
 
 
@@ -88,7 +83,6 @@ public class StageManagementService : FoComponent, IStageManagement
         RenderHitTestTree = !RenderHitTestTree;
         return RenderHitTestTree;
     }
-
 
 
 

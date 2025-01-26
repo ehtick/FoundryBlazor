@@ -124,9 +124,18 @@ public class FoGeometryComponent3D : FoComponent
         var model = source.AsText3D();
         return model;
     }
+
+    private Mesh3D AsPipe3D(FoGlyph3D glyph)
+    {
+        if ( glyph is not FoPipe3D source)
+            return null!;
+
+        var model = source.AsPipe3D();
+        return model;
+    }
    
 
-   public (FoGeometryComponent3D obj, Object3D value) ComputeValue3D(FoGlyph3D source, Object3D? parent)
+   public (FoGeometryComponent3D obj, Object3D? value) ComputeValue3D(FoGlyph3D source, Object3D? parent)
     {
         Value3D = source.GeomType switch
         {
@@ -137,6 +146,7 @@ public class FoGeometryComponent3D : FoComponent
             "Glb" => AsModel3D(source, Model3DFormats.Gltf),
 
             "Text" => AsText3D(source),
+            "Pipe" => AsPipe3D(source),
 
             "Group" => AsGroup(source),
             "Box" => AsBox(source),
@@ -157,7 +167,9 @@ public class FoGeometryComponent3D : FoComponent
             "Torus" => AsTorus(source),
             _ => Value3D,
         };
+        
         parent?.AddChild(Value3D);
+            
         return (this, Value3D);
     }
 

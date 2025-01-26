@@ -24,12 +24,15 @@ public class FoText3D : FoShape3D, IShape3D
 
     public FoText3D() : base()
     {
+        GeomType = "Text";
     }
     public FoText3D(string name) : base(name)
     {
+        GeomType = "Text";
     }
     public FoText3D(string name, string color) : base(name, color)
     {
+        GeomType = "Text";
     }
 
     protected string CreateDetails(string text)
@@ -56,14 +59,7 @@ public class FoText3D : FoShape3D, IShape3D
     }
 
 
-    // public override Vector3 GetPosition(double x = 0, double y = 0, double z = 0)
-    // {
-    //     if (Transform == null)
-    //         return base.GetPosition(x, y, z);
 
-    //     var result = Transform.Position;
-    //     return result;
-    // }
 
     public override string GetTreeNodeTitle()
     {
@@ -90,21 +86,7 @@ public class FoText3D : FoShape3D, IShape3D
     }
 
 
-    // public override bool RefreshScene(Scene3D scene, bool deep = true)
-    // {
-    //     var text = Text ?? "Text3D";
-    //     Label = new Text3D(text)
-    //     {
-    //         Uuid = GetGlyphId(),
-    //         Name = GetName(),
-    //         Color = Color ?? "Yellow",
-    //         Transform = GetTransform(),
-    //         FontSize = FontSize,
-    //     };
-    //     scene.AddChild(Label);
 
-    //     return true;
-    // }
 
     // public bool UpdateText(string text)
     // {
@@ -119,16 +101,6 @@ public class FoText3D : FoShape3D, IShape3D
     //     return false;
     // }
 
-    // public override bool UpdateMeshPosition(double xLoc, double yLoc, double zLoc)
-    // {
-    //     //"Update label position".WriteSuccess();
-    //     if (Label != null)
-    //     {
-    //         Label.Transform.Position.Set(xLoc, yLoc, zLoc);
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
+ 
 
 }

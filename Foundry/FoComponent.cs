@@ -48,7 +48,12 @@ public class SlotGroups: Dictionary<string, IFoCollection>
 
     public List<IFoCollection> SlotsOfType<U>() where U : FoBase
     {
-        return Values.Where(item => typeof(U).IsAssignableFrom(item.TypeSpec)).ToList();
+        return [.. Values.Where(item => typeof(U).IsAssignableFrom(item.TypeSpec))];
+    }
+
+        public List<IFoCollection> AllSlots() 
+    {
+        return [.. Values];
     }
 
 }
@@ -82,6 +87,11 @@ public class FoComponent : FoBase, IFoComponent
     public virtual List<IFoCollection> AllSlotsOfType<T>() where T : FoBase
     {
         return Slots.SlotsOfType<T>();
+    }
+
+    public virtual List<IFoCollection> AllSlots()
+    {
+        return Slots.AllSlots();
     }
 
     public T? GetParentOfType<T>() where T : FoComponent
@@ -264,6 +274,7 @@ public class FoComponent : FoBase, IFoComponent
     public ITreeNode AddFolderFor(List<ITreeNode> list, IFoCollection collection)
     {
         var folder = FolderFor(collection.TypeSpec);
+        list.Add(folder);
         foreach (var item in collection.ValuesOfType<FoBase>())
         {
             folder.AddChild(item);
