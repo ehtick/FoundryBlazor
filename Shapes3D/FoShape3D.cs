@@ -21,6 +21,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public List<FoPanel3D>? TextPanels { get; set; }
 
 
+
     public FoShape3D() : base()
     {
     }
@@ -66,6 +67,12 @@ public class FoShape3D : FoGlyph3D, IShape3D
         }
 
         return list;
+    }
+
+    public virtual void SetDirty(bool value)
+    {
+        IsDirty = value;
+        GeometryParameter3D.SetValue3DDirty(true);
     }
 
     public FoShape3D CreateBox(string name, double width, double height, double depth)
@@ -213,7 +220,18 @@ public class FoShape3D : FoGlyph3D, IShape3D
     }
 
 
+    public void SetAnimationUpdate(Action<Object3D, int, double> update)
+    {
+        OnAnimationUpdate = update;
+        if ( !GeometryParameter3D.HasValue3D )
+            GeometryParameter3D.ComputeValue3D(this, null);
 
+        
+        var value = GeometryParameter3D.GetValue3D();
+        if ( value != null)
+            value.SetAnimationUpdate(update);
+        
+    }
     public override bool RefreshToScene(Scene3D scene, bool deep = true)
     {
         var (obj, result) = RenderPrimitives(scene);
@@ -234,6 +252,9 @@ public class FoShape3D : FoGlyph3D, IShape3D
             {
                 item.RenderPrimitives(result);
             }
+
+            //if ( OnAnimationUpdate != null)
+            //    result.SetAnimationUpdate(OnAnimationUpdate);   
         }
 
         return (GeometryParameter3D, result);

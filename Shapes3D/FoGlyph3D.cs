@@ -16,15 +16,17 @@ public class FoGlyph3D : FoComponent
     //public float Opacity { get; set; } = 1.0F;
 
     public string GeomType { get; set; } = "";
-    public List<Vector3>? Path { get; set; }
+
     public Action<FoGlyph3D, int>? ContextLink;
 
     public string Color { get; set; } = "Green";
 
+    protected Action<Object3D, int, double>? OnAnimationUpdate { get; set; } = null;
+
     public Transform3? Transform { get; set; }
 
     public FoGeometryComponent3D GeometryParameter3D { get; set; }
-
+    public List<Vector3>? Path { get; set; }
     private Vector3 bounds = null!;
     public Vector3 BoundingBox 
     { 
@@ -79,6 +81,22 @@ public class FoGlyph3D : FoComponent
     }
 
 
+    public (bool success, Vector3 path) HitPosition()
+    {
+        if ( GeometryParameter3D.HasValue3D )
+        {
+            var value = GeometryParameter3D.GetValue3D();
+            if ( value == null) return (false, null!);
+
+            var boundary = value.HitBoundary;
+            if ( boundary != null)
+            {
+                var pos = boundary.GetPosition();
+                return (true, pos);
+            }
+        }
+        return (false, null!);
+    }
 
     public string GetGlyphId()
     {

@@ -62,7 +62,7 @@ public class FoModel3D : FoShape3D
     public FoModel3D CreateGlb(string url)
     {
         GeomType = "Glb";
-        Url = url;
+        Url = string.Intern(url);
         $"CreateGlb url [{Url}] ".WriteSuccess();
         return this;
     }

@@ -35,20 +35,10 @@ public class FoPipe3D : FoShape3D, IPipe3D
 
     public (bool success, List<Vector3>? path) ComputePath3D()
     {
-        var p1 = FromShape3D?.GeometryParameter3D.GetValue3D();
-        var p2 = ToShape3D?.GeometryParameter3D.GetValue3D();
+        var (f1, v1) = FromShape3D?.HitPosition() ?? (false, null!);
+        var (f2, v2) = ToShape3D?.HitPosition() ?? (false, null!);
 
-        if ( p1 == null || p2 == null) 
-            return (false, null);
-
-        var h1 = p1.HitBoundary;
-        var h2 = p2.HitBoundary;
-
-        if ( h1 == null || h2 == null) 
-            return (false, null);
-
-        var v1 = h1.GetPosition();
-        var v2 = h2.GetPosition();
+        if (!f1 || !f2) return (false, null);
 
         var path = new List<Vector3>()
         {

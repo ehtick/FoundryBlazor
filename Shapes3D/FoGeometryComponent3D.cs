@@ -215,7 +215,9 @@ public class FoGeometryComponent3D : FoComponent
         if (Value3D != null) return Value3D;
 
         var box = source.BoundingBox ?? new Vector3(1, 1, 1);
-        Value3D = CreateMesh(source, new CylinderGeometry(box.X / 2, box.X / 2, box.Y));
+        var radius = (box.X + box.Z)/ 4;
+        var height = box.Y;
+        Value3D = CreateMesh(source, new CylinderGeometry(radius, radius, height,  radialSegments: 36));
         return Value3D;
     }
 
