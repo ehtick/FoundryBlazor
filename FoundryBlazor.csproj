@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net9.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
@@ -47,7 +47,7 @@
   </ItemGroup>
 
 <ItemGroup> 
-  <ProjectReference Include="..\BlazorThreeJS\BlazorThreeJS.csproj" />
+  <!-- <ProjectReference Include="..\BlazorThreeJS\BlazorThreeJS.csproj" /> -->
 </ItemGroup>
 
 <ItemGroup>
@@ -71,5 +71,10 @@
   <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="BlazorThreeJS">
+      <HintPath>Three\BlazorThreeJS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>
