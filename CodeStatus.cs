@@ -1,5 +1,6 @@
 
 using BlazorComponentBus;
+using BlazorThreeJS;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
