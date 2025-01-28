@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
@@ -13,6 +13,7 @@
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <JsLibRoot>JsLib\</JsLibRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes>
+    <RestoreSources>$(RestoreSources);https://api.nuget.org/v3/index.json</RestoreSources>
 
     <Title>Apprentice Foundry Blazor</Title>
     <description>2D and 3D graphics for blazor applications</description>
@@ -30,6 +31,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
+
+
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
   <Optimize>True</Optimize>
 </PropertyGroup>
@@ -46,13 +49,13 @@
       <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
-<ItemGroup> 
-  <!-- <ProjectReference Include="..\BlazorThreeJS\BlazorThreeJS.csproj" /> -->
-</ItemGroup>
+<!-- <ItemGroup> 
+  <ProjectReference Include="..\BlazorThreeJS\BlazorThreeJS.csproj" />
+</ItemGroup> -->
 
 <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
-    <!-- <PackageReference Include="ApprenticeFoundryBlazorThreeJS" Version="17.1.1" /> -->
+    <PackageReference Include="ApprenticeFoundryBlazorThreeJS" Version="17.1.1" />
 </ItemGroup>
 
 
@@ -71,10 +74,10 @@
   <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 </ItemGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
     <Reference Include="BlazorThreeJS">
       <HintPath>Three\BlazorThreeJS.dll</HintPath>
     </Reference>
-  </ItemGroup>
+  </ItemGroup> -->
 
 </Project>

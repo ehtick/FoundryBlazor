@@ -23,6 +23,9 @@ public static class FoundryBlazorExtensions
 {
     public static IServiceCollection AddFoundryBlazorServices(this IServiceCollection services, EnvConfig envConfig)
     {
+        //from BlazorThreeJS
+        services.AddBlazorThreeJSServices();
+        
         services.AddSingleton<IEnvConfig>(provider => envConfig);
         //Mentor Services
         services.AddScoped<ComponentBus>();
