@@ -9,6 +9,29 @@ public class FoBase: ITreeNode
     public StatusBitArray StatusBits = new();
     private ControlParameters? metaData { get; set; }
 
+    public bool IsActive { get; set; } = false;
+
+    public bool IsVisible
+    {
+        get { return this.StatusBits.IsVisible; }
+        set { this.StatusBits.IsVisible = value; }
+    }
+    public bool ShouldRender { 
+        get { return this.StatusBits.ShouldRender; } 
+        set { this.StatusBits.ShouldRender = value; } 
+    }
+
+    public virtual void SetDirty(bool value)
+    {
+        IsDirty = value;
+    }
+    
+    public bool IsDirty
+    {
+        get { return this.StatusBits.IsDirty; }
+        set { this.StatusBits.IsDirty = value; }
+    }
+
     public FoBase(string name)
     {
         Key = name;
@@ -38,6 +61,17 @@ public class FoBase: ITreeNode
     {
         MetaData().Establish(key, value);
         return metaData!;
+    }
+
+    public bool Selectable 
+    { 
+        get { return this.StatusBits.IsSelectable; } 
+        set { this.StatusBits.IsSelectable = value; } 
+    }
+    public bool IsSelected
+    {
+        get { return this.StatusBits.IsSelected; }
+        set { this.StatusBits.IsSelected = value; }
     }
 
     public bool GetIsSelected()
@@ -73,4 +107,6 @@ public class FoBase: ITreeNode
     {
         return new List<ITreeNode>();
     }
+
+
 }

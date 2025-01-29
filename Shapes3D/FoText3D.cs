@@ -51,12 +51,7 @@ public class FoText3D : FoShape3D, IShape3D
         return newValue;
     }
 
-    public FoText3D CreateTextAt(string text, double x, double y, double z)
-    {
-        GetTransform().Position = new Vector3(x, y, z);
-        Text = text;
-        return this;
-    }
+
 
 
 
@@ -74,13 +69,13 @@ public class FoText3D : FoShape3D, IShape3D
             Name = GetName(),
             Color = Color ?? "Yellow",
             FontSize = FontSize,
-            Transform = new Transform3()
-            {
-                Position = this.GetPosition(),
-                Rotation = this.GetRotation(),
-                Pivot = this.GetPivot(),
-                Scale = this.GetScale(),
-            }
+            // Transform = new Transform3()
+            // {
+            //     Position = this.GetPosition(),
+            //     Rotation = this.GetRotation(),
+            //     Pivot = this.GetPivot(),
+            //     Scale = this.GetScale(),
+            // }
         };
         return label;
     }

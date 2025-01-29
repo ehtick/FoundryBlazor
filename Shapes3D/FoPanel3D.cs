@@ -59,7 +59,7 @@ public class FoPanel3D : FoGlyph3D, IShape3D
             Height = Height,
             Width = Width,
             Color = Color,
-            Transform = GetTransform(),
+            //Transform = GetTransform(),
         };
         return TextPanel;
     }
@@ -74,9 +74,9 @@ public class FoPanel3D : FoGlyph3D, IShape3D
             Height = Height,
             Width = Width,
             Color = Color,
-            Transform = GetTransform(),
+            //Transform = GetTransform(),
             TextPanels = ChildPanels(),
-            Meshes = ChildConnections()
+            //Meshes = ChildConnections()
         };
         return PanelGroup;
     }
@@ -87,10 +87,10 @@ public class FoPanel3D : FoGlyph3D, IShape3D
         return Panels().Select((item) => item.EstablishPanel3D()).ToList();
     }
 
-    private List<Object3D> ChildConnections()
-    {
-        return Connections().Select((item) => item.EstablishPathway3D()).ToList();
-    }
+    // private List<Object3D> ChildConnections()
+    // {
+    //     return Connections().Select((item) => item.EstablishPathway3D()).ToList();
+    // }
 
     public bool UpdateTextLines(List<string> lines)
     {

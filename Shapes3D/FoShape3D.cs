@@ -34,17 +34,16 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     //https://BlazorThreeJS.com/reference/Index.html
 
-    public override bool UpdateMeshPosition(double xLoc, double yLoc, double zLoc)
-    {
-        return GeometryParameter3D.UpdateMeshPosition(xLoc, yLoc, zLoc);
-    }
+    // public override bool UpdateMeshPosition(double xLoc, double yLoc, double zLoc)
+    // {
+    //     return GeometryParameter3D.UpdateMeshPosition(xLoc, yLoc, zLoc);
+    // }
 
     public override string GetTreeNodeTitle()
     {
-        var box = BoundingBox ?? new Vector3(0, 0, 0);
-        var pos = GetPosition();
-        var HasMesh = GeometryParameter3D.HasValue3D ? "Ok" : "No Value3D";
-        return $"{GeomType}: {Key} {Color} {GetType().Name} B:{box.X:F1} {box.Y:F1} {box.Z:F1} P:{pos.X:F1} {pos.Y:F1} {pos.Z:F1} {HasMesh} => ";
+        var pos = Transform?.Position ?? new Vector3();
+        var HasMesh = Value3D != null ? "Ok" : "No Value3D";
+        return $"{GeomType}: {Key} {Color} {GetType().Name} B:{Width:F1} {Height:F1} {Depth:F1} P:{pos.X:F1} {pos.Y:F1} {pos.Z:F1} {HasMesh} => ";
     }
 
     public override IEnumerable<ITreeNode> GetTreeChildren()
@@ -55,11 +54,11 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
         //list.Add(GeometryParameter3D);
 
-        if ( GeometryParameter3D.HasValue3D )
-        {
-            var value = GeometryParameter3D.GetValue3D();
-            list.Add(value);
-        }
+        // if ( GeometryParameter3D.HasValue3D )
+        // {
+        //     var value = GeometryParameter3D.GetValue3D();
+        //     list.Add(value);
+        // }
 
         foreach (var item in Members<FoShape3D>())
         {
@@ -69,38 +68,41 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return list;
     }
 
-    public virtual void SetDirty(bool value)
-    {
-        IsDirty = value;
-        GeometryParameter3D.SetValue3DDirty(true);
-    }
 
     public FoShape3D CreateBox(string name, double width, double height, double depth)
     {
         GeomType = "Box";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
     public FoShape3D CreateBoundary(string name, double width, double height, double depth)
     {
         GeomType = "Boundary";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
     public FoShape3D CreateGroup(string name, double width, double height, double depth)
     {
         GeomType = "Group";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
     public FoShape3D CreateCylinder(string name, double width, double height, double depth)
     {
         GeomType = "Cylinder";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
 
@@ -108,48 +110,60 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public FoShape3D CreateDodecahedron(string name, double width, double height, double depth)
     {
         GeomType = "Dodecahedron";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
     //CreateIcosahedron
     public FoShape3D CreateIcosahedron(string name, double width, double height, double depth)
     {
         GeomType = "Icosahedron";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
     //CreateOctahedron
     public FoShape3D CreateOctahedron(string name, double width, double height, double depth)
     {
         GeomType = "Octahedron";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
     //CreateTorus
     public FoShape3D CreateTetrahedron(string name, double width, double height, double depth)
     {
         GeomType = "Tetrahedron";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
     //CreateTorusKnot
     public FoShape3D CreateTorusKnot(string name, double width, double height, double depth)
     {
         GeomType = "TorusKnot";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
     //CreateTorus 
     public FoShape3D CreateTorus(string name, double width, double height, double depth)
     {
         GeomType = "Torus";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
 
@@ -157,9 +171,8 @@ public class FoShape3D : FoGlyph3D, IShape3D
     {
         GeomType = "Tube";
         Radius = radius;
-        BoundingBox = new Vector3(radius, 0, 0);
         Key = name;
-        Path = path;
+        //Path = path;
         return this;
     }
 
@@ -168,46 +181,58 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public FoShape3D CreateSphere(string name, double width, double height, double depth)
     {
         GeomType = "Sphere";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
 
     public FoShape3D CreateCircle(string name, double width, double height, double depth)
     {
         GeomType = "Circle";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
     public FoShape3D CreatePlane(string name, double width, double height, double depth)
     {
         GeomType = "Plane";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
 
     public FoShape3D CreateRing(string name, double width, double height, double depth)
     {
         GeomType = "Ring";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
 
     public FoShape3D CreateCapsule(string name, double width, double height, double depth)
     {
         GeomType = "Capsule";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
     public FoShape3D CreateCone(string name, double width, double height, double depth)
     {
         GeomType = "Cone";
-        BoundingBox = new Vector3(width, height, depth);
         Key = name;
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
   
@@ -223,42 +248,42 @@ public class FoShape3D : FoGlyph3D, IShape3D
     public void SetAnimationUpdate(Action<Object3D, int, double> update)
     {
         OnAnimationUpdate = update;
-        if ( !GeometryParameter3D.HasValue3D )
-            GeometryParameter3D.ComputeValue3D(this, null);
+        // if ( !GeometryParameter3D.HasValue3D )
+        //     GeometryParameter3D.ComputeValue3D(this, null);
 
         
-        var value = GeometryParameter3D.GetValue3D();
-        if ( value != null)
-            value.SetAnimationUpdate(update);
+        // var value = GeometryParameter3D.GetValue3D();
+        // if ( value != null)
+        //     value.SetAnimationUpdate(update);
         
     }
     public override bool RefreshToScene(Scene3D scene, bool deep = true)
     {
-        var (obj, result) = RenderPrimitives(scene);
+        //var (obj, result) = RenderPrimitives(scene);
         return true;
     }
 
-    public override (FoGeometryComponent3D, Object3D value) RenderPrimitives(Object3D parent)
-    {
-        if (!GeometryParameter3D.HasValue3D)
-            GeometryParameter3D.ComputeValue3D(this,parent);
+    // public override (FoGeometryComponent3D, Object3D value) RenderPrimitives(Object3D parent)
+    // {
+    //     if (!GeometryParameter3D.HasValue3D)
+    //         GeometryParameter3D.ComputeValue3D(this,parent);
 
-        //$"FoGeometryComponent3D RenderPrimitives".WriteInfo();
+    //     //$"FoGeometryComponent3D RenderPrimitives".WriteInfo();
 
-        var result = GeometryParameter3D.GetValue3D();
-        if (GeometryParameter3D.HasValue3D)
-        {
-            foreach (var item in Members<FoShape3D>())
-            {
-                item.RenderPrimitives(result);
-            }
+    //     var result = GeometryParameter3D.GetValue3D();
+    //     if (GeometryParameter3D.HasValue3D)
+    //     {
+    //         foreach (var item in Members<FoShape3D>())
+    //         {
+    //             item.RenderPrimitives(result);
+    //         }
 
-            //if ( OnAnimationUpdate != null)
-            //    result.SetAnimationUpdate(OnAnimationUpdate);   
-        }
+    //         //if ( OnAnimationUpdate != null)
+    //         //    result.SetAnimationUpdate(OnAnimationUpdate);   
+    //     }
 
-        return (GeometryParameter3D, result);
-    }
+    //     return (GeometryParameter3D, result);
+    // }
 
 
 

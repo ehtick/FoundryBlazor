@@ -63,7 +63,7 @@ public class FoMenu3D : FoPanel3D, IFoMenu
             Buttons = buttons,
             Height = Height,
             Width = Width,
-            Transform = GetTransform()
+            //Transform = GetTransform()
         };
         scene.AddChild(menu);
         return true;

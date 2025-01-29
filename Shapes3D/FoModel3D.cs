@@ -38,13 +38,13 @@ public class FoModel3D : FoShape3D
             Format = format,
             Name = this.GetName(),
             Uuid = this.GetGlyphId(),
-            Transform = new Transform3()
-            {
-                Position = this.GetPosition(),
-                Rotation = this.GetRotation(),
-                Pivot = this.GetPivot(),
-                Scale = this.GetScale(),
-            }
+            // Transform = new Transform3()
+            // {
+            //     Position = this.GetPosition(),
+            //     Rotation = this.GetRotation(),
+            //     Pivot = this.GetPivot(),
+            //     Scale = this.GetScale(),
+            // }
         };
         return model;
     }
@@ -55,7 +55,9 @@ public class FoModel3D : FoShape3D
     public FoModel3D CreateGlb(string url, double width, double height, double depth)
     {
         CreateGlb(url);
-        BoundingBox = new Vector3(width, height, depth);
+        Width = width;
+        Height = height;
+        Depth = depth;
         return this;
     }
 

@@ -322,13 +322,13 @@ public class FoArena3D : FoGlyph3D, IArena
                     new Vector3(X1 - halfW, halfH - Y1, pathZ),
                     new Vector3(X2 - halfW, halfH - Y2, pathZ)
                 };
-                var pathway = new FoPathway3D(lineShape.GetName())
-                {
-                    Path = path,
-                    Color = "black"
-                };
+                // var pathway = new FoPathway3D(lineShape.GetName())
+                // {
+                //     Path = path,
+                //     Color = "black"
+                // };
 
-                wall.Add(pathway);
+                // wall.Add(pathway);
             }
 
             wall.RefreshToScene(Scene);

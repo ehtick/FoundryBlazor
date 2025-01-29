@@ -27,9 +27,8 @@ public class FoPipe3D : FoShape3D, IPipe3D
 
     public override string GetTreeNodeTitle()
     {
-        var box = BoundingBox ?? new Vector3(0, 0, 0);
-        var pos = GetPosition();
-        var HasMesh = GeometryParameter3D.HasValue3D ? "Ok" : "No Value3D";
+
+        var HasMesh = Value3D != null ? "Ok" : "No Value3D";
         return $"{GeomType}: [{Key}] {Color} {GetType().Name} {HasMesh} => ";
     }
 
@@ -72,13 +71,13 @@ public class FoPipe3D : FoShape3D, IPipe3D
             Name = Key,
             Uuid = GetGlyphId(),
             Geometry = geometry,
-            Transform = new Transform3()
-            {
-                Position = source.GetPosition(),
-                Pivot = source.GetPivot(),
-                Scale = source.GetScale(),
-                Rotation = source.GetRotation(),
-            },
+            // Transform = new Transform3()
+            // {
+            //     Position = source.GetPosition(),
+            //     Pivot = source.GetPivot(),
+            //     Scale = source.GetScale(),
+            //     Rotation = source.GetRotation(),
+            // },
             Material = material != null ? material : source.GetMaterial()
         };
     }
