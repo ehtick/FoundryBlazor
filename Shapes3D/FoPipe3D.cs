@@ -16,6 +16,9 @@ public class FoPipe3D : FoShape3D, IPipe3D
     //public double Radius { get; set; } = 1.0;
 
 
+    public double radius { get; set; } = 0.025;
+    public double Radius { get { return this.radius; } set { this.radius = AssignDouble(value, radius); } }
+
     public FoPipe3D(string name) : base(name)
     {
         GeomType = "Pipe";
@@ -62,7 +65,14 @@ public class FoPipe3D : FoShape3D, IPipe3D
         return mesh;
     }
 
- 
+     public FoShape3D CreateTube(string name, double radius, List<Vector3> path)
+    {
+        GeomType = "Tube";
+        Radius = radius;
+        Key = name;
+        //Path = path;
+        return this;
+    }
 
     public Mesh3D CreateMesh(FoGlyph3D source, BufferGeometry geometry, Material material = null!)
     {
@@ -80,6 +90,13 @@ public class FoPipe3D : FoShape3D, IPipe3D
             // },
             Material = material != null ? material : source.GetMaterial()
         };
+    }
+
+    public Mesh3D AsTube()
+    {
+        var geometry = new TubeGeometry(width/2, Path3D!, 8, 10);
+        var mesh = CreateMesh(geometry);
+        return mesh;
     }
 }
 

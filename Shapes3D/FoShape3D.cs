@@ -18,8 +18,6 @@ namespace FoundryBlazor.Shape;
 public class FoShape3D : FoGlyph3D, IShape3D
 {
 
-    public List<FoPanel3D>? TextPanels { get; set; }
-
 
 
     public FoShape3D() : base()
@@ -32,41 +30,6 @@ public class FoShape3D : FoGlyph3D, IShape3D
     {
     }
 
-    //https://BlazorThreeJS.com/reference/Index.html
-
-    // public override bool UpdateMeshPosition(double xLoc, double yLoc, double zLoc)
-    // {
-    //     return GeometryParameter3D.UpdateMeshPosition(xLoc, yLoc, zLoc);
-    // }
-
-    public override string GetTreeNodeTitle()
-    {
-        var pos = Transform?.Position ?? new Vector3();
-        var HasMesh = Value3D != null ? "Ok" : "No Value3D";
-        return $"{GeomType}: {Key} {Color} {GetType().Name} B:{Width:F1} {Height:F1} {Depth:F1} P:{pos.X:F1} {pos.Y:F1} {pos.Z:F1} {HasMesh} => ";
-    }
-
-    public override IEnumerable<ITreeNode> GetTreeChildren()
-    {
-        var list = base.GetTreeChildren().ToList();
-
-        //$"FoShape3D GetTreeChildren has value {GeometryParameter3D.HasValue3D}".WriteInfo();
-
-        //list.Add(GeometryParameter3D);
-
-        // if ( GeometryParameter3D.HasValue3D )
-        // {
-        //     var value = GeometryParameter3D.GetValue3D();
-        //     list.Add(value);
-        // }
-
-        foreach (var item in Members<FoShape3D>())
-        {
-            list.Add(item);
-        }
-
-        return list;
-    }
 
 
     public FoShape3D CreateBox(string name, double width, double height, double depth)
@@ -167,16 +130,6 @@ public class FoShape3D : FoGlyph3D, IShape3D
         return this;
     }
 
-    public FoShape3D CreateTube(string name, double radius, List<Vector3> path)
-    {
-        GeomType = "Tube";
-        Radius = radius;
-        Key = name;
-        //Path = path;
-        return this;
-    }
-
-
 
     public FoShape3D CreateSphere(string name, double width, double height, double depth)
     {
@@ -245,115 +198,191 @@ public class FoShape3D : FoGlyph3D, IShape3D
     }
 
 
-    public void SetAnimationUpdate(Action<Object3D, int, double> update)
+    public Mesh3D CreateMesh(BufferGeometry geometry, Material material = null!)
     {
-        OnAnimationUpdate = update;
-        // if ( !GeometryParameter3D.HasValue3D )
-        //     GeometryParameter3D.ComputeValue3D(this, null);
-
-        
-        // var value = GeometryParameter3D.GetValue3D();
-        // if ( value != null)
-        //     value.SetAnimationUpdate(update);
-        
+        var result = new Mesh3D
+        {
+            Name = Key,
+            Uuid = GetGlyphId(),
+            Geometry = geometry,
+            Transform = new Transform3(),
+            Material = material != null ? material : GetMaterial()
+        };
+        return result;
     }
+
     public override bool RefreshToScene(Scene3D scene, bool deep = true)
     {
-        //var (obj, result) = RenderPrimitives(scene);
-        return true;
+        var (success, _) = ComputeValue3D(scene);
+
+        if (success)
+            $"FoShape3D RefreshToScene {Name} {GeomType} ".WriteSuccess();
+        else
+            $"FoShape3D RefreshToScene NO Value3D".WriteError();
+
+        return success;
     }
 
-    // public override (FoGeometryComponent3D, Object3D value) RenderPrimitives(Object3D parent)
-    // {
-    //     if (!GeometryParameter3D.HasValue3D)
-    //         GeometryParameter3D.ComputeValue3D(this,parent);
-
-    //     //$"FoGeometryComponent3D RenderPrimitives".WriteInfo();
-
-    //     var result = GeometryParameter3D.GetValue3D();
-    //     if (GeometryParameter3D.HasValue3D)
-    //     {
-    //         foreach (var item in Members<FoShape3D>())
-    //         {
-    //             item.RenderPrimitives(result);
-    //         }
-
-    //         //if ( OnAnimationUpdate != null)
-    //         //    result.SetAnimationUpdate(OnAnimationUpdate);   
-    //     }
-
-    //     return (GeometryParameter3D, result);
-    // }
 
 
-
-    public List<FoPanel3D> EstablishTextPanels(ImportSettings model3D)
+    public override (bool success, Object3D result) GetValue3D()
     {
-        if ( TextPanels != null && TextPanels.Count > 0)
-            return TextPanels;
+        if ( IsDirty == false && Value3D != null )
+            return (true, Value3D);
 
-        var root = model3D.Transform.Position.CreatePlus(0, 1, 0);
-        // if (Position != null && BoundingBox != null)
-        //     root = Position.CreatePlus(0, BoundingBox.Y, 0);
-
-        var leftPos = root.CreatePlus(-3, 1, 0);
-        var centerPos = root.CreatePlus(0, 1, 0);  
-        var rightPos = root.CreatePlus(3, 1, 0);
-
-        //var lines = Targets?.Where(item => item.address.Length < 20 )
-        //            .Select((item) => $"{item.domain}: {item.address}").ToList() ?? new List<string>();
-
-        var center = new FoPanel3D("Threads")
+        if ( Value3D == null )
         {
-            Width = 2.5,
-            Height = 1.5,
-            Color = "Gray",
-            TextLines = new() { "Thread Links" },
-            Transform = new Transform3() { Position = centerPos }
-        };
+            Value3D = AsMesh3D();
+            Value3D.SetDirty(true);
+            return (true, Value3D);
+        }
 
-        //if this is Mk48 then add a panel for the process steps
-        var left = new FoPanel3D("Process")
+        //at this point we have a Value3D but it requires updating
+        var mesh = Value3D as Mesh3D;
+        if (mesh != null)
         {
-            Width = 2.5,
-            Height = 1.5,
-            Color = "Wisteria",
-            TextLines = new() { "Process Steps" },
-            Transform = new Transform3() { Position = leftPos }
-        };
-        //if this is Mk48 then add a panel for the BOM
-        var right = new FoPanel3D("BOM")
+            mesh.Transform = GetTransform();
+            return (true, mesh);
+        }
+        else
         {
-            Width = 2.5,
-            Height = 1.5,
-            Color = "Pink",
-            TextLines = new() { "BOM Structure" },
-            Transform = new Transform3() { Position = rightPos }
-        };
-
-        TextPanels = new List<FoPanel3D>() { left, center, right };
-
-        return TextPanels;
+            return (false, Value3D);
+        }
     }
 
-    // public bool SetupHitTest(Scene ctx, int tick = 0, double fps = 0, bool deep = true)
-    // {
-    //     //$"SetupHitTest for {Name}".WriteInfo();
-    //     UserHit = (ImportSettings model3D) =>
-    //     {
-    //         //$"In UserHit".WriteInfo();
 
-    //         var list = EstablishTextPanels(model3D);
-    //         foreach (var item in list)
-    //         {
-    //             item.IsVisible = model3D.IsShow();
-    //             item.Render(ctx, tick, fps, deep);  
-    //         }
+    public Mesh3D AsMesh3D()
+    {
+       var result = GeomType switch
+        {
+            "Box" => AsBox(),
+            "Boundary" => AsBoundary(),
+            "Circle" => AsCircle(),
+            "Cylinder" => AsCylinder(),
+            "Sphere" => AsSphere(),
+            "Plane" => AsPlane(),
+            "Capsule" => AsCapsule(),
+            "Cone" => AsCone(),
+            //"Tube" => AsTube(),
+            "Ring" => AsRing(),
+            "Dodecahedron" => AsDodecahedron(),
+            "Icosahedron" => AsIcosahedron(),
+            "Octahedron" => AsOctahedron(),
+            "Tetrahedron" => AsTetrahedron(),
+            "TorusKnot" => AsTorusKnot(),
+            "Torus" => AsTorus(),
+            _ => null!,
+        };
 
-    //     };
-    //     return true;
-    // }
+        return result;
+    }
 
+    public Mesh3D AsBox()
+    {
+        var geometry = new BoxGeometry(width, height, depth);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsBoundary()
+    {
+        var geometry = new BoundaryGeometry(width, height, depth);
+        var mesh = CreateMesh(geometry,GetWireframe());
+        return mesh;
+    }
+
+    public Mesh3D AsCircle()
+    {
+        var radius = 0.5 * Math.Max(width, Math.Max(height, depth));
+        var geometry = new CircleGeometry(radius);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsCylinder()
+    {
+        var geometry = new CylinderGeometry(width, height, depth);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsSphere()
+    {
+        var radius = 0.5 * Math.Max(width, Math.Max(height, depth));
+        var geometry = new SphereGeometry(radius);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsPlane()
+    {
+        var geometry = new PlaneGeometry(width, height);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsCapsule()
+    {
+        var geometry = new CapsuleGeometry(width/2, height);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsCone()
+    {
+        var geometry = new ConeGeometry(width/2, height);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsRing()
+    {
+        var geometry = new RingGeometry(width/2, height/2);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsDodecahedron()
+    {
+        var geometry = new DodecahedronGeometry(width);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsIcosahedron()
+    {
+        var geometry = new IcosahedronGeometry(width);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsOctahedron()
+    {
+        var geometry = new OctahedronGeometry(width);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsTetrahedron()
+    {
+        var geometry = new TetrahedronGeometry(width);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsTorusKnot()
+    {
+        var geometry = new TorusKnotGeometry(width/2, height/2);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
+
+    public Mesh3D AsTorus()
+    {
+        var geometry = new TorusGeometry(width/2, height/2);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
 
 
 
