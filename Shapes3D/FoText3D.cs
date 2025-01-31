@@ -59,10 +59,8 @@ public class FoText3D : FoShape3D, IShape3D
             FontSize = FontSize,
             Transform = GetTransform()
         };
-        if ( OnAnimationUpdate != null )
-            label.SetAnimationUpdate(OnAnimationUpdate);
+        FinaliseValue3D(label);
 
-        label.SetDirty(true);
         return label;
     }
 
@@ -74,7 +72,6 @@ public class FoText3D : FoShape3D, IShape3D
         if ( Value3D == null )
         {
             Value3D = AsText3D();
-            Value3D.SetDirty(true);
             return (true, Value3D);
         }
 

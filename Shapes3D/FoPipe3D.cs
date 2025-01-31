@@ -13,7 +13,7 @@ public class FoPipe3D : FoShape3D, IPipe3D
     public List<Vector3>? Path3D { get; set; }
     public FoShape3D? FromShape3D { get; set; }
     public FoShape3D? ToShape3D { get; set; }
-    //public double Radius { get; set; } = 1.0;
+
 
 
     public double radius { get; set; } = 0.025;
@@ -28,11 +28,22 @@ public class FoPipe3D : FoShape3D, IPipe3D
         GeomType = "Pipe";
     }
 
-    public override string GetTreeNodeTitle()
+     public FoShape3D CreatePipe(string name, double radius, List<Vector3> path)
     {
+        GeomType = "Pipe";
+        Radius = radius;
+        Key = name;
+        Path3D = path;
+        return this;
+    }
 
-        var HasMesh = Value3D != null ? "Ok" : "No Value3D";
-        return $"{GeomType}: [{Key}] {Color} {GetType().Name} {HasMesh} => ";
+     public FoShape3D CreateTube(string name, double radius, List<Vector3> path)
+    {
+        GeomType = "Tube";
+        Radius = radius;
+        Key = name;
+        Path3D = path;
+        return this;
     }
 
     public (bool success, List<Vector3>? path) ComputePath3D()
@@ -52,7 +63,21 @@ public class FoPipe3D : FoShape3D, IPipe3D
         return (true, path);
     }
 
-    public Mesh3D AsPipe3D()
+    public override Mesh3D AsMesh3D()
+    {
+       var result = GeomType switch
+        {
+            "Pipe" => AsPipe(),
+            "Tube" => AsBoundary(),
+            _ => AsBoundary(),
+        };
+        FinaliseValue3D(result);
+
+
+        return result;
+    }
+
+    public Mesh3D AsPipe()
     {
 
         var (success, Path3D) = ComputePath3D();
@@ -61,36 +86,10 @@ public class FoPipe3D : FoShape3D, IPipe3D
             return new Mesh3D();
 
         var geometry = new TubeGeometry(Radius, Path3D!, 8, 10);
-        var mesh = CreateMesh(this, geometry);
+        var mesh = CreateMesh(geometry);
         return mesh;
     }
 
-     public FoShape3D CreateTube(string name, double radius, List<Vector3> path)
-    {
-        GeomType = "Tube";
-        Radius = radius;
-        Key = name;
-        //Path = path;
-        return this;
-    }
-
-    public Mesh3D CreateMesh(FoGlyph3D source, BufferGeometry geometry, Material material = null!)
-    {
-        return new Mesh3D
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = geometry,
-            // Transform = new Transform3()
-            // {
-            //     Position = source.GetPosition(),
-            //     Pivot = source.GetPivot(),
-            //     Scale = source.GetScale(),
-            //     Rotation = source.GetRotation(),
-            // },
-            Material = material != null ? material : source.GetMaterial()
-        };
-    }
 
     public Mesh3D AsTube()
     {

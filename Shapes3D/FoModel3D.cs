@@ -57,10 +57,7 @@ public class FoModel3D : FoShape3D
             Format = format,
             Transform = GetTransform()
         };
-        if ( OnAnimationUpdate != null )
-            model.SetAnimationUpdate(OnAnimationUpdate);
-        
-        model.SetDirty(true);
+        FinaliseValue3D(model);
         return model;
     }
 
@@ -74,7 +71,7 @@ public class FoModel3D : FoShape3D
         if ( Value3D == null )
         {
             Value3D = AsModel3D();
-            Value3D.SetDirty(true);
+
             return (true, Value3D);
         }
 

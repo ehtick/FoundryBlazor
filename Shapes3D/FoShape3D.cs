@@ -1,24 +1,17 @@
 
 using BlazorThreeJS.Core;
-using BlazorThreeJS.Enums;
 using BlazorThreeJS.Geometires;
 using BlazorThreeJS.Materials;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Viewers;
-using BlazorThreeJS.Settings;
-using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
-using static System.Formats.Asn1.AsnWriter;
-using FoundryRulesAndUnits.Models;
 
 
 namespace FoundryBlazor.Shape;
 
 public class FoShape3D : FoGlyph3D, IShape3D
 {
-
-
 
     public FoShape3D() : base()
     {
@@ -119,7 +112,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         Depth = depth;
         return this;
     }
-    //CreateTorus 
+  
     public FoShape3D CreateTorus(string name, double width, double height, double depth)
     {
         GeomType = "Torus";
@@ -205,7 +198,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Name = Key,
             Uuid = GetGlyphId(),
             Geometry = geometry,
-            Transform = new Transform3(),
+            Transform = GetTransform(),
             Material = material != null ? material : GetMaterial()
         };
         return result;
@@ -233,7 +226,6 @@ public class FoShape3D : FoGlyph3D, IShape3D
         if ( Value3D == null )
         {
             Value3D = AsMesh3D();
-            Value3D.SetDirty(true);
             return (true, Value3D);
         }
 
@@ -251,7 +243,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
     }
 
 
-    public Mesh3D AsMesh3D()
+    public virtual Mesh3D AsMesh3D()
     {
        var result = GeomType switch
         {
@@ -271,8 +263,10 @@ public class FoShape3D : FoGlyph3D, IShape3D
             "Tetrahedron" => AsTetrahedron(),
             "TorusKnot" => AsTorusKnot(),
             "Torus" => AsTorus(),
-            _ => null!,
+            _ => AsBoundary(),
         };
+
+        FinaliseValue3D(result);
 
         return result;
     }
@@ -301,7 +295,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public Mesh3D AsCylinder()
     {
-        var geometry = new CylinderGeometry(width, height, depth);
+        var geometry = new CylinderGeometry(width/2.0, depth/2.0, height, 36);
         var mesh = CreateMesh(geometry);
         return mesh;
     }

@@ -24,7 +24,7 @@ public class FoGlyph3D : FoComponent
 
 
 
-    protected Action<Object3D, int, double>? OnAnimationUpdate { get; set; } = null;
+    private Action<Object3D, int, double>? OnAnimationUpdate { get; set; } = null;
 
 
     protected double width = 0;
@@ -64,30 +64,44 @@ public class FoGlyph3D : FoComponent
         return (Value3D != null, Value3D!);
     }
 
-    public void SetAnimationUpdate(Action<Object3D, int, double> update)
+    public Object3D FinaliseValue3D(Object3D obj)
     {
-        OnAnimationUpdate = update;
-        if ( Value3D != null)
-            Value3D.SetAnimationUpdate(update);
-        
+        obj.SetDirty(true);
+        //allows for the object to be updated
+        var update = (Object3D obj, int index, double value) =>
+        {
+            OnAnimationUpdate?.Invoke(obj, index, value);
+            this.GetValue3D();
+        };
+        obj.SetAnimationUpdate(update);
+        return obj;
     }
 
 
-    
+    public void SetAnimationUpdate(Action<Object3D, int, double> update)
+    {
+        OnAnimationUpdate = update; 
+    }
+
+    public override void SetDirty(bool value)
+    {
+        base.SetDirty(value);
+        if (Value3D != null)
+            Value3D.SetDirty(value);
+    }
+
+
     public (bool success, Vector3 path) HitPosition()
     {
-        // if ( GeometryParameter3D.HasValue3D )
-        // {
-        //     var value = GeometryParameter3D.GetValue3D();
-        //     if ( value == null) return (false, null!);
-
-        //     var boundary = value.HitBoundary;
-        //     if ( boundary != null)
-        //     {
-        //         var pos = boundary.GetPosition();
-        //         return (true, pos);
-        //     }
-        // }
+        if ( Value3D != null)
+        {
+            var boundary = Value3D.HitBoundary;
+            if ( boundary != null)
+            {
+                var pos = boundary.GetPosition();
+                return (true, pos);
+            }
+        }
         return (false, null!);
     }
 
@@ -159,7 +173,6 @@ public class FoGlyph3D : FoComponent
     {
         if (Math.Abs(newValue - oldValue) > 0)
         {
-            $"AssignDouble {newValue} {oldValue}  SMASH?".WriteNote();
             SetDirty(true);
         }
 
@@ -198,6 +211,13 @@ public class FoGlyph3D : FoComponent
             //Opacity = this.Opacity,
         };
         return result;
+    }
+
+    public virtual T? FindSubGlyph3D<T>(string key) where T : FoGlyph3D
+    {
+        var result = AllSubGlyph3Ds().FirstOrDefault(item => item.Key.Matches(key));
+
+        return result as T;
     }
 
     public virtual T AddSubGlyph3D<T>(T glyph) where T : FoGlyph3D
