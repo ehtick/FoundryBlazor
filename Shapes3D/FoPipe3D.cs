@@ -91,11 +91,5 @@ public class FoPipe3D : FoShape3D, IPipe3D
     }
 
 
-    public Mesh3D AsTube()
-    {
-        var geometry = new TubeGeometry(width/2, Path3D!, 8, 10);
-        var mesh = CreateMesh(geometry);
-        return mesh;
-    }
 }
 

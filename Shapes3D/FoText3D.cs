@@ -12,7 +12,6 @@ public class FoText3D : FoShape3D, IShape3D
 {
 
 
-
     public double fontsize { get; set; } = 0.5;
     public double FontSize 
     { 

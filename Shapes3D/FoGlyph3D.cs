@@ -18,10 +18,21 @@ public class FoGlyph3D : FoComponent
     public string Color { get; set; } = "Green";
 
 
-    public string GeomType { get; set; } = "";
-    public Transform3? Transform { get; set; }
     public Object3D? Value3D { get; set; }
 
+    protected string geomType = "";
+    public string GeomType
+    {
+        get { return this.geomType; }
+        set { this.geomType = AssignText(value, geomType); }
+    }
+    protected Transform3 transform = new Transform3();
+  
+    public Transform3 Transform
+    {
+        get { return this.transform; }
+        set { this.transform = AssignTransform(value, transform); }
+    }
 
 
     private Action<Object3D, int, double>? OnAnimationUpdate { get; set; } = null;
@@ -167,7 +178,11 @@ public class FoGlyph3D : FoComponent
 
 
 
-
+    protected Transform3 AssignTransform(Transform3 newValue, Transform3 oldValue)
+    {
+        SetDirty(true);
+        return newValue;
+    }
 
     protected double AssignDouble(double newValue, double oldValue)
     {
