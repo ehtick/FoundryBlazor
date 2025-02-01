@@ -55,7 +55,7 @@ public class FoModel3D : FoShape3D
             //Color = Color ?? "Yellow",
             Url = Url,
             Format = format,
-            Transform = GetTransform()
+            Transform = Transform,
         };
         FinaliseValue3D(model);
         return model;
@@ -65,13 +65,12 @@ public class FoModel3D : FoShape3D
 
     public override (bool success, Object3D result) GetValue3D()
     {
-        if ( IsDirty == false && Value3D != null )
+        if ( HasChanged() == false && Value3D != null )
             return (true, Value3D);
 
         if ( Value3D == null )
         {
             Value3D = AsModel3D();
-
             return (true, Value3D);
         }
 
@@ -81,7 +80,7 @@ public class FoModel3D : FoShape3D
         {
             model.Url = Url;
             model.Format = format;
-            model.Transform = GetTransform();
+            model.Transform = Transform;
             return (true, model);
         }
         else

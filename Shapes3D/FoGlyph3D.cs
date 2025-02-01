@@ -26,11 +26,11 @@ public class FoGlyph3D : FoComponent
         get { return this.geomType; }
         set { this.geomType = AssignText(value, geomType); }
     }
-    protected Transform3 transform = new Transform3();
+    protected Transform3? transform = null;
   
     public Transform3 Transform
     {
-        get { return this.transform; }
+        get { return this.transform != null ? this.transform! : AssignTransform(new Transform3(), transform); }
         set { this.transform = AssignTransform(value, transform); }
     }
 
@@ -78,14 +78,20 @@ public class FoGlyph3D : FoComponent
     public Object3D FinaliseValue3D(Object3D obj)
     {
         obj.SetDirty(true);
+        var self = this;
         //allows for the object to be updated
         var update = (Object3D obj, int index, double value) =>
         {
             OnAnimationUpdate?.Invoke(obj, index, value);
-            this.GetValue3D();
+            self.GetValue3D();
         };
         obj.SetAnimationUpdate(update);
         return obj;
+    }
+
+    public bool HasChanged()
+    {
+        return IsDirty || Transform.IsDirty;
     }
 
 
@@ -97,6 +103,7 @@ public class FoGlyph3D : FoComponent
     public override void SetDirty(bool value)
     {
         base.SetDirty(value);
+            
         if (Value3D != null)
             Value3D.SetDirty(value);
     }
@@ -178,9 +185,14 @@ public class FoGlyph3D : FoComponent
 
 
 
-    protected Transform3 AssignTransform(Transform3 newValue, Transform3 oldValue)
+    protected Transform3 AssignTransform(Transform3 newValue, Transform3? oldValue)
     {
-        SetDirty(true);
+        SetDirty(true);  //this is good because it will also mark Valus3D as dirty (which triggers the update)
+        if (oldValue != null)
+            oldValue.OnChange = null!;
+
+       
+        newValue.OnChange = () => SetDirty(true);
         return newValue;
     }
 
@@ -204,7 +216,21 @@ public class FoGlyph3D : FoComponent
         return newValue;
     }
 
+    protected List<Vector3> AssignPath(List<Vector3> newValue, List<Vector3> oldValue)
+    {
+        SetDirty(true);
+        return newValue;
+    }
 
+    protected bool AssignBoolean(bool newValue, bool oldValue)
+    {
+        if (newValue != oldValue)
+        {
+            SetDirty(true);
+        }
+
+        return newValue;
+    }   
 
     public MeshStandardMaterial GetWireframe()
     {
@@ -269,17 +295,6 @@ public class FoGlyph3D : FoComponent
     }
 
 
-
-    public virtual Transform3 GetTransform()
-    {
-        Transform ??= new Transform3();
-        return Transform;
-    }
-
-    public virtual Vector3 GetPosition()
-    {
-        return GetTransform().Position;
-    }
 
 
 

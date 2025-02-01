@@ -150,7 +150,7 @@ public class FoStage3D : FoGlyph3D, IStage
             value.Key = collection.NextItemName();
         
 
-        value.IsDirty = true;
+        value.SetDirty(true);
         collection.AddObject(value.Key, value);
 
         //$"Stage AddShape Total {collection.Count()} {collection.TypeSpec.Name} {value.GetName()}".WriteInfo();
@@ -165,7 +165,7 @@ public class FoStage3D : FoGlyph3D, IStage
             value.Key = collection.NextItemName();
         }
 
-        value.IsDirty = true;
+        value.SetDirty(true);
         collection.RemoveObject(value.Key);
 
         return value;

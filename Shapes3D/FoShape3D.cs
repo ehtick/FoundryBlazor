@@ -198,7 +198,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
             Name = Key,
             Uuid = GetGlyphId(),
             Geometry = geometry,
-            Transform = GetTransform(),
+            Transform = Transform,
             Material = material != null ? material : GetMaterial()
         };
         return result;
@@ -220,7 +220,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override (bool success, Object3D result) GetValue3D()
     {
-        if ( IsDirty == false && Value3D != null )
+        if ( HasChanged() == false && Value3D != null )
             return (true, Value3D);
 
         if ( Value3D == null )
@@ -233,7 +233,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
         var mesh = Value3D as Mesh3D;
         if (mesh != null)
         {
-            mesh.Transform = GetTransform();
+            mesh.Transform = Transform;
             return (true, mesh);
         }
         else

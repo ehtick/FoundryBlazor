@@ -21,15 +21,17 @@ public class FoBase: ITreeNode
         set { this.StatusBits.ShouldRender = value; } 
     }
 
-    public virtual void SetDirty(bool value)
-    {
-        IsDirty = value;
-    }
+
     
     public bool IsDirty
     {
         get { return this.StatusBits.IsDirty; }
         set { this.StatusBits.IsDirty = value; }
+    }
+
+    public virtual void SetDirty(bool value)
+    {
+        IsDirty = value;
     }
 
     public FoBase(string name)

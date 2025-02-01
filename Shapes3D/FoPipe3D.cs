@@ -10,14 +10,20 @@ namespace FoundryBlazor.Shape;
 
 public class FoPipe3D : FoShape3D, IPipe3D
 {
-    public List<Vector3>? Path3D { get; set; }
+
     public FoShape3D? FromShape3D { get; set; }
     public FoShape3D? ToShape3D { get; set; }
 
+    private List<Vector3> path3D = new();
+    public List<Vector3> Path3D { get { return this.path3D; } set { this.path3D = AssignPath(value, path3D); } }
 
+    private bool closed { get; set; } = false;
+    public bool Closed { get { return this.closed; } set { this.closed = AssignBoolean(value, closed); } }
 
-    public double radius { get; set; } = 0.025;
+    private double radius { get; set; } = 0.025;
     public double Radius { get { return this.radius; } set { this.radius = AssignDouble(value, radius); } }
+
+
 
     public FoPipe3D(string name) : base(name)
     {
@@ -68,7 +74,7 @@ public class FoPipe3D : FoShape3D, IPipe3D
        var result = GeomType switch
         {
             "Pipe" => AsPipe(),
-            "Tube" => AsBoundary(),
+            "Tube" => AsTube(),
             _ => AsBoundary(),
         };
         FinaliseValue3D(result);
@@ -90,6 +96,16 @@ public class FoPipe3D : FoShape3D, IPipe3D
         return mesh;
     }
 
+    public Mesh3D AsTube()
+    {
+        var list = new List<Vector3>(Path3D);
+        if ( Closed )
+            list.Add(Path3D[0]);
+
+        var geometry = new TubeGeometry(Radius, list, 8, 10);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
 
 }
 

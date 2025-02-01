@@ -25,6 +25,7 @@ public class SpacialBox3D
         Height = height;
         Depth = depth;
         Units = units;
+        Pivot = new Point3D(Width / 2, Height / 2, Depth / 2);
     }
 
     public Point3D Center => new (Width / 2, Height / 2, Depth / 2);
@@ -38,7 +39,7 @@ public class SpacialBox3D
     public Point3D BottomLeftBack => new (0, 0, 0);
     public Point3D BottomRightBack => new (Width, 0, 0);
 
-    public List<Point3D> Vertices => new List<Point3D>
+    public List<Point3D> LocalVertices => new List<Point3D>
     {
         TopLeftFront,
         TopRightFront,
@@ -50,6 +51,8 @@ public class SpacialBox3D
         BottomRightBack
     };
 
+    public List<Point3D> Vertices => LocalVertices.Select(v => v - Pivot).ToList();
+
     public Point3D FrontFaceCenter => new (Width / 2, Height / 2, 0);
     public Point3D RearFaceCenter => new (Width / 2, Height / 2, Depth);
     public Point3D LeftFaceCenter => new (0, Height / 2, Depth / 2);
@@ -57,7 +60,7 @@ public class SpacialBox3D
     public Point3D TopFaceCenter => new (Width / 2, Height, Depth / 2);
     public Point3D BottomFaceCenter => new (Width / 2, 0, Depth / 2);
 
-    public List<Point3D> FaceCenters => new List<Point3D>
+    public List<Point3D> LocalFaceCenters => new List<Point3D>
     {
         FrontFaceCenter,
         RearFaceCenter,
@@ -66,6 +69,8 @@ public class SpacialBox3D
         TopFaceCenter,
         BottomFaceCenter
     };
+
+    public List<Point3D> FaceCenters => LocalFaceCenters.Select(v => v - Pivot).ToList();
 
     public Point3D EdgeCenterTopFront => new Point3D(Width / 2, Height, Depth);
     public Point3D EdgeCenterTopBack => new Point3D(Width / 2, Height, 0);
@@ -91,7 +96,7 @@ public class SpacialBox3D
     public Point3D EdgeCenterFront => new Point3D(Width / 2, Height / 2, Depth);
     public Point3D EdgeCenterBack => new Point3D(Width / 2, Height / 2, 0);
 
-    public List<Point3D> EdgeCenters => new List<Point3D>
+    public List<Point3D> LocalEdgeCenters => new List<Point3D>
     {
         EdgeCenterTopFront,
         EdgeCenterTopBack,
@@ -110,5 +115,7 @@ public class SpacialBox3D
         EdgeCenterFront,
         EdgeCenterBack
     };
+
+    public List<Point3D> EdgeCenters => LocalEdgeCenters.Select(v => v - Pivot).ToList();
 
 }
