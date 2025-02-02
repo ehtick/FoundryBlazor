@@ -11,25 +11,34 @@ public readonly struct Point3D : IEquatable<Point3D>
     public readonly double X { get; }
     public readonly double Y { get; }
     public readonly double Z { get; }
+    public readonly string Name { get; init; }
 
     public Point3D(double x, double y, double z)
     {
         X = x;
         Y = y;
         Z = z;
+        Name = "";
+    }
+    public Point3D(double x, double y, double z, string name)
+    {
+        X = x;
+        Y = y;
+        Z = z;
+        Name = name;
     }
 
     public Vector3 AsVector3() => new Vector3(X, Y, Z);
 
     // Basic vector operations
     public static Point3D operator +(Point3D a, Point3D b) =>
-        new Point3D(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        new Point3D(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.Name);
 
     public static Point3D operator -(Point3D a, Point3D b) =>
-        new Point3D(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        new Point3D(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.Name);
 
     public static Point3D operator *(Point3D a, double scalar) =>
-        new Point3D(a.X * scalar, a.Y * scalar, a.Z * scalar);
+        new Point3D(a.X * scalar, a.Y * scalar, a.Z * scalar, a.Name);
 
     // Common vector calculations
     public double Magnitude => Math.Sqrt(X * X + Y * Y + Z * Z);
@@ -37,7 +46,7 @@ public readonly struct Point3D : IEquatable<Point3D>
     public Point3D Normalize()
     {
         var mag = Magnitude;
-        return mag > 0 ? this * (1.0 / mag) : new Point3D(0, 0, 0);
+        return mag > 0 ? this * (1.0 / mag) : new Point3D(0, 0, 0, Name);
     }
 
     public double DotProduct(Point3D other) =>
@@ -47,8 +56,8 @@ public readonly struct Point3D : IEquatable<Point3D>
         new Point3D(
             Y * other.Z - Z * other.Y,
             Z * other.X - X * other.Z,
-            X * other.Y - Y * other.X
-        );
+            X * other.Y - Y * other.X,
+        Name);
 
     // Value equality implementation
 

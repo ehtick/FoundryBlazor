@@ -70,6 +70,11 @@ public class FoGlyph3D : FoComponent
         return Key;
     }
 
+    public void SetValue3D(Object3D obj)
+    {
+        Value3D = obj;
+    }
+    
     public virtual (bool success, Object3D result) GetValue3D()
     {
         return (Value3D != null, Value3D!);
@@ -243,6 +248,8 @@ public class FoGlyph3D : FoComponent
         };
         return result;
     }
+
+
     
     public virtual MeshStandardMaterial GetMaterial()
     {

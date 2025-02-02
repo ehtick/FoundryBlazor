@@ -174,7 +174,7 @@ public class Matrix3D
             .Translate(x, y, z)              // Move to final position
             .Translate(regX, regY, regZ);    // Move back by registration point
 
-        Multiply(transform);
+        AppendMatrix(transform);
         return this;
     }
 
@@ -190,7 +190,7 @@ public class Matrix3D
             .Translate(x, y, z)              // Move to final position
             .Translate(regX, regY, regZ);    // Move back by registration point
 
-        Prepend(transform);
+        PrependMatrix(transform);
         return this;
     }
 
