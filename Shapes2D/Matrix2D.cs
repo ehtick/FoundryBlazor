@@ -1,5 +1,3 @@
-
-
 using FoundryBlazor.Extensions;
 using System.Drawing;
 /**
@@ -175,7 +173,7 @@ namespace FoundryBlazor.Shape;
         return this;
     }  
 
-    public Matrix2D AppendTransformWithSkey(double x, double y, double scaleX, double scaleY, double rotation, double skewX, double skewY, double regX, double regY) {
+    public Matrix2D AppendTransformWithSkew(double x, double y, double scaleX, double scaleY, double rotation, double skewX, double skewY, double regX, double regY) {
 
         var r = rotation * Matrix2D.DEG_TO_RAD;
         var cos = Math.Cos(r);

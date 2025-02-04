@@ -39,8 +39,7 @@ public class FoWorkbook : FoComponent, IWorkbook
 
     protected IQRCodeService QRCode { get; set; }
 
-    public bool IsActive { get; set; } = false;
-    public bool IsDirty { get; set; } = false;
+
     private FoPage2D? WorkPage { get; set; }
     private FoStage3D? WorkStage { get; set; }
     public FoWorkbook(IWorkspace space, IFoundryService foundry)

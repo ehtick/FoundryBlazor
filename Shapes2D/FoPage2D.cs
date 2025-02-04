@@ -26,8 +26,6 @@ public interface IFoPage2D : ITreeNode
 public class FoPage2D : FoGlyph2D, IFoPage2D
 {
 
-    public bool IsActive { get; set; } = false;
-    public bool IsDirty { get; set; } = false;
     public PanZoomState PanZoom { get; set; } = new();
 
     public Length PageMargin { get; set; } = new Length(1, "cm");  //inches

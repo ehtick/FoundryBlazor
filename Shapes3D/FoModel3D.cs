@@ -11,63 +11,99 @@ using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
 using static System.Formats.Asn1.AsnWriter;
 
-
 namespace FoundryBlazor.Shape;
 
 public class FoModel3D : FoShape3D
 {
 
-    public string Url { get; set; } = "";
+    private Model3DFormats format = Model3DFormats.Gltf;
+    private string url = "";
+    public string Url
+    {
+        get { return this.url; }
+        set { this.url = string.Intern(ComputeFormat(AssignText(value, url))); }
+    }
 
+    private string ComputeFormat(string text)
+    {
+        if (text.EndsWith(".glb")) 
+            format =  Model3DFormats.Gltf;
+
+        return text;
+    }
 
     public FoModel3D() : base()
     {
+         GeomType = "Model";
     }
     public FoModel3D(string name) : base(name)
     {
+         GeomType = "Model";
     }
     public FoModel3D(string name, string color) : base(name, color)
     {
+         GeomType = "Model";
     }
 
-    public Model3D AsModel3D(Model3DFormats format)
+    public Model3D AsModel3D()
     {
+        ComputeFormat(Url);
         var model = new Model3D()
         {
+            Uuid = GetGlyphId(),
+            Name = GetName(),
+            //Color = Color ?? "Yellow",
             Url = Url,
             Format = format,
-            Name = this.GetName(),
-            Uuid = this.GetGlyphId(),
-            Transform = new Transform3()
-            {
-                Position = this.GetPosition(),
-                Rotation = this.GetRotation(),
-                Pivot = this.GetPivot(),
-                Scale = this.GetScale(),
-            }
+            Transform = Transform,
         };
+        FinaliseValue3D(model);
         return model;
     }
 
 
 
-
-    public FoModel3D CreateGlb(string url, double width, double height, double depth)
+    public override (bool success, Object3D result) GetValue3D()
     {
-        CreateGlb(url);
-        BoundingBox = new Vector3(width, height, depth);
-        return this;
+        if ( !IsDirty && Value3D != null )
+            return (true, Value3D);
+
+        if ( Value3D == null )
+        {
+            Value3D = AsModel3D();
+            return (true, Value3D);
+        }
+
+        //at this point we have a Value3D but it requires updating
+        var model = Value3D as Model3D;
+        if (model != null)
+        {
+            model.Url = Url;
+            model.Format = format;
+            model.Transform = Transform;
+            return (true, model);
+        }
+        else
+        {
+            return (false, Value3D);
+        }
     }
 
-    public FoModel3D CreateGlb(string url)
+    public override bool RefreshToScene(Scene3D scene, bool deep = true)
     {
-        GeomType = "Glb";
-        Url = string.Intern(url);
-        $"CreateGlb url [{Url}] ".WriteSuccess();
-        return this;
+        var (success, _) = ComputeValue3D(scene);
+
+        if (success)
+            $"FoModel3D RefreshToScene {Name} {Url}".WriteSuccess();
+        else
+            $"FoModel3D RefreshToScene NO Value3D".WriteError();
+
+        return success;
     }
 
-
-
+    public override string GetTreeNodeTitle()
+    {
+        return $"{base.GetTreeNodeTitle()} {Url}";
+    }
 
 }

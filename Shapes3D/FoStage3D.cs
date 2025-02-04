@@ -16,7 +16,6 @@ public interface IStage
 public class FoStage3D : FoGlyph3D, IStage
 {
     public static bool RefreshMenus { get; set; } = true;
-    public bool IsActive { get; set; } = false;
     public double StageMargin { get; set; } = .50;  //meters
     public double StageWidth { get; set; } = 30.0;  //meters
     public double StageHeight { get; set; } = 30.0;  //meters
@@ -39,7 +38,9 @@ public class FoStage3D : FoGlyph3D, IStage
     public FoStage3D(string name, int width, int height, int depth, string color) : base(name, color)
     {
         //ResetLocalPin((obj) => 0, (obj) => 0);
-        SetBoundary(width, height, depth);
+        Width = width;
+        Height = height;
+        Depth = depth;
     }
 
     public (bool success, string path, T? found) FindUsingPath<U,T>(string path) where U: FoGlyph3D where T: FoGlyph3D
@@ -149,7 +150,7 @@ public class FoStage3D : FoGlyph3D, IStage
             value.Key = collection.NextItemName();
         
 
-        value.IsDirty = true;
+        value.SetDirty(true);
         collection.AddObject(value.Key, value);
 
         //$"Stage AddShape Total {collection.Count()} {collection.TypeSpec.Name} {value.GetName()}".WriteInfo();
@@ -164,7 +165,7 @@ public class FoStage3D : FoGlyph3D, IStage
             value.Key = collection.NextItemName();
         }
 
-        value.IsDirty = true;
+        value.SetDirty(true);
         collection.RemoveObject(value.Key);
 
         return value;

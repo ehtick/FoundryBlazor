@@ -5,41 +5,51 @@ using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
+using FoundryRulesAndUnits.Units;
 using System.Text.Json.Serialization;
 
 
 namespace FoundryBlazor.Shape;
 
+
+
 public class FoGlyph3D : FoComponent
 {
     public string GlyphId { get; set; } = "";
-    //public float Opacity { get; set; } = 1.0F;
 
-    public string GeomType { get; set; } = "";
 
-    public Action<FoGlyph3D, int>? ContextLink;
+    public Object3D? Value3D { get; set; }
 
-    public string Color { get; set; } = "Green";
 
-    protected Action<Object3D, int, double>? OnAnimationUpdate { get; set; } = null;
+    protected string color = "Green";
+    public string Color { get { return this.color; } set { this.color = AssignText(value, color); } }
 
-    public Transform3? Transform { get; set; }
+    protected double opacity = 1.0;
+    public double Opacity { get { return this.opacity; } set { this.opacity = AssignDouble(value, opacity); } }
 
-    public FoGeometryComponent3D GeometryParameter3D { get; set; }
-    public List<Vector3>? Path { get; set; }
-    private Vector3 bounds = null!;
-    public Vector3 BoundingBox 
-    { 
-        get 
-        { 
-            bounds ??= new Vector3(Width, Height, Depth);
-            return bounds; 
-        }
-        set { bounds = value; }
+    protected string geomType = "";
+    public string GeomType
+    {
+        get { return this.geomType; }
+        set { this.geomType = AssignText(value, geomType); }
+    }
+    protected Transform3? transform = null;
+  
+    public Transform3 Transform
+    {
+        get {
+                if (this.transform != null)
+                    return this.transform;
+
+                this.transform = AssignTransform(new Transform3(), null);
+                return this.transform;
+            }
+        set { this.transform = AssignTransform(value, transform); }
     }
 
-    public double radius { get; set; } = 0.025;
-    public double Radius { get { return this.radius; } set { this.radius = AssignDouble(value, radius); } }
+
+    private Action<Object3D, int, double>? OnAnimationUpdate { get; set; } = null;
+
 
     protected double width = 0;
     public double Width { get { return this.width; } set { this.width = AssignDouble(value, width); } }
@@ -50,17 +60,7 @@ public class FoGlyph3D : FoComponent
     protected double depth = 0;
     public double Depth { get { return this.depth; } set { this.depth = AssignDouble(value, depth); } }
 
-    public bool IsVisible
-    {
-        get { return this.StatusBits.IsVisible; }
-        set { this.StatusBits.IsVisible = value; }
-    }
 
-    public bool IsDirty
-    {
-        get { return this.StatusBits.IsDirty; }
-        set { this.StatusBits.IsDirty = value; }
-    }
 
     [JsonIgnore]
     public Action<FoGlyph3D>? OnDelete { get; set; }
@@ -69,26 +69,69 @@ public class FoGlyph3D : FoComponent
  
     public FoGlyph3D() : base("")
     {
-        GeometryParameter3D = new FoGeometryComponent3D(this);
     }
     public FoGlyph3D(string name) : base(name)
     {
-         GeometryParameter3D = new FoGeometryComponent3D(this);
     }
     public FoGlyph3D(string name, string color) : this(name)
     {
         Color = color;
     }
 
+    public string GetName()
+    {
+        return Key;
+    }
+
+    public void SetValue3D(Object3D obj)
+    {
+        Value3D = obj;
+    }
+    
+    public virtual (bool success, Object3D result) GetValue3D()
+    {
+        return (Value3D != null, Value3D!);
+    }
+
+    public Object3D FinaliseValue3D(Object3D obj)
+    {
+        obj.SetDirty(true);
+        var self = this;
+        //allows for the object to be updated
+        var update = (Object3D obj, int index, double value) =>
+        {
+            OnAnimationUpdate?.Invoke(obj, index, value);
+            self.GetValue3D();
+        };
+        obj.SetAnimationUpdate(update);
+        return obj;
+    }
+
+    //public bool HasChanged()
+    //{
+    //    return IsDirty; // || Transform.IsDirty;
+    //}
+
+
+    public void SetAnimationUpdate(Action<Object3D, int, double> update)
+    {
+        OnAnimationUpdate = update; 
+    }
+
+    public override void SetDirty(bool value, bool deep = true)
+    {
+        base.SetDirty(value, deep);
+            
+        if (Value3D != null)
+            Value3D.SetDirty(value);
+    }
+
 
     public (bool success, Vector3 path) HitPosition()
     {
-        if ( GeometryParameter3D.HasValue3D )
+        if ( Value3D != null)
         {
-            var value = GeometryParameter3D.GetValue3D();
-            if ( value == null) return (false, null!);
-
-            var boundary = value.HitBoundary;
+            var boundary = Value3D.HitBoundary;
             if ( boundary != null)
             {
                 var pos = boundary.GetPosition();
@@ -106,17 +149,30 @@ public class FoGlyph3D : FoComponent
         return GlyphId;
     }
 
-    public bool GlyphIdCompare(string other)
-    {
-        var id = GetGlyphId();
-        var result = id == other;
-        // $"GlyphIdCompare {result}  {id} {other}".WriteNote();
-        return result;
-    }
+
 
    public void AddAction(string name, string color, Action action)
     {
         DefaultActions.AddAction(name, color, action);
+    }
+
+    public override string GetTreeNodeTitle()
+    {
+        var pos = Transform?.Position ?? new Vector3();
+        var HasMesh = Value3D != null ? "Ok" : "No Value3D";
+        return $"{GeomType}: {Key} {Color} {GetType().Name} B:{Width:F1} {Height:F1} {Depth:F1} P:{pos.X:F1} {pos.Y:F1} {pos.Z:F1} {HasMesh} => ";
+    }
+
+
+    public override IEnumerable<ITreeNode> GetTreeChildren()
+    {
+        var result = new List<ITreeNode>();
+
+        if (Value3D != null)
+            result.Add(Value3D);
+
+        result.AddRange(AllSubGlyph3Ds());
+        return result;
     }
 
     public override IEnumerable<TreeNodeAction> GetTreeNodeActions()
@@ -139,49 +195,66 @@ public class FoGlyph3D : FoComponent
     {
         $"Deleting {GetTreeNodeTitle()}".WriteWarning();
 
-        GeometryParameter3D.DeleteValue3D();
+        $"DeleteFromStage {Key} Object3D".WriteInfo();
+ 
 
         stage.RemoveShape<FoGlyph3D>(this);
     }
 
 
 
-
-
-    public FoGlyph3D SetBoundary(int width, int height, int depth)
+    protected Transform3 AssignTransform(Transform3 newValue, Transform3? oldValue)
     {
-        (Width, Height, Depth) = (width, height, depth);
-        return this;
+        if ( oldValue == newValue)
+        {
+            SetDirty(newValue.IsDirty);
+            return newValue;
+        }
+
+
+        SetDirty(true);  //this is good because it will also mark Valus3D as dirty (which triggers the update)
+        if (oldValue != null)
+            oldValue.OnChange = null!;
+
+        newValue.OnChange = (value) => SetDirty(value);
+        return newValue;
     }
 
     protected double AssignDouble(double newValue, double oldValue)
     {
         if (Math.Abs(newValue - oldValue) > 0)
-            Smash(true);
+        {
+            SetDirty(true);
+        }
 
         return newValue;
     }
 
-
-
-    public virtual bool Smash(bool force)
+    protected string AssignText(string newValue, string oldValue)
     {
-        //if ( _matrix == null && !force) return false;
-        //$"Smashing {Name} {GetType().Name}".WriteInfo(2);
+        if (newValue != oldValue)
+        {
+            SetDirty(true);
+        }
 
-        // ResetHitTesting = true;
-        // this._matrix = null;
-        // this._invMatrix = null;
-
-        return true;
+        return newValue;
     }
 
-
-
-    public string GetName()
+    protected List<Vector3> AssignPath(List<Vector3> newValue, List<Vector3> oldValue)
     {
-        return Key;
+        SetDirty(true);
+        return newValue;
     }
+
+    protected bool AssignBoolean(bool newValue, bool oldValue)
+    {
+        if (newValue != oldValue)
+        {
+            SetDirty(true);
+        }
+
+        return newValue;
+    }   
 
     public MeshStandardMaterial GetWireframe()
     {
@@ -194,6 +267,8 @@ public class FoGlyph3D : FoComponent
         };
         return result;
     }
+
+
     
     public virtual MeshStandardMaterial GetMaterial()
     {
@@ -205,80 +280,47 @@ public class FoGlyph3D : FoComponent
         return result;
     }
 
-    public virtual bool UpdateMeshPosition(double xLoc, double yLoc, double zLoc)
+    public virtual T? FindSubGlyph3D<T>(string key) where T : FoGlyph3D
     {
-        return false;
+        var result = AllSubGlyph3Ds().FirstOrDefault(item => item.Key.Matches(key));
+
+        return result as T;
+    }
+
+    public virtual T AddSubGlyph3D<T>(T glyph) where T : FoGlyph3D
+    {
+        glyph.GetParent = () => this;
+        if ( !Members<FoGlyph3D>().Contains(glyph))
+            Add<FoGlyph3D>(glyph);
+
+        return glyph;
+    }
+
+    public virtual List<FoGlyph3D> AllSubGlyph3Ds()
+    {
+        var result = Members<FoGlyph3D>().ToList();
+        return result;
     }
 
 
+    public virtual (bool success, Object3D result) ComputeValue3D(Object3D parent)
+    {
+        IsDirty = false; 
+        var (success, result) = GetValue3D();
+        if (!success)
+            return (false, null!);    
 
-    public FoGlyph3D MoveTo(double x, double y, double z)
-    {
-        if ( Transform == null )
-            GetPosition(x, y, z);
-        else
-            Transform.Position.Set(x, y, z);
-        return this;
-    }
-    public virtual Transform3 GetTransform()
-    {
-        Transform ??= new Transform3();
-        return Transform;
-    }
+        parent.AddChild(result);
 
-    public virtual Vector3 GetPosition(double x = 0, double y = 0, double z = 0)
-    {
-        if ( Transform == null )
+        foreach (var item in AllSubGlyph3Ds())
         {
-            Transform = new Transform3() { Position = new Vector3(x, y, z) };
+            item.ComputeValue3D(result!);
         }
-        return Transform.Position;
+
+        return (true, result);
     }
 
-    public virtual Vector3 GetPivot(double x = 0, double y = 0, double z = 0)
-    {
-        if ( Transform == null )
-        {
-            Transform = new Transform3() { Pivot = new Vector3(x, y, z) };
-        }
-        return Transform.Pivot;
-    }
 
-    public virtual Vector3 GetScale(double x = 1, double y = 1, double z = 1)
-    {
-        if ( Transform == null )
-        {
-            Transform = new Transform3() { Scale = new Vector3(x, y, z) };
-        }
-        return Transform.Scale;
-    }
-
-    public virtual Euler GetRotation(double x = 0, double y = 0, double z = 0)
-    {
-        if ( Transform == null )
-        {
-            Transform = new Transform3() { Rotation = new Euler(x, y, z) };
-        }
-        return Transform.Rotation;
-    }
-
-    public virtual bool OnModelLoadComplete(Guid PromiseGuid)
-    {
-        return false;
-    }
-
-    public void SetValue3DDirty(bool value)
-    {
-        GeometryParameter3D.SetValue3DDirty(value);
-    }
-
-    public virtual (FoGeometryComponent3D, Object3D value)  RenderPrimitives(Object3D parent)
-    {
-        if (!GeometryParameter3D.HasValue3D)
-            GeometryParameter3D.ComputeValue3D(this,parent);
-
-        return (GeometryParameter3D, GeometryParameter3D.GetValue3D());
-    }
 
 
 

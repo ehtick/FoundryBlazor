@@ -14,7 +14,6 @@ public class FoGroup3D : FoGlyph3D, IShape3D
     {
         GetSlot<FoShape3D>();
         GetSlot<FoText3D>();
-        GetSlot<FoDatum3D>();
         GetSlot<FoRelationship3D>();
         GetSlot<FoGroup3D>();
     }
@@ -23,7 +22,7 @@ public class FoGroup3D : FoGlyph3D, IShape3D
     {
         GetSlot<FoShape3D>();
         GetSlot<FoText3D>();
-        GetSlot<FoDatum3D>();
+
         GetSlot<FoRelationship3D>();
         GetSlot<FoGroup3D>();
     }
@@ -34,7 +33,7 @@ public class FoGroup3D : FoGlyph3D, IShape3D
         AddTreeNodeFor<FoGroup3D>(list);
         AddTreeNodeFor<FoShape3D>(list);
         AddTreeNodeFor<FoText3D>(list);
-        AddTreeNodeFor<FoDatum3D>(list);
+
 
         return list;
     }
@@ -50,10 +49,7 @@ public class FoGroup3D : FoGlyph3D, IShape3D
         return value;
     }
 
-    public List<FoDatum3D>? Datums()
-    {
-        return GetMembers<FoDatum3D>();
-    }
+
 
     public List<FoShape3D>? Bodies()
     {
@@ -70,12 +66,7 @@ public class FoGroup3D : FoGlyph3D, IShape3D
     }
 
 
-    public FoGroup3D EstablishBox(string name, double width = 1.0, double height = 1.0, double depth = 1.0)
-    {
-        this.Key = name;
-        BoundingBox = new Vector3(width, height, depth);
-        return this;
-    }
+
 
 
 
@@ -87,7 +78,7 @@ public class FoGroup3D : FoGlyph3D, IShape3D
         GetSlot<FoGroup3D>()?.Flush();
         GetSlot<FoShape3D>()?.Flush();
         GetSlot<FoText3D>()?.Flush();
-        GetSlot<FoDatum3D>()?.Flush();
+
         GetSlot<FoRelationship3D>()?.Flush();
         return this;
     }

@@ -17,7 +17,7 @@ public interface IWorld3D: ITreeNode
 {
     //public List<FoShape2D>? Shapes();
     public List<FoGroup3D>? ShapeGroups();
-    public List<FoDatum3D>? Datums();
+
     public List<FoShape3D>? ShapeBodies();
     public List<FoMenu3D>? Menus();
     public List<FoPanel3D>? Panels();
@@ -44,7 +44,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         GetSlot<FoGroup3D>();
         GetSlot<FoShape3D>();
         GetSlot<FoText3D>();
-        GetSlot<FoDatum3D>();
+
         GetSlot<FoMenu3D>();
         GetSlot<FoPanel3D>();
         GetSlot<FoPathway3D>();
@@ -64,8 +64,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
             Slot<FoShape3D>()?.Add(shape);
         else if (glyph is FoText3D text)
             Slot<FoText3D>()?.Add(text);
-        else if (glyph is FoDatum3D datum)
-            Slot<FoDatum3D>()?.Add(datum);
+
         else if (glyph is FoMenu3D menu)
             Slot<FoMenu3D>()?.Add(menu);
         else if (glyph is FoPanel3D panel)
@@ -88,8 +87,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
             GetSlot<FoShape3D>()?.Remove(shape);
         if (glyph is FoText3D text)
             GetSlot<FoText3D>()?.Remove(text);
-        if (glyph is FoDatum3D datum)
-            GetSlot<FoDatum3D>()?.Remove(datum);
+
         if (glyph is FoMenu3D menu)
             GetSlot<FoMenu3D>()?.Remove(menu);
         if (glyph is FoPanel3D panel)
@@ -105,7 +103,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         GetSlot<FoModel3D>()?.Clear();
         GetSlot<FoShape3D>()?.Clear();
         GetSlot<FoText3D>()?.Clear();
-        GetSlot<FoDatum3D>()?.Clear();
+
         GetSlot<FoMenu3D>()?.Clear();
         GetSlot<FoPanel3D>()?.Clear();
         GetSlot<FoPathway3D>()?.Clear();
@@ -119,7 +117,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         AddTreeNodeFor<FoModel3D>(list);
         AddTreeNodeFor<FoShape3D>(list);
         AddTreeNodeFor<FoText3D>(list);
-        AddTreeNodeFor<FoDatum3D>(list);
+
 
         AddTreeNodeFor<FoMenu3D>(list);
 
@@ -134,7 +132,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         GetMembers<FoModel3D>()?.ForEach(model => stage.AddShape<FoModel3D>(model));
         GetMembers<FoGroup3D>()?.ForEach(group => stage.AddShape<FoGroup3D>(group));
         GetMembers<FoText3D>()?.ForEach(label => stage.AddShape<FoText3D>(label));
-        GetMembers<FoDatum3D>()?.ForEach(datum => stage.AddShape<FoDatum3D>(datum));
+
         GetMembers<FoMenu3D>()?.ForEach(menu => stage.AddShape<FoMenu3D>(menu));
         GetMembers<FoPanel3D>()?.ForEach(panel => stage.AddShape<FoPanel3D>(panel));
         GetMembers<FoPathway3D>()?.ForEach(pathway => stage.AddShape<FoPathway3D>(pathway));
@@ -160,10 +158,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
     {
         return GetMembers<FoGroup3D>();
     }
-    public List<FoDatum3D>? Datums()
-    {
-        return GetMembers<FoDatum3D>();
-    }
+
 
     public List<FoShape3D>? ShapeBodies()
     {
@@ -206,9 +201,7 @@ public class FoWorld3D : FoGlyph3D, IWorld3D
         if (labels != null)
             GetSlot<FoText3D>()?.Flush().AddRange(labels);
 
-        var datums = Datums()?.GroupBy(i => i.GlyphId).Select(g => g.First()).ToList();
-        if (datums != null)
-            GetSlot<FoDatum3D>()?.Flush().AddRange(datums);
+
 
         var relationships = Relationships()?.GroupBy(i => i.GlyphId).Select(g => g.First()).ToList();
         if (relationships != null)

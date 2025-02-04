@@ -3,6 +3,7 @@ using BlazorThreeJS.Core;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
+using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
 
 namespace FoundryBlazor.Shape;
@@ -10,14 +11,23 @@ namespace FoundryBlazor.Shape;
 public class FoText3D : FoShape3D, IShape3D
 {
 
-    public double FontSize { get; set; } = 0.5;
+    public Text3DAlign TextAlign { get; set; } = Text3DAlign.Left;
+    public Text3DAnchor AnchorX { get; set; } = Text3DAnchor.Center;
+    public Text3DAnchor AnchorY { get; set; } = Text3DAnchor.Middle;
+
+    public double fontsize { get; set; } = 0.5;
+    public double FontSize 
+    { 
+        get { return this.fontsize; } 
+        set { this.fontsize = AssignDouble(value, fontsize); } 
+    }
 
 
-    private string _text = "";
+    private string text = "";
     public string Text
     {
-        get { return this._text; }
-        set { this._text = CreateDetails(AssignText(value, _text)); }
+        get { return this.text; }
+        set { this.text = CreateDetails(AssignText(value, text)); }
     }
 
     public List<string>? Details { get; set; }
@@ -41,31 +51,6 @@ public class FoText3D : FoShape3D, IShape3D
         return text;
     }
 
-    protected string AssignText(string newValue, string oldValue)
-    {
-        if (newValue != oldValue)
-        {
-            //ComputeResize = true;
-        }
-
-        return newValue;
-    }
-
-    public FoText3D CreateTextAt(string text, double x, double y, double z)
-    {
-        GetTransform().Position = new Vector3(x, y, z);
-        Text = text;
-        return this;
-    }
-
-
-
-
-    public override string GetTreeNodeTitle()
-    {
-        return $"{base.GetTreeNodeTitle()} {Text}";
-    }
-
     public Text3D AsText3D()
     {
         var label = new Text3D(Text)
@@ -74,33 +59,68 @@ public class FoText3D : FoShape3D, IShape3D
             Name = GetName(),
             Color = Color ?? "Yellow",
             FontSize = FontSize,
-            Transform = new Transform3()
-            {
-                Position = this.GetPosition(),
-                Rotation = this.GetRotation(),
-                Pivot = this.GetPivot(),
-                Scale = this.GetScale(),
-            }
+            AnchorX = AnchorX,
+            AnchorY = AnchorY,
+            TextAlign = TextAlign,
+            Transform = Transform,
         };
+        FinaliseValue3D(label);
+
         return label;
+    }
+
+    public override (bool success, Object3D result) GetValue3D()
+    {
+        if (!IsDirty && Value3D != null )
+            return (true, Value3D);
+
+        if ( Value3D == null )
+        {
+            Value3D = AsText3D();
+            return (true, Value3D);
+        }
+
+        //at this point we have a Value3D but it requires updating
+        var label = Value3D as Text3D;
+        if (label != null)
+        {
+            label.Text = Text;
+            label.FontSize = FontSize;
+            label.Color = Color ?? "Yellow";
+            label.AnchorX = AnchorX;
+            label.AnchorY = AnchorY;
+            label.TextAlign = TextAlign;
+            label.Transform = Transform;
+            return (true, label);
+        }
+        else
+        {
+            return (false, Value3D);
+        }
     }
 
 
 
+    public override bool RefreshToScene(Scene3D scene, bool deep = true)
+    {
+        var (success, _) = ComputeValue3D(scene);
 
-    // public bool UpdateText(string text)
-    // {
-    //     Text = text;
-    //     //"Update label text".WriteSuccess();
-    //     if (Label != null)
-    //     {
-    //         Label.Text = Text;
-    //         return true;
-    //     }
+        if (success)
+            $"FoText3D RefreshToScene {Name} {Text} {FontSize}".WriteSuccess();
+        else
+            $"FoText3D RefreshToScene NO Value3D".WriteError();
 
-    //     return false;
-    // }
+        return success;
+    }
 
- 
+
+
+    public override string GetTreeNodeTitle()
+    {
+        return $"{base.GetTreeNodeTitle()} {Text}";
+    }
+
+
+
 
 }

@@ -10,10 +10,19 @@ namespace FoundryBlazor.Shape;
 
 public class FoPipe3D : FoShape3D, IPipe3D
 {
-    public List<Vector3>? Path3D { get; set; }
+
     public FoShape3D? FromShape3D { get; set; }
     public FoShape3D? ToShape3D { get; set; }
-    //public double Radius { get; set; } = 1.0;
+
+    private List<Vector3> path3D = new();
+    public List<Vector3> Path3D { get { return this.path3D; } set { this.path3D = AssignPath(value, path3D); } }
+
+    private bool closed { get; set; } = false;
+    public bool Closed { get { return this.closed; } set { this.closed = AssignBoolean(value, closed); } }
+
+    private double radius { get; set; } = 0.025;
+    public double Radius { get { return this.radius; } set { this.radius = AssignDouble(value, radius); } }
+
 
 
     public FoPipe3D(string name) : base(name)
@@ -25,12 +34,22 @@ public class FoPipe3D : FoShape3D, IPipe3D
         GeomType = "Pipe";
     }
 
-    public override string GetTreeNodeTitle()
+     public FoShape3D CreatePipe(string name, double radius, List<Vector3> path)
     {
-        var box = BoundingBox ?? new Vector3(0, 0, 0);
-        var pos = GetPosition();
-        var HasMesh = GeometryParameter3D.HasValue3D ? "Ok" : "No Value3D";
-        return $"{GeomType}: [{Key}] {Color} {GetType().Name} {HasMesh} => ";
+        GeomType = "Pipe";
+        Radius = radius;
+        Key = name;
+        Path3D = path;
+        return this;
+    }
+
+     public FoShape3D CreateTube(string name, double radius, List<Vector3> path)
+    {
+        GeomType = "Tube";
+        Radius = radius;
+        Key = name;
+        Path3D = path;
+        return this;
     }
 
     public (bool success, List<Vector3>? path) ComputePath3D()
@@ -50,7 +69,21 @@ public class FoPipe3D : FoShape3D, IPipe3D
         return (true, path);
     }
 
-    public Mesh3D AsPipe3D()
+    public override Mesh3D AsMesh3D()
+    {
+       var result = GeomType switch
+        {
+            "Pipe" => AsPipe(),
+            "Tube" => AsTube(),
+            _ => AsBoundary(),
+        };
+        FinaliseValue3D(result);
+
+
+        return result;
+    }
+
+    public Mesh3D AsPipe()
     {
 
         var (success, Path3D) = ComputePath3D();
@@ -59,28 +92,20 @@ public class FoPipe3D : FoShape3D, IPipe3D
             return new Mesh3D();
 
         var geometry = new TubeGeometry(Radius, Path3D!, 8, 10);
-        var mesh = CreateMesh(this, geometry);
+        var mesh = CreateMesh(geometry);
         return mesh;
     }
 
- 
-
-    public Mesh3D CreateMesh(FoGlyph3D source, BufferGeometry geometry, Material material = null!)
+    public Mesh3D AsTube()
     {
-        return new Mesh3D
-        {
-            Name = Key,
-            Uuid = GetGlyphId(),
-            Geometry = geometry,
-            Transform = new Transform3()
-            {
-                Position = source.GetPosition(),
-                Pivot = source.GetPivot(),
-                Scale = source.GetScale(),
-                Rotation = source.GetRotation(),
-            },
-            Material = material != null ? material : source.GetMaterial()
-        };
+        var list = new List<Vector3>(Path3D);
+        if ( Closed )
+            list.Add(Path3D[0]);
+
+        var geometry = new TubeGeometry(Radius, list, 8, 10);
+        var mesh = CreateMesh(geometry);
+        return mesh;
     }
+
 }
 

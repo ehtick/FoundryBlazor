@@ -127,6 +127,7 @@ public class StageManagementService : FoComponent, IStageManagement
         if (_stage == stage && _stage.IsActive)
             return _stage;
 
+        stage.IsActive = true;
         ActiveStage = stage;
 
         //force refresh of hit testing
