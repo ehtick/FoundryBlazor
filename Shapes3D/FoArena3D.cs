@@ -165,7 +165,7 @@ public class FoArena3D : FoGlyph3D, IArena
 
         var lastName = Scene?.Name ?? "None";
         Scene = scene;
-        $"SetSceneAndViewer {Name} was {lastName} is now: {scene.Title}".WriteSuccess();
+        //$"SetSceneAndViewer {Name} was {lastName} is now: {scene.Title}".WriteSuccess();
     }
 
 

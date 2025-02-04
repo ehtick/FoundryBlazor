@@ -220,7 +220,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public override (bool success, Object3D result) GetValue3D()
     {
-        if ( HasChanged() == false && Value3D != null )
+        if (!IsDirty && Value3D != null )
             return (true, Value3D);
 
         if ( Value3D == null )

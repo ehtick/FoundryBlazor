@@ -1,3 +1,4 @@
+using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
 
 namespace FoundryBlazor;
@@ -6,7 +7,7 @@ namespace FoundryBlazor;
 public class FoBase: ITreeNode
 {
     public string Key { get; set; }
-    public StatusBitArray StatusBits = new();
+    protected StatusBitArray StatusBits = new();
     private ControlParameters? metaData { get; set; }
 
     public bool IsActive { get; set; } = false;
@@ -26,12 +27,28 @@ public class FoBase: ITreeNode
     public bool IsDirty
     {
         get { return this.StatusBits.IsDirty; }
-        set { this.StatusBits.IsDirty = value; }
+        set { 
+            this.StatusBits.IsDirty = value; 
+            //if ( value )
+            //{
+            //    $"Key {this.Key} is dirty".WriteNote();
+            //}
+        }
     }
 
-    public virtual void SetDirty(bool value)
+    public virtual void SetDirty(bool value, bool deep=true)
     {
+        if ( IsDirty == value )
+            return;
+
         IsDirty = value;
+        // if ( deep)
+        // {
+        //     foreach (var child in children)
+        //     {
+        //         child.SetDirty(value, deep);
+        //     }
+        // }
     }
 
     public FoBase(string name)

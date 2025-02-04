@@ -5,6 +5,7 @@ using BlazorThreeJS.Viewers;
 using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
+using FoundryRulesAndUnits.Units;
 using System.Text.Json.Serialization;
 
 
@@ -15,10 +16,16 @@ namespace FoundryBlazor.Shape;
 public class FoGlyph3D : FoComponent
 {
     public string GlyphId { get; set; } = "";
-    public string Color { get; set; } = "Green";
 
 
     public Object3D? Value3D { get; set; }
+
+
+    protected string color = "Green";
+    public string Color { get { return this.color; } set { this.color = AssignText(value, color); } }
+
+    protected double opacity = 1.0;
+    public double Opacity { get { return this.opacity; } set { this.opacity = AssignDouble(value, opacity); } }
 
     protected string geomType = "";
     public string GeomType
@@ -30,7 +37,13 @@ public class FoGlyph3D : FoComponent
   
     public Transform3 Transform
     {
-        get { return this.transform != null ? this.transform! : AssignTransform(new Transform3(), transform); }
+        get {
+                if (this.transform != null)
+                    return this.transform;
+
+                this.transform = AssignTransform(new Transform3(), null);
+                return this.transform;
+            }
         set { this.transform = AssignTransform(value, transform); }
     }
 
@@ -94,10 +107,10 @@ public class FoGlyph3D : FoComponent
         return obj;
     }
 
-    public bool HasChanged()
-    {
-        return IsDirty || Transform.IsDirty;
-    }
+    //public bool HasChanged()
+    //{
+    //    return IsDirty; // || Transform.IsDirty;
+    //}
 
 
     public void SetAnimationUpdate(Action<Object3D, int, double> update)
@@ -105,9 +118,9 @@ public class FoGlyph3D : FoComponent
         OnAnimationUpdate = update; 
     }
 
-    public override void SetDirty(bool value)
+    public override void SetDirty(bool value, bool deep = true)
     {
-        base.SetDirty(value);
+        base.SetDirty(value, deep);
             
         if (Value3D != null)
             Value3D.SetDirty(value);
@@ -192,12 +205,18 @@ public class FoGlyph3D : FoComponent
 
     protected Transform3 AssignTransform(Transform3 newValue, Transform3? oldValue)
     {
+        if ( oldValue == newValue)
+        {
+            SetDirty(newValue.IsDirty);
+            return newValue;
+        }
+
+
         SetDirty(true);  //this is good because it will also mark Valus3D as dirty (which triggers the update)
         if (oldValue != null)
             oldValue.OnChange = null!;
 
-       
-        newValue.OnChange = () => SetDirty(true);
+        newValue.OnChange = (value) => SetDirty(value);
         return newValue;
     }
 
@@ -286,7 +305,7 @@ public class FoGlyph3D : FoComponent
 
     public virtual (bool success, Object3D result) ComputeValue3D(Object3D parent)
     {
-
+        IsDirty = false; 
         var (success, result) = GetValue3D();
         if (!success)
             return (false, null!);    

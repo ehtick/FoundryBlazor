@@ -196,6 +196,7 @@ public class SpacialBox3D
 
     public Point3D EdgeCenterFront => new Point3D(HalfWidth, HalfHeight, Depth);
     public Point3D EdgeCenterBack => new Point3D(HalfWidth, HalfHeight, 0);
+    
 
     public List<Point3D> LocalEdgeCenters => new List<Point3D>
     {

@@ -59,6 +59,9 @@ public class FoText3D : FoShape3D, IShape3D
             Name = GetName(),
             Color = Color ?? "Yellow",
             FontSize = FontSize,
+            AnchorX = AnchorX,
+            AnchorY = AnchorY,
+            TextAlign = TextAlign,
             Transform = Transform,
         };
         FinaliseValue3D(label);
@@ -68,7 +71,7 @@ public class FoText3D : FoShape3D, IShape3D
 
     public override (bool success, Object3D result) GetValue3D()
     {
-        if ( HasChanged() == false && Value3D != null )
+        if (!IsDirty && Value3D != null )
             return (true, Value3D);
 
         if ( Value3D == null )
@@ -119,22 +122,5 @@ public class FoText3D : FoShape3D, IShape3D
 
 
 
-
-
-
-    // public bool UpdateText(string text)
-    // {
-    //     Text = text;
-    //     //"Update label text".WriteSuccess();
-    //     if (Label != null)
-    //     {
-    //         Label.Text = Text;
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
-
- 
 
 }
