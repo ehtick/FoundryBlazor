@@ -123,7 +123,11 @@ public class FoGlyph3D : FoComponent
         base.SetDirty(value, deep);
             
         if (Value3D != null)
+        {
             Value3D.SetDirty(value);
+
+            $"FoGlyph SetDirty Object3D {Value3D.Name} {Value3D.IsDirty}".WriteInfo();
+        }
     }
 
 
