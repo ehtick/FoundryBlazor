@@ -9,7 +9,7 @@ using FoundryRulesAndUnits.Units;
 namespace FoundryBlazor.Shape;
 
 
-public interface IFoPage2D : ITreeNode
+public interface IPage2D : ITreeNode
 {
     int MapToPageXScale(Length value);
     int MapToPageYScale(Length value);
@@ -20,10 +20,16 @@ public interface IFoPage2D : ITreeNode
     double MapToModelYLoc(int value);
     string CalculateTitle(string title);
     (int, int) DefaultDropLocation(double fraction=1.0);
+
+    FoPage2D ClearAll();
+
+    void AddAction(string name, string color, Action action);
+
+    V AddShape<V>(V shape) where V : FoGlyph2D;
+    V RemoveShape<V>(V shape) where V : FoGlyph2D;
 }
 
-
-public class FoPage2D : FoGlyph2D, IFoPage2D
+public class FoPage2D : FoGlyph2D, IPage2D
 {
 
     public PanZoomState PanZoom { get; set; } = new();
@@ -301,6 +307,27 @@ public class FoPage2D : FoGlyph2D, IFoPage2D
 
         FoGlyph2D.ResetHitTesting(true, $"FoPage2D AddShape {value.Key}");
 
+        return value;
+    }
+
+    public T RemoveShape<T>(T value) where T : FoGlyph2D
+    {
+        value.MarkSelected(false);
+        ExtractShapes(value.GlyphId);
+        value.UnglueAll();
+
+        if (value is IShape2D)
+        {
+            Shapes2D.Remove(value);
+            //$"IShape2D Added {value.Name}".WriteSuccess();
+        }
+        else if (value is IShape1D)
+        {
+            Shapes1D.Remove(value);
+            // $"IShape1D Added {value.Name}".WriteSuccess();
+        }
+
+        FoGlyph2D.ResetHitTesting(true, $"FoPage2D DeleteShape {value.Key}");
         return value;
     }
 

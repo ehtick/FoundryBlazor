@@ -34,7 +34,7 @@ public class FoPipe3D : FoShape3D, IPipe3D
         GeomType = "Pipe";
     }
 
-     public FoShape3D CreatePipe(string name, double radius, List<Vector3> path)
+     public FoPipe3D CreatePipe(string name, double radius, List<Vector3> path)
     {
         GeomType = "Pipe";
         Radius = radius;
@@ -43,10 +43,17 @@ public class FoPipe3D : FoShape3D, IPipe3D
         return this;
     }
 
-     public FoShape3D CreateTube(string name, double radius, List<Vector3> path)
+     public FoPipe3D CreateTube(string name, double radius, List<Vector3> path)
     {
         GeomType = "Tube";
         Radius = radius;
+        Key = name;
+        Path3D = path;
+        return this;
+    }
+     public FoPipe3D CreateLine(string name, List<Vector3> path)
+    {
+        GeomType = "Line";
         Key = name;
         Path3D = path;
         return this;
@@ -75,6 +82,7 @@ public class FoPipe3D : FoShape3D, IPipe3D
         {
             "Pipe" => AsPipe(),
             "Tube" => AsTube(),
+            "Line" => AsLine(),
             _ => AsBoundary(),
         };
         FinaliseValue3D(result);
@@ -106,6 +114,15 @@ public class FoPipe3D : FoShape3D, IPipe3D
         var mesh = CreateMesh(geometry);
         return mesh;
     }
+    public Mesh3D AsLine()
+    {
+        var list = new List<Vector3>(Path3D);
+        if ( Closed )
+            list.Add(Path3D[0]);
 
+        var geometry = new LineGeometry(list);
+        var mesh = CreateMesh(geometry);
+        return mesh;
+    }
 }
 

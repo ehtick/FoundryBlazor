@@ -47,6 +47,21 @@ public class FoGlyph3D : FoComponent
         set { this.transform = AssignTransform(value, transform); }
     }
 
+    public Transform3 GetTransform()
+    {
+        return Transform;
+    }
+
+    public Vector3 GetPosition()
+    {
+        return GetTransform().Position;
+    }
+
+    public Euler GetRotation()
+    {
+        return GetTransform().Rotation;
+    }
+
 
     private Action<Object3D, int, double>? OnAnimationUpdate { get; set; } = null;
 
@@ -107,10 +122,7 @@ public class FoGlyph3D : FoComponent
         return obj;
     }
 
-    //public bool HasChanged()
-    //{
-    //    return IsDirty; // || Transform.IsDirty;
-    //}
+
 
 
     public void SetAnimationUpdate(Action<Object3D, int, double> update)

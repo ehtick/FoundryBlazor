@@ -245,30 +245,29 @@ public class FoShape3D : FoGlyph3D, IShape3D
 
     public virtual Mesh3D AsMesh3D()
     {
-       var result = GeomType switch
+        var mesh3D = GeomType.ToLower() switch
         {
-            "Box" => AsBox(),
-            "Boundary" => AsBoundary(),
-            "Circle" => AsCircle(),
-            "Cylinder" => AsCylinder(),
-            "Sphere" => AsSphere(),
-            "Plane" => AsPlane(),
-            "Capsule" => AsCapsule(),
-            "Cone" => AsCone(),
-            //"Tube" => AsTube(),
-            "Ring" => AsRing(),
-            "Dodecahedron" => AsDodecahedron(),
-            "Icosahedron" => AsIcosahedron(),
-            "Octahedron" => AsOctahedron(),
-            "Tetrahedron" => AsTetrahedron(),
-            "TorusKnot" => AsTorusKnot(),
-            "Torus" => AsTorus(),
+            "box" => AsBox(),
+            "boundry" => AsBoundary(),
+            "circle" => AsCircle(),
+            "cylinder" => AsCylinder(),
+            "sphere" => AsSphere(),
+            "plane" => AsPlane(),
+            "capsule" => AsCapsule(),
+            "cone" => AsCone(),
+            "ring" => AsRing(),
+            "dodecahedron" => AsDodecahedron(),
+            "icosahedron" => AsIcosahedron(),
+            "octahedron" => AsOctahedron(),
+            "tetrahedron" => AsTetrahedron(),
+            "torusKnot" => AsTorusKnot(),
+            "torus" => AsTorus(),
             _ => AsBoundary(),
         };
 
-        FinaliseValue3D(result);
-
-        return result;
+        $"Created AsMesh3D {GeomType}".WriteSuccess();
+        FinaliseValue3D(mesh3D);
+        return mesh3D;
     }
 
     public Mesh3D AsBox()

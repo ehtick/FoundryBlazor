@@ -36,7 +36,6 @@ public interface IArena: ITreeNode
     (bool, Scene3D) CurrentScene();
 
     void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav);
-
 }
 public class FoArena3D : FoGlyph3D, IArena
 {
@@ -102,7 +101,6 @@ public class FoArena3D : FoGlyph3D, IArena
 
         return list;
     }
-
 
 
     public V AddShapeToStage<V>(V shape) where V : FoGlyph3D

@@ -63,7 +63,7 @@ public class Canvas3DComponentBase : ComponentBase, IAsyncDisposable
     {
         if (firstRender)
         {
-            $"Canvas3DComponentBase {SceneName} OnAfterRenderAsync".WriteInfo();
+            //$"Canvas3DComponentBase {SceneName} OnAfterRenderAsync".WriteInfo();
             var (found, scene) = GetActiveScene();
             if (found)
             {
@@ -109,8 +109,6 @@ public class Canvas3DComponentBase : ComponentBase, IAsyncDisposable
     {
         InvokeAsync(StateHasChanged);
         $"Canvas3DComponentBase OnRefreshUIEvent StateHasChanged {e.note}".WriteInfo();
-
-        //Render();
     }
 
 
