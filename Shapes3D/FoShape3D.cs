@@ -265,7 +265,7 @@ public class FoShape3D : FoGlyph3D, IShape3D
             _ => AsBoundary(),
         };
 
-        $"Created AsMesh3D {GeomType}".WriteSuccess();
+        //$"Created AsMesh3D {GeomType}".WriteSuccess();
         FinaliseValue3D(mesh3D);
         return mesh3D;
     }
