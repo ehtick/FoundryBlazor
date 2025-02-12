@@ -99,7 +99,7 @@ public class FoPipe3D : FoShape3D, IPipe3D
         if (!success) 
             return new Mesh3D();
 
-        var geometry = new TubeGeometry(Radius, Path3D!, 8, 10);
+        var geometry = new TubeGeometry(Radius, Path3D!, 8, 64);
         var mesh = CreateMesh(geometry);
         return mesh;
     }
@@ -110,7 +110,7 @@ public class FoPipe3D : FoShape3D, IPipe3D
         if ( Closed )
             list.Add(Path3D[0]);
 
-        var geometry = new TubeGeometry(Radius, list, 8, 10);
+        var geometry = new TubeGeometry(Radius, list, 8, 64);
         var mesh = CreateMesh(geometry);
         return mesh;
     }
