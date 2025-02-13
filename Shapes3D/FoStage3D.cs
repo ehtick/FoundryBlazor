@@ -1,6 +1,7 @@
 using BlazorThreeJS.Viewers;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
+using System.Xml.Linq;
 
 namespace FoundryBlazor.Shape;
 
@@ -134,6 +135,12 @@ public class FoStage3D : FoGlyph3D, IStage
     {
 
        return this;
+    }
+
+    public (bool success, T found) FindMember<T>(string name) where T : FoGlyph3D
+    {
+        var found = Members<T>().Where(x => x.GetName().Matches(name)).FirstOrDefault();
+        return (found != null, found!);
     }
 
     public (bool success, T found) FindShape<T>(string path) where T : FoGlyph3D
