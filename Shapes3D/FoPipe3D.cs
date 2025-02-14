@@ -34,12 +34,11 @@ public class FoPipe3D : FoShape3D, IPipe3D
         GeomType = "Pipe";
     }
 
-     public FoPipe3D CreatePipe(string name, double radius, List<Vector3> path)
+     public FoPipe3D CreatePipe(string name, double radius)
     {
         GeomType = "Pipe";
         Radius = radius;
         Key = name;
-        Path3D = path;
         return this;
     }
 
@@ -64,13 +63,14 @@ public class FoPipe3D : FoShape3D, IPipe3D
         var (f1, v1) = FromShape3D?.HitPosition() ?? (false, null!);
         var (f2, v2) = ToShape3D?.HitPosition() ?? (false, null!);
 
-        if (!f1 || !f2) return (false, null);
+        if (!f1 || !f2) 
+            return (false, null);
 
         var path = new List<Vector3>()
         {
             v1,
-            new(v1.X, v1.Y, v2.Z),
-            new(v2.X, v1.Y, v2.Z),
+            // new(v1.X, v1.Y, v2.Z),
+            // new(v2.X, v1.Y, v2.Z),
             v2
         };
         return (true, path);

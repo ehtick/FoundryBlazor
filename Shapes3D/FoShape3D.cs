@@ -208,10 +208,10 @@ public class FoShape3D : FoGlyph3D, IShape3D
     {
         var (success, _) = ComputeValue3D(scene);
 
-        if (success)
-            $"FoShape3D RefreshToScene {Name} {GeomType} ".WriteSuccess();
-        else
-            $"FoShape3D RefreshToScene NO Value3D".WriteError();
+        // if (success)
+        //     $"FoShape3D RefreshToScene {Name} {GeomType} ".WriteSuccess();
+        // else
+        //     $"FoShape3D RefreshToScene NO Value3D".WriteError();
 
         return success;
     }

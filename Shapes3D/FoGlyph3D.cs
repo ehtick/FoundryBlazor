@@ -143,7 +143,7 @@ public class FoGlyph3D : FoComponent
     }
 
 
-    public (bool success, Vector3 path) HitPosition()
+    public virtual (bool success, Vector3 path) HitPosition()
     {
         if ( Value3D != null)
         {
@@ -305,6 +305,7 @@ public class FoGlyph3D : FoComponent
 
     public virtual T AddSubGlyph3D<T>(T glyph) where T : FoGlyph3D
     {
+        //SetDirty(true);
         glyph.GetParent = () => this;
         if ( !Members<FoGlyph3D>().Contains(glyph))
             Add<FoGlyph3D>(glyph);

@@ -535,9 +535,7 @@ class Vector3 {
 	}
 
 	distanceTo( v ) {
-
 		return Math.sqrt( this.distanceToSquared( v ) );
-
 	}
 
 	distanceToSquared( v ) {
